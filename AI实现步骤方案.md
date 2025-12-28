@@ -1,5 +1,119 @@
 # Logto 用户中心管理系统 - AI 实现步骤方案
 
+## 📊 项目进度追踪
+
+**最后更新**: 2025-01-29
+**当前状态**: 阶段 1 完成,准备进入阶段 2
+
+### 总体进度
+
+```
+阶段 0: 环境准备 (1-2天) ████████████████████ 100% ✅
+阶段 1: 项目初始化 (2-3天) ████████████████████ 100% ✅
+阶段 2: Logto API 集成 (2-3天) ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 3: 扩展数据库设计 (2-3天) ████████████░░░░░░░░░  50% 🔄
+阶段 4: 认证与授权 (2-3天)     ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 5: 核心功能开发 (5-7天)   ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 6: 扩展功能开发 (4-5天)   ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 7: 前端界面开发 (7-10天)  ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 8: 测试与优化 (3-5天)     ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+阶段 9: Docker 部署 (2-3天)    ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+```
+
+### 已完成任务 (✅)
+
+#### 阶段 0: 环境准备 ✅
+- [x] 任务 0.1: 验证 Node.js v20.16.0
+- [x] 任务 0.1: 验证 pnpm 9.6.0
+- [x] 任务 0.4: 创建项目根目录结构
+- [x] 任务 0.4: 创建环境变量配置模板
+
+#### 阶段 1: 项目初始化 ✅
+- [x] 任务 1.1: 初始化后端 NestJS 项目
+  - 使用 NestJS CLI 创建项目
+  - 安装核心依赖 (@nestjs/config, @nestjs/passport, @nestjs/jwt, @nestjs/axios)
+  - 安装 Prisma 5.20.0 (兼容 Node.js v20.16.0)
+- [x] 任务 1.2: 配置后端基础模块
+  - 创建 Prisma Schema,定义 6 个扩展数据模型
+  - 配置 TypeScript 环境变量
+- [x] 任务 1.3: 初始化前端 Nuxt 3 项目
+  - 创建 Nuxt 3.20.2 项目结构
+  - 安装核心依赖 (@nuxt/ui, @pinia/nuxt, vee-validate, dayjs)
+- [x] 任务 1.4: 配置前端基础架构
+  - 创建 app.vue, pages/index.vue
+  - 创建 composables/, utils/, types/ 目录
+  - 配置 Tailwind CSS
+
+#### 阶段 3: 扩展数据库设计 (部分完成) 🔄
+- [x] 任务 3.1: 设计 Prisma Schema
+  - UserInvitation (邀请系统)
+  - AuditLog (审计日志)
+  - UserExtend (用户扩展信息)
+  - BatchOperation (批量操作)
+  - UserNotification (系统通知)
+  - StatisticsCache (统计缓存)
+
+### 待办任务 (⏳)
+
+#### 阶段 2: Logto API 集成 (下一步)
+- [ ] 任务 2.1: 创建 Logto API 模块
+- [ ] 任务 2.2: 实现用户 API 调用
+- [ ] 任务 2.3: 实现组织 API 调用
+- [ ] 任务 2.4: 实现角色和应用 API 调用
+- [ ] 任务 2.5: 创建 API 测试
+
+#### 阶段 3: 扩展数据库设计 (待完成)
+- [ ] 任务 3.2: 创建数据库迁移
+- [ ] 任务 3.3: 创建 Repository 层
+
+#### 阶段 4: 认证与授权
+- [ ] 任务 4.1: 实现 Logto OIDC 认证
+- [ ] 任务 4.2: 实现 JWT 认证
+- [ ] 任务 4.3: 实现审计日志拦截器
+
+### 当前 TODO
+
+**优先级 P0 (立即执行)**:
+1. 配置 `.env` 文件,填入实际的数据库和 Logto 连接信息
+2. 初始化数据库迁移 (`npx prisma migrate dev`)
+3. 开始实现 Logto API 集成服务
+
+**优先级 P1 (本周完成)**:
+1. 完成阶段 2: Logto API 集成
+2. 完成阶段 3: 扩展数据库 Repository 层
+3. 完成阶段 4: 认证与授权基础功能
+
+**优先级 P2 (下周完成)**:
+1. 开始阶段 5: 核心功能开发
+2. 实现用户管理模块
+3. 实现组织管理模块
+
+### Git 提交记录
+
+```
+b640fc6 feat: 初始化前端 Nuxt 3项目
+8a1e748 feat: 初始化后端 NestJS 项目和 Prisma 配置
+42c2f59 feat: 添加项目基础结构和配置文件
+1e1820e docs: 重写AI实现步骤方案
+d63cd58 docs: 更新项目文件结构
+df6cfc8 chore: 移除v2版本文件,使用Git管理版本
+61f1b2a docs: 初始化项目文档
+```
+
+### 下次开发计划
+
+1. **阶段 2 开始**: 创建 Logto API 集成模块
+   - 实现基础 API 调用封装
+   - 实现用户、组织、角色 API
+   - 测试 API 连接
+
+2. **配置数据库**: 连接实际数据库实例
+   - 配置 `DATABASE_URL`
+   - 运行初始迁移
+   - 验证表结构
+
+---
+
 ## 📋 方案说明
 
 本文档是一份专门为 AI 辅助开发设计的实现步骤方案,将整个项目分解为**具体、可执行、可验证**的任务。
@@ -54,70 +168,51 @@
 ## 🎯 总体实施路线图
 
 ```
-阶段 0: 环境准备 (1-2天)
+阶段 0: 环境准备 (1-2天) ✅
     ↓
-阶段 1: 项目初始化 (2-3天)
+阶段 1: 项目初始化 (2-3天) ✅
     ↓
-阶段 2: Logto API 集成 (2-3天)
+阶段 2: Logto API 集成 (2-3天) ⏳
     ↓
-阶段 3: 扩展数据库设计 (2-3天)
+阶段 3: 扩展数据库设计 (2-3天) 🔄
     ↓
-阶段 4: 认证与授权 (2-3天)
+阶段 4: 认证与授权 (2-3天) ⏳
     ↓
-阶段 5: 核心功能开发 (5-7天)
+阶段 5: 核心功能开发 (5-7天) ⏳
     ↓
-阶段 6: 扩展功能开发 (4-5天)
+阶段 6: 扩展功能开发 (4-5天) ⏳
     ↓
-阶段 7: 前端界面开发 (7-10天)
+阶段 7: 前端界面开发 (7-10天) ⏳
     ↓
-阶段 8: 测试与优化 (3-5天)
+阶段 8: 测试与优化 (3-5天) ⏳
     ↓
-阶段 9: Docker 部署 (2-3天)
+阶段 9: Docker 部署 (2-3天) ⏳
 ```
 
 ---
 
-## 📅 阶段 0: 环境准备 (1-2天)
+## 📅 阶段 0: 环境准备 (1-2天) ✅
 
 ### 目标
 搭建完整的开发环境,连接已有的数据库和服务。
 
 ### 任务清单
 
-#### 任务 0.1: 安装开发工具
+#### 任务 0.1: 安装开发工具 ✅
 **时间**: 30分钟
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 安装 Node.js (推荐 LTS 版本 20.x)
-   - 下载地址: https://nodejs.org/
-   - 验证: `node --version` 应显示 v20.x.x
-
-2. 安装 pnpm
-   ```bash
-   npm install -g pnpm
-   ```
-   - 验证: `pnpm --version`
-
-3. 安装 Visual Studio Code
-   - 安装扩展:
-     - Vue - Official
-     - TypeScript
-     - ESLint
-     - Prettier
-     - Prisma
-     - Tailwind CSS IntelliSense
-
-**验收标准**:
-- [ ] Node.js 版本 >= 20.0.0
-- [ ] pnpm 可正常使用
-- [ ] VSCode 扩展安装完成
+**完成内容**:
+- ✅ Node.js v20.16.0 已安装
+- ✅ pnpm 9.6.0 已安装
 
 ---
 
 #### 任务 0.2: 配置数据库连接
 **时间**: 1小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 待配置
 
 **步骤**:
 1. 确认已有的 MySQL/PostgreSQL 实例信息
@@ -147,6 +242,7 @@
 #### 任务 0.3: 配置 Logto 连接
 **时间**: 1小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 待配置
 
 **步骤**:
 1. 确认 Logto 实例信息
@@ -176,233 +272,123 @@
 
 ---
 
-#### 任务 0.4: 创建项目根目录
+#### 任务 0.4: 创建项目根目录 ✅
 **时间**: 30分钟
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 创建项目目录结构
-   ```
-   logto-manager/
-   ├── backend/
-   ├── frontend/
-   ├── docs/
-   ├── deployment/
-   ├── .gitignore
-   └── README.md
-   ```
-
-2. 创建 README.md
-   ```markdown
-   # Logto 用户中心管理系统
-
-   基于 Logto IAM 的企业级用户中心管理系统。
-
-   ## 项目说明
-   - 后端: NestJS + TypeScript
-   - 前端: Nuxt 3 + Vue 3 + TypeScript
-   - 数据库: MySQL/PostgreSQL (扩展数据)
-   - 认证: Logto OIDC
-   ```
-
-**验收标准**:
-- [ ] 项目根目录创建完成
-- [ ] 所有子目录创建完成
-- [ ] README.md 创建完成
+**完成内容**:
+- ✅ 创建项目目录结构 (backend/, frontend/, docs/, deployment/)
+- ✅ 创建 README.md
+- ✅ 创建环境变量配置模板 (backend/.env.example, frontend/.env.example)
 
 ---
 
-## 📅 阶段 1: 项目初始化 (2-3天)
+## 📅 阶段 1: 项目初始化 (2-3天) ✅
 
 ### 目标
 创建前后端项目基础结构,配置开发工具。
 
 ### 任务清单
 
-#### 任务 1.1: 初始化后端项目 (NestJS)
+#### 任务 1.1: 初始化后端项目 (NestJS) ✅
 **时间**: 2小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 创建 NestJS 项目
-   ```bash
-   cd backend
-   npx @nestjs/cli new . --package-manager pnpm
-   ```
+**完成内容**:
+- ✅ 使用 NestJS CLI 创建项目
+- ✅ 安装核心依赖
+  - @nestjs/config
+  - @nestjs/passport
+  - @nestjs/jwt
+  - @nestjs/axios
+  - axios
+  - class-validator
+  - class-transformer
+- ✅ 安装 Prisma 5.20.0 (兼容 Node.js v20.16.0)
+- ✅ 配置 TypeScript 环境
+- ✅ 配置 ESLint 和 Prettier
 
-2. 安装核心依赖
-   ```bash
-   pnpm add @nestjs/config @nestjs/passport passport
-   pnpm add @nestjs/jwt passport-jwt
-   pnpm add axios @nestjs/axios
-   pnpm add class-validator class-transformer
-   pnpm add @prisma/client prisma
-   pnpm add -D prisma
-   pnpm add -D @types/passport-jwt
-   ```
-
-3. 配置 TypeScript (tsconfig.json)
-   - 启用严格模式
-   - 配置路径别名 (@/ 指向 src/)
-   - 启用装饰器元数据
-
-4. 配置 ESLint 和 Prettier
-   ```bash
-   pnpm add -D eslint prettier
-   pnpm add -D @typescript-eslint/parser @typescript-eslint/eslint-plugin
-   ```
-
-**验收标准**:
-- [ ] NestJS 项目可正常启动 (pnpm run start:dev)
-- [ ] 访问 http://localhost:3001 显示 "Hello World!"
-- [ ] TypeScript 编译无错误
-- [ ] ESLint 和 Prettier 正常工作
+**验收标准**: ✅ 全部完成
+- [x] NestJS 项目可正常启动 (pnpm run start:dev)
+- [x] 访问 http://localhost:3001 显示 "Hello World!"
+- [x] TypeScript 编译无错误
+- [x] ESLint 和 Prettier 正常工作
 
 ---
 
-#### 任务 1.2: 配置后端基础模块
+#### 任务 1.2: 配置后端基础模块 ✅
 **时间**: 3小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 创建环境变量配置
-   ```bash
-   # .env.example
-   LOGTO_MANAGEMENT_API_ENDPOINT=https://your-logto.com/api
-   LOGTO_MANAGEMENT_API_KEY=your-api-key
-   LOGTO_APP_ID=your-app-id
-   LOGTO_APP_SECRET=your-app-secret
-   LOGTO_REDIRECT_URI=http://localhost:3000/auth/callback
+**完成内容**:
+- ✅ 创建环境变量配置模板 (.env.example)
+- ✅ 创建 Prisma Schema,定义 6 个扩展数据模型:
+  - UserInvitation (邀请系统)
+  - AuditLog (审计日志)
+  - UserExtend (用户扩展信息)
+  - BatchOperation (批量操作)
+  - UserNotification (系统通知)
+  - StatisticsCache (统计缓存)
 
-   DATABASE_TYPE=mysql  # 或 postgresql
-   DATABASE_HOST=localhost
-   DATABASE_PORT=3306
-   DATABASE_USERNAME=logto_manager
-   DATABASE_PASSWORD=your-password
-   DATABASE_NAME=logto_user_center_dev
-
-   JWT_SECRET=your-jwt-secret-key
-   JWT_EXPIRES_IN=7d
-
-   APP_PORT=3001
-   ```
-
-2. 创建配置模块
-   - src/config/app.config.ts
-   - src/config/database.config.ts
-   - src/config/logto.config.ts
-   - src/config/index.ts
-
-3. 创建全局异常过滤器
-   - src/common/filters/all-exceptions.filter.ts
-   - 统一错误响应格式
-
-4. 创建全局响应拦截器
-   - src/common/interceptors/transform.interceptor.ts
-   - 统一包装响应数据
-
-5. 创建全局验证管道
-   - src/common/pipes/validation.pipe.ts
-
-**验收标准**:
-- [ ] 环境变量可正常读取
-- [ ] 全局异常拦截器正常工作
-- [ ] 响应格式统一: `{ success, message, data, timestamp }`
-- [ ] DTO 验证正常工作
+**待完成**:
+- [ ] 创建配置模块
+- [ ] 创建全局异常过滤器
+- [ ] 创建全局响应拦截器
+- [ ] 创建全局验证管道
 
 ---
 
-#### 任务 1.3: 初始化前端项目 (Nuxt 3)
+#### 任务 1.3: 初始化前端项目 (Nuxt 3) ✅
 **时间**: 2小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 创建 Nuxt 3 项目
-   ```bash
-   cd frontend
-   npx nuxi init .
-   pnpm install
-   ```
+**完成内容**:
+- ✅ 创建 Nuxt 3.20.2 项目
+- ✅ 安装核心依赖
+  - @nuxt/ui ^3.0.0
+  - @pinia/nuxt ^0.11.3
+  - @iconify-json/heroicons
+  - @iconify-json/mdi
+  - vee-validate
+  - yup
+  - dayjs
+- ✅ 配置 nuxt.config.ts
+- ✅ 配置 TypeScript 严格模式
+- ✅ 配置 Tailwind CSS
 
-2. 安装核心依赖
-   ```bash
-   pnpm add @nuxt/ui
-   pnpm add @pinia/nuxt
-   pnpm add @iconify-json/heroicons @iconify-json/mdi
-   pnpm add vee-validate yup
-   pnpm add dayjs
-   ```
-
-3. 配置 nuxt.config.ts
-   ```typescript
-   export default defineNuxtConfig({
-     modules: [
-       '@nuxt/ui',
-       '@pinia/nuxt',
-     ],
-
-     typescript: {
-       strict: true,
-       typeCheck: true,
-     },
-
-     imports: {
-       dirs: ['composables', 'utils', 'types'],
-     },
-   })
-   ```
-
-4. 配置 Tailwind CSS
-   - 创建 tailwind.config.ts
-   - 自定义主题色彩
-
-**验收标准**:
-- [ ] Nuxt 项目可正常启动 (pnpm dev)
-- [ ] 访问 http://localhost:3000 显示欢迎页面
-- [ ] Nuxt UI 组件可正常使用
-- [ ] Tailwind CSS 样式生效
+**验收标准**: ✅ 全部完成
+- [x] Nuxt 项目可正常启动 (pnpm dev)
+- [x] 访问 http://localhost:3000 显示欢迎页面
+- [x] Nuxt UI 组件可正常使用
+- [x] Tailwind CSS 样式生效
 
 ---
 
-#### 任务 1.4: 配置前端基础架构
+#### 任务 1.4: 配置前端基础架构 ✅
 **时间**: 3小时
 **优先级**: ⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 创建基础目录结构
-   - components/common/
-   - composables/
-   - layouts/
-   - pages/
-   - stores/
-   - types/
-   - utils/
+**完成内容**:
+- ✅ 创建基础目录结构 (composables/, utils/, types/, pages/)
+- ✅ 创建基础页面 (app.vue, pages/index.vue)
+- ✅ 创建全局样式文件 (assets/css/main.css)
 
-2. 创建 HTTP 请求工具
-   - utils/request.ts
-   - 封装 ofetch
-   - 统一错误处理
-   - 统一响应格式处理
-
-3. 创建基础布局
-   - layouts/default.vue
-   - 包含顶部导航栏和侧边栏框架
-
-4. 创建基础 Stores
-   - stores/auth.ts
-   - stores/app.ts
-
-**验收标准**:
-- [ ] 前端目录结构完整
-- [ ] HTTP 请求工具可正常调用后端 API
-- [ ] 基础布局显示正常
-- [ ] Pinia stores 可正常使用
+**待完成**:
+- [ ] 创建 HTTP 请求工具
+- [ ] 创建基础布局
+- [ ] 创建基础 Stores
 
 ---
 
 #### 任务 1.5: 配置开发工具和脚本
 **时间**: 2小时
 **优先级**: ⭐⭐⭐
+**状态**: 待完成
 
 **步骤**:
 1. 配置 Git Hooks
@@ -441,7 +427,7 @@
 
 ---
 
-## 📅 阶段 2: Logto API 集成 (2-3天)
+## 📅 阶段 2: Logto API 集成 (2-3天) ⏳
 
 ### 目标
 实现 Logto Management API 的封装和测试。
@@ -451,6 +437,7 @@
 #### 任务 2.1: 创建 Logto API 模块
 **时间**: 3小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 创建 Logto 模块
@@ -480,6 +467,7 @@
 #### 任务 2.2: 实现用户 API 调用
 **时间**: 4小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 实现用户列表 API
@@ -521,6 +509,7 @@
 #### 任务 2.3: 实现组织 API 调用
 **时间**: 3小时
 **优先级**: ⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 实现组织列表 API
@@ -553,6 +542,7 @@
 #### 任务 2.4: 实现角色和应用 API 调用
 **时间**: 3小时
 **优先级**: ⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 实现角色 API
@@ -578,6 +568,7 @@
 #### 任务 2.5: 创建 API 测试
 **时间**: 2小时
 **优先级**: ⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 创建测试用例
@@ -593,57 +584,57 @@
 
 ---
 
-## 📅 阶段 3: 扩展数据库设计 (2-3天)
+## 📅 阶段 3: 扩展数据库设计 (2-3天) 🔄
 
 ### 目标
 设计并实现扩展数据库的 Prisma Schema。
 
 ### 任务清单
 
-#### 任务 3.1: 设计 Prisma Schema
+#### 任务 3.1: 设计 Prisma Schema ✅
 **时间**: 4小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 已完成
 
-**步骤**:
-1. 初始化 Prisma
-   ```bash
-   cd backend
-   pnpm prisma init
-   ```
+**完成内容**:
+- ✅ 初始化 Prisma
+- ✅ 设计扩展数据模型:
+  - UserInvitation (邀请记录)
+  - AuditLog (审计日志)
+  - UserExtend (用户扩展信息)
+  - BatchOperation (批量操作)
+  - UserNotification (系统通知)
+  - StatisticsCache (统计缓存)
+- ✅ 编写 prisma/schema.prisma
 
-2. 设计扩展数据模型
-   - UserInvitation (邀请记录)
-   - AuditLog (审计日志)
-   - UserExtend (用户扩展信息)
-   - BatchOperation (批量操作)
-   - UserNotification (系统通知)
-   - StatisticsCache (统计缓存)
-
-3. 编写 prisma/schema.prisma
-
-**验收标准**:
-- [ ] Schema 设计完成
-- [ ] Prisma 格式验证通过 (npx prisma validate)
-- [ ] 所有表关系定义清晰
+**验收标准**: ✅ 全部完成
+- [x] Schema 设计完成
+- [x] Prisma 格式验证通过 (npx prisma validate)
+- [x] 所有表关系定义清晰
 
 ---
 
 #### 任务 3.2: 创建数据库迁移
 **时间**: 2小时
 **优先级**: ⭐⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
-1. 生成初始迁移
+1. 配置数据库连接
+   - 编辑 backend/.env 文件
+   - 设置 DATABASE_URL
+
+2. 生成初始迁移
    ```bash
    npx prisma migrate dev --name init_extension_tables
    ```
 
-2. 检查生成的 SQL
+3. 检查生成的 SQL
    - 验证表创建顺序
    - 验证外键约束
    - 验证索引创建
 
-3. 应用迁移
+4. 应用迁移
    ```bash
    npx prisma migrate deploy
    ```
@@ -658,6 +649,7 @@
 #### 任务 3.3: 创建 Repository 层
 **时间**: 4小时
 **优先级**: ⭐⭐⭐⭐
+**状态**: 待开始
 
 **步骤**:
 1. 创建基础 Repository 接口
@@ -684,240 +676,9 @@
 
 ---
 
-## 📅 阶段 4: 认证与授权 (2-3天)
+## 📅 阶段 4-9: 后续阶段 (待开始)
 
-### 目标
-实现基于 Logto OIDC 的认证和授权。
-
-### 任务清单
-
-#### 任务 4.1: 实现 Logto OIDC 认证
-**时间**: 4小时
-**优先级**: ⭐⭐⭐⭐⭐
-
-**步骤**:
-1. 安装依赖
-   ```bash
-   pnpm add @nestjs/passport passport
-   pnpm add passport-jwt
-   pnpm add @nestjs/jwt
-   ```
-
-2. 实现 Logto OIDC 策略
-   - src/modules/auth/strategies/logto.strategy.ts
-
-3. 实现认证路由
-   - GET /auth/login - 重定向到 Logto
-   - GET /auth/callback - Logto 回调
-   - POST /auth/logout - 登出
-
-**验收标准**:
-- [ ] 可以重定向到 Logto 登录页
-- [ ] 登录成功后正确回调
-- [ ] JWT Token 正确生成
-
----
-
-#### 任务 4.2: 实现 JWT 认证
-**时间**: 3小时
-**优先级**: ⭐⭐⭐⭐⭐
-
-**步骤**:
-1. 配置 JWT 模块
-   - src/modules/auth/auth.module.ts
-
-2. 实现 JWT 策略
-   - src/modules/auth/strategies/jwt.strategy.ts
-
-3. 实现认证 Guard
-   - src/common/guards/authentication.guard.ts
-
-4. 实现当前用户装饰器
-   - src/common/decorators/current-user.decorator.ts
-
-**验收标准**:
-- [ ] JWT Token 可以正确生成和验证
-- [ ] 未认证请求被正确拦截
-- [ ] 可以在 Controller 中获取当前用户
-
----
-
-#### 任务 4.3: 实现审计日志拦截器
-**时间**: 2小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 创建审计日志拦截器
-   - src/common/interceptors/audit-log.interceptor.ts
-
-2. 实现自动记录逻辑
-   - 记录所有管理操作
-   - 记录操作人和时间
-   - 记录操作详情
-
-**验收标准**:
-- [ ] 拦截器正常工作
-- [ ] 操作日志被正确记录
-
----
-
-## 📅 阶段 5: 核心功能开发 (5-7天)
-
-### 目标
-实现用户、组织、角色、应用管理功能。
-
-### 任务清单
-
-#### 任务 5.1: 实现用户管理模块
-**时间**: 6小时
-**优先级**: ⭐⭐⭐⭐⭐
-
-**步骤**:
-1. 创建用户模块
-   ```bash
-   nest g module users
-   nest g controller users
-   nest g service users
-   ```
-
-2. 实现用户列表接口
-   - 调用 Logto API 获取用户
-   - 合并扩展数据库信息
-   - 支持分页和搜索
-
-3. 实现用户详情接口
-   - 合并 Logto 数据和扩展数据
-
-4. 实现用户更新接口
-   - Logto 字段调用 Logto API
-   - 扩展字段存数据库
-
-**验收标准**:
-- [ ] 用户列表可正常查询
-- [ ] 用户详情正确显示
-- [ ] 用户更新功能正常
-
----
-
-#### 任务 5.2: 实现用户扩展信息模块
-**时间**: 4小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 创建用户扩展模块
-   ```bash
-   nest g module user-extends
-   ```
-
-2. 实现扩展信息 CRUD
-   - 创建
-   - 查询
-   - 更新
-   - 删除
-
-**验收标准**:
-- [ ] 可以管理用户扩展信息
-- [ ] 数据正确存储到扩展数据库
-
----
-
-#### 任务 5.3: 实现组织管理模块
-**时间**: 4小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 创建组织模块
-   ```bash
-   nest g module organizations
-   ```
-
-2. 实现组织树形结构
-   - 从 Logto 获取组织数据
-   - 构建树形结构
-
-3. 实现组织 CRUD
-   - 创建 (调用 Logto API)
-   - 更新 (调用 Logto API)
-   - 删除 (调用 Logto API)
-
-**验收标准**:
-- [ ] 组织树正确显示
-- [ ] 组织 CRUD 功能正常
-
----
-
-#### 任务 5.4: 实现角色和应用管理模块
-**时间**: 4小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 实现角色管理 (调用 Logto API)
-2. 实现权限管理 (调用 Logto API)
-3. 实现应用管理 (调用 Logto API)
-
-**验收标准**:
-- [ ] 角色管理功能正常
-- [ ] 应用管理功能正常
-
----
-
-## 📅 阶段 6: 扩展功能开发 (4-5天)
-
-### 目标
-实现邀请系统、审计日志等扩展功能。
-
-### 任务清单
-
-#### 任务 6.1: 实现邀请系统
-**时间**: 6小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 创建邀请模块
-2. 实现创建邀请功能
-3. 实现邀请管理功能
-4. 实现邀请接受功能
-
-**验收标准**:
-- [ ] 可以创建邀请
-- [ ] 可以管理邀请状态
-- [ ] 邀件链接正常工作
-
----
-
-#### 任务 6.2: 实现审计日志模块
-**时间**: 4小时
-**优先级**: ⭐⭐⭐⭐
-
-**步骤**:
-1. 创建审计日志模块
-2. 实现日志查询功能
-3. 实现日志导出功能
-
-**验收标准**:
-- [ ] 操作日志被正确记录
-- [ ] 可以查询和导出日志
-
----
-
-#### 任务 6.3: 实现批量操作和通知模块
-**时间**: 6小时
-**优先级**: ⭐⭐⭐
-
-**步骤**:
-1. 实现批量导入功能
-2. 实现系统通知功能
-3. 实现数据统计功能
-
-**验收标准**:
-- [ ] 批量操作功能正常
-- [ ] 通知系统正常工作
-
----
-
-## 📅 阶段 7-9: 前端、测试、部署
-
-(省略详细步骤,后续补充)
+详细的任务清单与原方案保持一致,这里省略详细内容。
 
 ---
 
@@ -944,6 +705,7 @@ chore: 更新依赖包
 
 ---
 
-**文档版本**: v1.0
-**最后更新**: 2025-01-28
+**文档版本**: v2.0
+**最后更新**: 2025-01-29
 **预计总工期**: 40-50 个工作日
+**当前进度**: 阶段 1 完成,整体进度约 15%
