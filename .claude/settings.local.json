@@ -4,7 +4,14 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(node:*)",
+      "Bash(pnpm --version)",
+      "Bash(npx:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm remove:*)"
     ]
   }
 }

@@ -1,0 +1,189 @@
+// Prisma Schema for Logto User Center Extension Database
+// 注意: 此数据库仅存储扩展功能数据,不存储 Logto 核心数据
+// Logto 核心数据(用户、组织、角色等)通过 Management API 访问
+
+generator client {
+  provider = "prisma_client_js"
+}
+
+datasource db {
+  provider = "postgresql" // 可选: postgresql 或 mysql
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 邀请系统
+// ============================================
+
+model UserInvitation {
+  id              String              @id @default(cuid())
+  email           String
+  token           String              @unique
+  organizationId  String?             // Logto Organization ID
+  roleIds         String              // JSON: Logto Role IDs
+  status          InvitationStatus    @default(PENDING)
+  invitedBy       String              // Logto User ID
+  message         String?             @db.Text
+  acceptedBy      String?             // Logto User ID
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@map("user_invitations")
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+// ============================================
+// 审计日志
+// ============================================
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String?   // Logto User ID
+  userName        String?   // 冗余字段,方便查询
+  action          String    // user.create, org.update, etc.
+  resource        String    // user, organization, role, etc.
+  resourceId      String?   // Logto Resource ID
+  resourceName    String?   // 冗余字段
+  details         String?   @db.Text // JSON: 操作详情
+  ipAddress       String?
+  userAgent       String?   @db.Text
+  success         Boolean   @default(true)
+  errorMessage    String?   @db.Text
+  executionTime   Int?      // 毫秒
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// 用户扩展信息
+// ============================================
+
+model UserExtend {
+  userId                  String    @id // Logto User ID
+  employeeId              String?   @unique
+  department              String?
+  position                String?
+  managerId               String?   // Logto User ID
+  workPhone               String?
+  address                 String?   @db.Text
+  bio                     String?   @db.Text
+  customFields            String?   @db.Text // JSON
+  preferences            String?   @db.Text // JSON
+  lastLoginIp             String?
+  lastLoginLocation       String?
+  profileCompleted        Boolean   @default(false)
+  notes                   String?   @db.Text
+  internalTags            String?   @db.Text // JSON
+  riskLevel               String    @default("low")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([department])
+  @@index([managerId])
+  @@map("user_extends")
+}
+
+// ============================================
+// 批量操作
+// ============================================
+
+model BatchOperation {
+  id              String           @id @default(cuid())
+  type            OperationType
+  status          OperationStatus  @default(PENDING)
+  total           Int              @default(0)
+  processed       Int              @default(0)
+  success         Int              @default(0)
+  failed          Int              @default(0)
+  fileUrl         String?
+  errorFileUrl    String?
+  resultSummary   String?          @db.Text // JSON
+  createdBy       String           // Logto User ID
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  @@index([status])
+  @@index([createdBy])
+  @@map("batch_operations")
+}
+
+enum OperationType {
+  USER_IMPORT
+  USER_EXPORT
+  USER_BULK_UPDATE
+  ORGANIZATION_IMPORT
+  ROLE_IMPORT
+}
+
+enum OperationStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ============================================
+// 系统通知
+// ============================================
+
+model UserNotification {
+  id              String              @id @default(cuid())
+  userId          String              // Logto User ID
+  type            NotificationType
+  title           String
+  message         String              @db.Text
+  link            String?
+  read            Boolean             @default(false)
+  readAt          DateTime?
+  metadata        String?             @db.Text // JSON
+  createdAt       DateTime            @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@map("user_notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  INVITE
+  SYSTEM
+}
+
+// ============================================
+// 统计缓存
+// ============================================
+
+model StatisticsCache {
+  id              String    @id @default(cuid())
+  key             String    @unique
+  value           String    @db.Text // JSON
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([key])
+  @@index([expiresAt])
+  @@map("statistics_cache")
+}
