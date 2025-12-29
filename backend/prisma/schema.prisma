@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // 可选: postgresql 或 mysql
+  provider = "sqlite" // 可选: postgresql, mysql, sqlite
   url      = env("DATABASE_URL")
 }
 
@@ -21,9 +21,9 @@ model UserInvitation {
   token           String              @unique
   organizationId  String?             // Logto Organization ID
   roleIds         String              // JSON: Logto Role IDs
-  status          InvitationStatus    @default(PENDING)
+  status          String              @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
   invitedBy       String              // Logto User ID
-  message         String?             @db.Text
+  message         String?
   acceptedBy      String?             // Logto User ID
   expiresAt       DateTime
   acceptedAt      DateTime?
@@ -34,13 +34,6 @@ model UserInvitation {
   @@index([token])
   @@index([status])
   @@map("user_invitations")
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-  CANCELLED
 }
 
 // ============================================
@@ -55,11 +48,11 @@ model AuditLog {
   resource        String    // user, organization, role, etc.
   resourceId      String?   // Logto Resource ID
   resourceName    String?   // 冗余字段
-  details         String?   @db.Text // JSON: 操作详情
+  details         String?   // JSON: 操作详情
   ipAddress       String?
-  userAgent       String?   @db.Text
+  userAgent       String?
   success         Boolean   @default(true)
-  errorMessage    String?   @db.Text
+  errorMessage    String?
   executionTime   Int?      // 毫秒
   createdAt       DateTime  @default(now())
 
@@ -81,15 +74,15 @@ model UserExtend {
   position                String?
   managerId               String?   // Logto User ID
   workPhone               String?
-  address                 String?   @db.Text
-  bio                     String?   @db.Text
-  customFields            String?   @db.Text // JSON
-  preferences            String?   @db.Text // JSON
+  address                 String?
+  bio                     String?
+  customFields            String?   // JSON
+  preferences            String?   // JSON
   lastLoginIp             String?
   lastLoginLocation       String?
   profileCompleted        Boolean   @default(false)
-  notes                   String?   @db.Text
-  internalTags            String?   @db.Text // JSON
+  notes                   String?
+  internalTags            String?   // JSON
   riskLevel               String    @default("low")
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
@@ -105,15 +98,15 @@ model UserExtend {
 
 model BatchOperation {
   id              String           @id @default(cuid())
-  type            OperationType
-  status          OperationStatus  @default(PENDING)
+  type            String           // USER_IMPORT, USER_EXPORT, USER_BULK_UPDATE, ORGANIZATION_IMPORT, ROLE_IMPORT
+  status          String           @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
   total           Int              @default(0)
   processed       Int              @default(0)
   success         Int              @default(0)
   failed          Int              @default(0)
   fileUrl         String?
   errorFileUrl    String?
-  resultSummary   String?          @db.Text // JSON
+  resultSummary   String?          // JSON
   createdBy       String           // Logto User ID
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -125,22 +118,6 @@ model BatchOperation {
   @@map("batch_operations")
 }
 
-enum OperationType {
-  USER_IMPORT
-  USER_EXPORT
-  USER_BULK_UPDATE
-  ORGANIZATION_IMPORT
-  ROLE_IMPORT
-}
-
-enum OperationStatus {
-  PENDING
-  RUNNING
-  COMPLETED
-  FAILED
-  CANCELLED
-}
-
 // ============================================
 // 系统通知
 // ============================================
@@ -148,27 +125,18 @@ enum OperationStatus {
 model UserNotification {
   id              String              @id @default(cuid())
   userId          String              // Logto User ID
-  type            NotificationType
+  type            String              // INFO, SUCCESS, WARNING, ERROR, INVITE, SYSTEM
   title           String
-  message         String              @db.Text
+  message         String
   link            String?
   read            Boolean             @default(false)
   readAt          DateTime?
-  metadata        String?             @db.Text // JSON
+  metadata        String?             // JSON
   createdAt       DateTime            @default(now())
 
   @@index([userId])
   @@index([read])
   @@map("user_notifications")
-}
-
-enum NotificationType {
-  INFO
-  SUCCESS
-  WARNING
-  ERROR
-  INVITE
-  SYSTEM
 }
 
 // ============================================
@@ -178,7 +146,7 @@ enum NotificationType {
 model StatisticsCache {
   id              String    @id @default(cuid())
   key             String    @unique
-  value           String    @db.Text // JSON
+  value           String    // JSON
   expiresAt       DateTime
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

@@ -1,28 +1,34 @@
-import { IsString, IsNumber, IsOptional, Min, Max } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min, Max, IsBoolean, IsIn } from 'class-validator';
 
 /**
  * 数据库配置
  */
 export class DatabaseConfig {
   @IsString()
-  type: 'mysql' | 'postgresql';
+  @IsIn(['mysql', 'postgresql', 'sqlite'])
+  type: 'mysql' | 'postgresql' | 'sqlite';
 
   @IsString()
-  host: string;
+  @IsOptional()
+  host?: string;
 
   @IsNumber()
   @Min(1)
   @Max(65535)
-  port: number;
+  @IsOptional()
+  port?: number;
 
   @IsString()
-  username: string;
+  @IsOptional()
+  username?: string;
 
   @IsString()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsString()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsOptional()
@@ -37,4 +43,3 @@ export class DatabaseConfig {
   url?: string;
 }
 
-import { IsBoolean } from 'class-validator';

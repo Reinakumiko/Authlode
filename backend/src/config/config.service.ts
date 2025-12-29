@@ -74,6 +74,12 @@ export class ConfigService {
     }
 
     const db = this.database;
+
+    // SQLite 不需要其他配置
+    if (db.type === 'sqlite') {
+      return db.url || 'file:./dev.db';
+    }
+
     const ssl = db.ssl ? '?sslmode=require' : '';
 
     if (db.type === 'postgresql') {
@@ -165,18 +171,34 @@ export class ConfigService {
    * 验证必需的配置项
    */
   private validateConfig(): void {
+    const dbType = this.configService.get<string>('DATABASE_TYPE');
+    const isSqlite = dbType === 'sqlite';
+
     const requiredConfigs = [
-      'LOGTO_MANAGEMENT_API_ENDPOINT',
-      'LOGTO_MANAGEMENT_API_KEY',
-      'DATABASE_TYPE',
-      'DATABASE_HOST',
-      'DATABASE_PORT',
-      'DATABASE_USERNAME',
-      'DATABASE_PASSWORD',
-      'DATABASE_NAME',
       'JWT_SECRET',
       'APP_PORT',
     ];
+
+    // 只在非 SQLite 模式下要求 Logto API 配置
+    // SQLite 模式主要用于开发测试,可以先不配置 Logto
+    if (!isSqlite || this.configService.get<string>('LOGTO_MANAGEMENT_API_ENDPOINT')) {
+      requiredConfigs.push(
+        'LOGTO_MANAGEMENT_API_ENDPOINT',
+        'LOGTO_MANAGEMENT_API_KEY',
+      );
+    }
+
+    // 根据数据库类型确定必需的配置
+    if (!isSqlite) {
+      requiredConfigs.push(
+        'DATABASE_TYPE',
+        'DATABASE_HOST',
+        'DATABASE_PORT',
+        'DATABASE_USERNAME',
+        'DATABASE_PASSWORD',
+        'DATABASE_NAME',
+      );
+    }
 
     const missingConfigs: string[] = [];
 

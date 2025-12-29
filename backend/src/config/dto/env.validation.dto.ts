@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEmail, IsUrl, Min, Max } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEmail, IsUrl, Min, Max, IsIn } from 'class-validator';
 
 /**
  * 环境变量验证 DTO
@@ -12,10 +12,12 @@ export class EnvironmentVariables {
     require_protocol: true,
     allow_underscores: true,
   })
-  LOGTO_MANAGEMENT_API_ENDPOINT: string;
+  @IsOptional()
+  LOGTO_MANAGEMENT_API_ENDPOINT?: string;
 
   @IsString()
-  LOGTO_MANAGEMENT_API_KEY: string;
+  @IsOptional()
+  LOGTO_MANAGEMENT_API_KEY?: string;
 
   @IsString()
   @IsOptional()
@@ -43,24 +45,31 @@ export class EnvironmentVariables {
   // 数据库配置
   // ============================================
   @IsString()
-  DATABASE_TYPE: 'mysql' | 'postgresql';
+  @IsIn(['mysql', 'postgresql', 'sqlite'])
+  @IsOptional()
+  DATABASE_TYPE?: 'mysql' | 'postgresql' | 'sqlite';
 
   @IsString()
-  DATABASE_HOST: string;
+  @IsOptional()
+  DATABASE_HOST?: string;
 
   @IsNumber()
   @Min(1)
   @Max(65535)
-  DATABASE_PORT: number;
+  @IsOptional()
+  DATABASE_PORT?: number;
 
   @IsString()
-  DATABASE_USERNAME: string;
+  @IsOptional()
+  DATABASE_USERNAME?: string;
 
   @IsString()
-  DATABASE_PASSWORD: string;
+  @IsOptional()
+  DATABASE_PASSWORD?: string;
 
   @IsString()
-  DATABASE_NAME: string;
+  @IsOptional()
+  DATABASE_NAME?: string;
 
   // ============================================
   // Redis 配置 (可选)
