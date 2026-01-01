@@ -1,0 +1,44 @@
+<template>
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="flex items-center justify-between px-6 py-4">
+      <!-- Logo 和标题 -->
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
+          <UIcon name="i-heroicons-shield-check" class="w-5 h-5 text-white" />
+        </div>
+        <h1 class="text-xl font-bold text-gray-900">Logto 用户中心</h1>
+      </div>
+
+      <!-- 右侧操作区 -->
+      <div class="flex items-center space-x-4">
+        <!-- 通知图标 -->
+        <UButton
+          icon="i-heroicons-bell"
+          color="gray"
+          variant="ghost"
+          aria-label="通知"
+        />
+
+        <!-- 用户菜单 -->
+        <UButton
+          icon="i-heroicons-user-circle"
+          color="gray"
+          variant="ghost"
+          aria-label="用户菜单"
+        >
+          <template #trailing>
+            <UIcon name="i-heroicons-chevron-down" class="w-4 h-4" />
+          </template>
+        </UButton>
+      </div>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+// 临时模拟用户数据,后续从认证状态获取
+const currentUser = {
+  name: '管理员',
+  email: 'admin@example.com',
+}
+</script>

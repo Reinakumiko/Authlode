@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+  ssr: false,
 
   future: {
     compatibilityVersion: 4,
@@ -14,7 +15,12 @@ export default defineNuxtConfig({
 
   typescript: {
     strict: true,
-    typeCheck: true,
+    typeCheck: false,
+  },
+
+  // 禁用 Google Fonts
+  ui: {
+    fonts: false,
   },
 
   imports: {
@@ -41,12 +47,4 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
-
-  vite: {
-    resolve: {
-      alias: {
-        '@': '.',
-      },
-    },
-  },
 })

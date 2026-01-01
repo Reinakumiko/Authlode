@@ -6,6 +6,29 @@
 
 本项目是一个**独立的用户中心管理应用**,基于 Logto IAM (身份与访问管理) 作为底层数据源,提供企业级的用户、组织、权限、应用管理功能。
 
+### 当前状态
+
+✅ **开发中** - 阶段 0-3 已完成 (约 25% 整体进度)
+
+**已实现**:
+- ✅ NestJS 后端基础架构
+- ✅ Nuxt 3 前端基础架构
+- ✅ Logto Management API 集成模块
+- ✅ SQLite 扩展数据库 (开发环境)
+- ✅ Repository 数据访问层
+- ✅ 配置管理系统
+
+**进行中**:
+- 🔄 前端页面开发
+- ⏳ API 路由和控制器
+- ⏳ 用户认证与授权
+
+**已知问题**:
+- ⚠️ Windows 环境下 Prisma Client 生成问题 (已实现临时方案)
+- ⚠️ Logto API 配置缺失 (需要配置真实凭据或修改验证逻辑)
+
+详细进度请查看 [开发日志](docs/development-log.md) 和 [AI实现步骤方案](AI实现步骤方案.md)。
+
 ### 核心特性
 
 - 🔐 **基于 Logto OIDC** 的身份认证
@@ -25,12 +48,14 @@
 - **API**: RESTful + Swagger 文档
 
 #### 前端
-- **框架**: Nuxt 3 + Vue 3 + TypeScript
-- **UI**: Nuxt UI + Tailwind CSS
+- **框架**: Nuxt 4.2.2 + Vue 3.5.13 + TypeScript
+- **UI**: Nuxt UI 4.3.0 + Tailwind CSS 4.0.0
 - **状态**: Pinia
+- **图标**: Heroicons (@iconify-json/heroicons)
 
 #### 数据库
-- **扩展数据**: MySQL 8.0+ / PostgreSQL 15+
+- **开发环境**: SQLite (零配置)
+- **生产环境**: MySQL 8.0+ / PostgreSQL 15+
 - **缓存**: Redis 7+ (可选)
 
 ### 数据架构
