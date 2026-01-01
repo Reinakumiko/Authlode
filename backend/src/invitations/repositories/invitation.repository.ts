@@ -3,12 +3,21 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserInvitation,
-  InvitationStatus,
-  Prisma,
-} from '@prisma/client';
+  PrismaTypes,
+} from '../../prisma-types';
 
-export type CreateInvitationInput = Prisma.UserInvitationCreateInput;
-export type UpdateInvitationInput = Prisma.UserInvitationUpdateInput;
+export type CreateInvitationInput = PrismaTypes.UserInvitationCreateInput;
+export type UpdateInvitationInput = PrismaTypes.UserInvitationUpdateInput;
+
+// Invitation status values (from schema)
+export const InvitationStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type InvitationStatusType = typeof InvitationStatus[keyof typeof InvitationStatus];
 
 @Injectable()
 export class InvitationRepository extends BaseRepository<
@@ -59,7 +68,7 @@ export class InvitationRepository extends BaseRepository<
    * 根据状态查找邀请
    */
   async findByStatus(
-    status: InvitationStatus,
+    status: InvitationStatusType,
     params?: {
       page?: number;
       pageSize?: number;
@@ -118,7 +127,7 @@ export class InvitationRepository extends BaseRepository<
    */
   async updateStatus(
     id: string,
-    status: InvitationStatus,
+    status: InvitationStatusType,
   ): Promise<UserInvitation> {
     try {
       const result = await this.prisma.userInvitation.update({

@@ -3,11 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   AuditLog,
-  Prisma,
-} from '@prisma/client';
+  PrismaTypes,
+} from '../../prisma-types';
 
-export type CreateAuditLogInput = Prisma.AuditLogCreateInput;
-export type UpdateAuditLogInput = Prisma.AuditLogUpdateInput;
+export type CreateAuditLogInput = PrismaTypes.AuditLogCreateInput;
+export type UpdateAuditLogInput = PrismaTypes.AuditLogUpdateInput;
 
 @Injectable()
 export class AuditLogRepository extends BaseRepository<
@@ -31,7 +31,7 @@ export class AuditLogRepository extends BaseRepository<
       resource?: string;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: Prisma.AuditLogWhereInput = {
+    const where: PrismaTypes.AuditLogWhereInput = {
       userId,
       ...(params?.action && { action: { contains: params.action, mode: 'insensitive' } }),
       ...(params?.resource && { resource: { contains: params.resource, mode: 'insensitive' } }),
@@ -74,7 +74,7 @@ export class AuditLogRepository extends BaseRepository<
       pageSize?: number;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: Prisma.AuditLogWhereInput = {
+    const where: PrismaTypes.AuditLogWhereInput = {
       resource: { contains: resource, mode: 'insensitive' },
       ...(resourceId && { resourceId }),
     };
@@ -98,7 +98,7 @@ export class AuditLogRepository extends BaseRepository<
       userId?: string;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: Prisma.AuditLogWhereInput = {
+    const where: PrismaTypes.AuditLogWhereInput = {
       createdAt: {
         gte: startDate,
         lte: endDate,
@@ -165,7 +165,7 @@ export class AuditLogRepository extends BaseRepository<
     failureCount: number;
     successRate: number;
   }> {
-    const where: Prisma.AuditLogWhereInput = {
+    const where: PrismaTypes.AuditLogWhereInput = {
       ...(params?.startDate &&
         params?.endDate && {
         createdAt: {
@@ -208,7 +208,7 @@ export class AuditLogRepository extends BaseRepository<
     startDate?: Date;
     endDate?: Date;
   }): Promise<{ action: string; count: number }[]> {
-    const where: Prisma.AuditLogWhereInput = {
+    const where: PrismaTypes.AuditLogWhereInput = {
       ...(params?.startDate &&
         params?.endDate && {
         createdAt: {
@@ -225,7 +225,7 @@ export class AuditLogRepository extends BaseRepository<
       });
 
       const stats = new Map<string, number>();
-      logs.forEach((log) => {
+      logs.forEach((log: any) => {
         const count = stats.get(log.action) || 0;
         stats.set(log.action, count + 1);
       });

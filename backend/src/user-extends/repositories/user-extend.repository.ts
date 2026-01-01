@@ -3,11 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserExtend,
-  Prisma,
-} from '@prisma/client';
+  PrismaTypes,
+} from '../../prisma-types';
 
-export type CreateUserExtendInput = Prisma.UserExtendCreateInput;
-export type UpdateUserExtendInput = Prisma.UserExtendUpdateInput;
+export type CreateUserExtendInput = PrismaTypes.UserExtendCreateInput;
+export type UpdateUserExtendInput = PrismaTypes.UserExtendUpdateInput;
 
 @Injectable()
 export class UserExtendRepository extends BaseRepository<
@@ -84,7 +84,7 @@ export class UserExtendRepository extends BaseRepository<
       });
 
       const map = new Map<string, UserExtend>();
-      results.forEach((userExtend) => {
+      results.forEach((userExtend: UserExtend) => {
         map.set(userExtend.userId, userExtend);
       });
 
@@ -253,7 +253,7 @@ export class UserExtendRepository extends BaseRepository<
       });
 
       const stats = new Map<string, number>();
-      userExtends.forEach((userExtend) => {
+      userExtends.forEach((userExtend: UserExtend) => {
         if (userExtend.department) {
           const count = stats.get(userExtend.department) || 0;
           stats.set(userExtend.department, count + 1);
@@ -310,7 +310,7 @@ export class UserExtendRepository extends BaseRepository<
       ]);
 
       const riskLevelDistribution: Record<string, number> = {};
-      allUsers.forEach((user) => {
+      allUsers.forEach((user: UserExtend) => {
         const level = user.riskLevel || 'unknown';
         riskLevelDistribution[level] =
           (riskLevelDistribution[level] || 0) + 1;
