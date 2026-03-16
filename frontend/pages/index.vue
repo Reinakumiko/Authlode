@@ -48,6 +48,14 @@ const metrics = ref([
   }
 ])
 
+// 快速操作
+const quickActions = [
+  { title: '用户管理', description: '查看和管理用户', icon: 'i-heroicons-users', link: '/users', color: 'blue' },
+  { title: '邀请用户', description: '发送邀请给新用户', icon: 'i-heroicons-envelope', link: '/invitations', color: 'purple' },
+  { title: '组织架构', description: '管理组织结构', icon: 'i-heroicons-building-office-2', link: '/organizations', color: 'emerald' },
+  { title: '角色权限', description: '配置角色和权限', icon: 'i-heroicons-shield-check', link: '/roles', color: 'amber' }
+]
+
 // 系统监控数据（合并硬件、网络、系统信息）
 const systemMonitor = ref({
   // 硬件状态历史数据（用于折线图）
@@ -224,24 +232,30 @@ onUnmounted(() => {
               <div class="monitor-network-compact">
                 <div class="monitor-title">网络状态</div>
                 <div class="network-indicators">
-                  <div class="network-indicator">
-                    <UIcon name="i-heroicons-arrow-down" class="w-4 h-4" :style="{ color: getNetworkColor('down') }" />
+                  <div class="network-indicator network-indicator-down">
+                    <div class="network-indicator-icon">
+                      <UIcon name="i-heroicons-arrow-down" class="w-5 h-5" />
+                    </div>
                     <div class="network-indicator-content">
                       <span class="network-indicator-value">{{ systemMonitor.network.downSpeed }}</span>
                       <span class="network-indicator-label">下载</span>
                     </div>
                   </div>
 
-                  <div class="network-indicator">
-                    <UIcon name="i-heroicons-arrow-up" class="w-4 h-4" :style="{ color: getNetworkColor('up') }" />
+                  <div class="network-indicator network-indicator-up">
+                    <div class="network-indicator-icon">
+                      <UIcon name="i-heroicons-arrow-up" class="w-5 h-5" />
+                    </div>
                     <div class="network-indicator-content">
                       <span class="network-indicator-value">{{ systemMonitor.network.upSpeed }}</span>
                       <span class="network-indicator-label">上传</span>
                     </div>
                   </div>
 
-                  <div class="network-indicator">
-                    <UIcon name="i-heroicons-signal" class="w-4 h-4" :style="{ color: getNetworkColor('latency') }" />
+                  <div class="network-indicator network-indicator-latency">
+                    <div class="network-indicator-icon">
+                      <UIcon name="i-heroicons-signal" class="w-5 h-5" />
+                    </div>
                     <div class="network-indicator-content">
                       <span class="network-indicator-value">{{ systemMonitor.network.latency }}</span>
                       <span class="network-indicator-label">延迟</span>
@@ -261,33 +275,44 @@ onUnmounted(() => {
                   <!-- CPU 折线图 -->
                   <div class="hardware-chart-expanded">
                     <div class="hardware-chart-header">
-                      <UIcon name="i-heroicons-cpu-chip" class="w-3.5 h-3.5" :style="{ color: getStatusColor(systemMonitor.hardware.cpu) }" />
+                      <UIcon name="i-heroicons-cpu-chip" class="w-4 h-4" :style="{ color: getStatusColor(systemMonitor.hardware.cpu) }" />
                       <span class="hardware-chart-label">CPU</span>
                       <span class="hardware-chart-current" :style="{ color: getStatusColor(systemMonitor.hardware.cpu) }">
                         {{ systemMonitor.hardware.cpu }}%
                       </span>
                     </div>
                     <div class="line-chart-container">
-                      <svg class="line-chart" viewBox="0 0 300 50">
+                      <svg class="line-chart" viewBox="0 0 300 60">
                         <defs>
                           <linearGradient :id="`cpu-gradient`" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.cpu)" stop-opacity="0.2"/>
+                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.cpu)" stop-opacity="0.3"/>
+                            <stop offset="50%" :stop-color="getStatusColor(systemMonitor.hardware.cpu)" stop-opacity="0.1"/>
                             <stop offset="100%" :stop-color="getStatusColor(systemMonitor.hardware.cpu)" stop-opacity="0"/>
                           </linearGradient>
+                          <filter :id="`cpu-glow`">
+                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                            <feMerge>
+                              <feMergeNode in="coloredBlur"/>
+                              <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                          </filter>
                         </defs>
                         <path
-                          :d="generateLinePath(systemMonitor.hardwareHistory.cpu, 300, 50)"
+                          :d="generateLinePath(systemMonitor.hardwareHistory.cpu, 300, 60)"
                           :fill="`url(#cpu-gradient)`"
                           :stroke="getStatusColor(systemMonitor.hardware.cpu)"
-                          stroke-width="2"
-                          fill-opacity="0.3"
+                          stroke-width="2.5"
+                          fill-opacity="0.5"
+                          filter="url(#cpu-glow)"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         />
                         <circle
-                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.cpu, 300, 50)"
+                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.cpu, 300, 60)"
                           :key="`cpu-${index}`"
                           :cx="point.x"
                           :cy="point.y"
-                          r="2"
+                          r="2.5"
                           :fill="getStatusColor(systemMonitor.hardware.cpu)"
                           class="chart-point"
                         />
@@ -298,33 +323,44 @@ onUnmounted(() => {
                   <!-- 内存折线图 -->
                   <div class="hardware-chart-expanded">
                     <div class="hardware-chart-header">
-                      <UIcon name="i-heroicons-server" class="w-3.5 h-3.5" :style="{ color: getStatusColor(systemMonitor.hardware.memory) }" />
+                      <UIcon name="i-heroicons-server" class="w-4 h-4" :style="{ color: getStatusColor(systemMonitor.hardware.memory) }" />
                       <span class="hardware-chart-label">内存</span>
                       <span class="hardware-chart-current" :style="{ color: getStatusColor(systemMonitor.hardware.memory) }">
                         {{ systemMonitor.hardware.memory }}%
                       </span>
                     </div>
                     <div class="line-chart-container">
-                      <svg class="line-chart" viewBox="0 0 300 50">
+                      <svg class="line-chart" viewBox="0 0 300 60">
                         <defs>
                           <linearGradient :id="`memory-gradient`" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.memory)" stop-opacity="0.2"/>
+                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.memory)" stop-opacity="0.3"/>
+                            <stop offset="50%" :stop-color="getStatusColor(systemMonitor.hardware.memory)" stop-opacity="0.1"/>
                             <stop offset="100%" :stop-color="getStatusColor(systemMonitor.hardware.memory)" stop-opacity="0"/>
                           </linearGradient>
+                          <filter :id="`memory-glow`">
+                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                            <feMerge>
+                              <feMergeNode in="coloredBlur"/>
+                              <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                          </filter>
                         </defs>
                         <path
-                          :d="generateLinePath(systemMonitor.hardwareHistory.memory, 300, 50)"
+                          :d="generateLinePath(systemMonitor.hardwareHistory.memory, 300, 60)"
                           :fill="`url(#memory-gradient)`"
                           :stroke="getStatusColor(systemMonitor.hardware.memory)"
-                          stroke-width="2"
-                          fill-opacity="0.3"
+                          stroke-width="2.5"
+                          fill-opacity="0.5"
+                          filter="url(#memory-glow)"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         />
                         <circle
-                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.memory, 300, 50)"
+                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.memory, 300, 60)"
                           :key="`memory-${index}`"
                           :cx="point.x"
                           :cy="point.y"
-                          r="2"
+                          r="2.5"
                           :fill="getStatusColor(systemMonitor.hardware.memory)"
                           class="chart-point"
                         />
@@ -335,33 +371,44 @@ onUnmounted(() => {
                   <!-- 硬盘折线图 -->
                   <div class="hardware-chart-expanded">
                     <div class="hardware-chart-header">
-                      <UIcon name="i-heroicons-circle-stack" class="w-3.5 h-3.5" :style="{ color: getStatusColor(systemMonitor.hardware.disk) }" />
+                      <UIcon name="i-heroicons-circle-stack" class="w-4 h-4" :style="{ color: getStatusColor(systemMonitor.hardware.disk) }" />
                       <span class="hardware-chart-label">硬盘</span>
                       <span class="hardware-chart-current" :style="{ color: getStatusColor(systemMonitor.hardware.disk) }">
                         {{ systemMonitor.hardware.disk }}%
                       </span>
                     </div>
                     <div class="line-chart-container">
-                      <svg class="line-chart" viewBox="0 0 300 50">
+                      <svg class="line-chart" viewBox="0 0 300 60">
                         <defs>
                           <linearGradient :id="`disk-gradient`" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.disk)" stop-opacity="0.2"/>
+                            <stop offset="0%" :stop-color="getStatusColor(systemMonitor.hardware.disk)" stop-opacity="0.3"/>
+                            <stop offset="50%" :stop-color="getStatusColor(systemMonitor.hardware.disk)" stop-opacity="0.1"/>
                             <stop offset="100%" :stop-color="getStatusColor(systemMonitor.hardware.disk)" stop-opacity="0"/>
                           </linearGradient>
+                          <filter :id="`disk-glow`">
+                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                            <feMerge>
+                              <feMergeNode in="coloredBlur"/>
+                              <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                          </filter>
                         </defs>
                         <path
-                          :d="generateLinePath(systemMonitor.hardwareHistory.disk, 300, 50)"
+                          :d="generateLinePath(systemMonitor.hardwareHistory.disk, 300, 60)"
                           :fill="`url(#disk-gradient)`"
                           :stroke="getStatusColor(systemMonitor.hardware.disk)"
-                          stroke-width="2"
-                          fill-opacity="0.3"
+                          stroke-width="2.5"
+                          fill-opacity="0.5"
+                          filter="url(#disk-glow)"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         />
                         <circle
-                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.disk, 300, 50)"
+                          v-for="(point, index) in getPointPositions(systemMonitor.hardwareHistory.disk, 300, 60)"
                           :key="`disk-${index}`"
                           :cx="point.x"
                           :cy="point.y"
-                          r="2"
+                          r="2.5"
                           :fill="getStatusColor(systemMonitor.hardware.disk)"
                           class="chart-point"
                         />
@@ -431,7 +478,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 第二行：快速提示 + 最近活动 -->
+    <!-- 第二行：快速提示 + 快速操作 + 最近活动 -->
     <div class="secondary-grid">
       <!-- 快速提示 -->
       <div class="tips-section">
@@ -452,6 +499,31 @@ onUnmounted(() => {
               <p class="tip-description">{{ tip.desc }}</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 快速操作 -->
+      <div class="quick-actions-section">
+        <div class="section-header">
+          <h2 class="section-title">快速操作</h2>
+          <p class="section-description">常用功能快捷入口</p>
+        </div>
+        <div class="quick-actions-list">
+          <NuxtLink
+            v-for="action in quickActions"
+            :key="action.title"
+            :to="action.link"
+            class="quick-action-card-vertical"
+          >
+            <div class="quick-action-icon" :class="`quick-action-icon-${action.color}`">
+              <UIcon :name="action.icon" class="w-5 h-5" />
+            </div>
+            <div class="quick-action-content">
+              <p class="quick-action-title">{{ action.title }}</p>
+              <p class="quick-action-description">{{ action.description }}</p>
+            </div>
+            <UIcon name="i-heroicons-chevron-right" class="quick-action-arrow w-4 h-4" />
+          </NuxtLink>
         </div>
       </div>
 
@@ -529,14 +601,14 @@ onUnmounted(() => {
 .welcome-title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #111827;
+  color: #1e293b;
   margin-bottom: 0.5rem;
   letter-spacing: -0.025em;
 }
 
 .welcome-subtitle {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #64748b;
   font-weight: 400;
 }
 
@@ -546,13 +618,13 @@ onUnmounted(() => {
 }
 
 .action-button {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
 }
 
 .action-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* 指标卡片网格 */
@@ -564,20 +636,27 @@ onUnmounted(() => {
 }
 
 .metric-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
   padding: 1.25rem;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .metric-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
   transform: translateY(-1px);
 }
 
@@ -618,7 +697,7 @@ onUnmounted(() => {
 
 .metric-title {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #64748b;
   font-weight: 500;
   margin-bottom: 0.375rem;
 }
@@ -626,7 +705,7 @@ onUnmounted(() => {
 .metric-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
+  color: #1e293b;
   margin-bottom: 0.375rem;
   letter-spacing: -0.025em;
 }
@@ -658,7 +737,7 @@ onUnmounted(() => {
 /* 次要网格 */
 .secondary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -671,13 +750,13 @@ onUnmounted(() => {
 .section-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
   margin-bottom: 0.25rem;
 }
 
 .section-description {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #64748b;
   font-weight: 400;
 }
 
@@ -766,22 +845,100 @@ onUnmounted(() => {
   color: #9ca3af;
 }
 
+/* 快速操作区域（第二行） */
+.quick-actions-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-action-card-vertical {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.quick-action-card-vertical:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.quick-action-card-vertical .quick-action-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-action-card-vertical .quick-action-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-action-card-vertical .quick-action-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.125rem;
+}
+
+.quick-action-card-vertical .quick-action-description {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-action-card-vertical .quick-action-arrow {
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.quick-action-card-vertical:hover .quick-action-arrow {
+  color: #94a3b8;
+}
+
 /* 系统监控卡片 */
 .system-monitor-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .monitor-title {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
   margin-bottom: 0.5rem;
 }
 
@@ -808,45 +965,99 @@ onUnmounted(() => {
 .network-indicators {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .network-indicator {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.125rem;
-  padding: 0.5rem 0.375rem;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  transition: all 0.15s ease;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 0.625rem;
+  transition: all 0.2s ease;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.network-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .network-indicator:hover {
-  background: #ffffff;
-  border-color: #d1d5db;
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.network-indicator:hover::before {
+  opacity: 1;
+}
+
+.network-indicator-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #3b82f6;
+  margin-bottom: 0.25rem;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.08);
 }
 
 .network-indicator-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: 0.125rem;
 }
 
 .network-indicator-label {
-  font-size: 0.625rem;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: #64748b;
   font-weight: 500;
+  letter-spacing: 0.025em;
 }
 
 .network-indicator-value {
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #111827;
+  color: #1e293b;
   line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+/* 不同网络状态的颜色主题 */
+.network-indicator-down .network-indicator-icon {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+}
+
+.network-indicator-up .network-indicator-icon {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  color: #8b5cf6;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.15);
+}
+
+.network-indicator-latency .network-indicator-icon {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #10b981;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.15);
 }
 
 .network-indicator-unit {
@@ -858,7 +1069,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .hardware-title {
@@ -866,76 +1077,107 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.25rem;
+  padding: 0;
 }
 
 .hardware-title-text {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
+  letter-spacing: 0.025em;
 }
 
 .hardware-time-range {
-  font-size: 0.625rem;
-  color: #9ca3af;
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
 }
 
 .hardware-charts-expanded {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
   flex: 1;
 }
 
 .hardware-chart-expanded {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.5rem;
 }
 
 .hardware-chart-header {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
+  padding: 0;
 }
 
 .hardware-chart-label {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #6b7280;
+  color: #64748b;
   flex: 1;
+  letter-spacing: 0.025em;
 }
 
 .hardware-chart-current {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
 }
 
 .line-chart-container {
   width: 100%;
-  height: 50px;
-  background: #f9fafb;
-  border-radius: 0.375rem;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.5rem;
   overflow: hidden;
-  border: 1px solid #f3f4f6;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+}
+
+.line-chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 19px,
+    rgba(0, 0, 0, 0.02) 19px,
+    rgba(0, 0, 0, 0.02) 20px
+  );
+  pointer-events: none;
 }
 
 .line-chart {
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .chart-point {
-  transition: r 0.15s ease;
+  transition: all 0.2s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .chart-point:hover {
-  r: 2.5;
+  r: 3.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 /* 垂直分隔线 */
 .monitor-divider-vertical {
   width: 1px;
-  background: #f3f4f6;
+  background: rgba(241, 245, 249, 0.8);
   align-self: stretch;
 }
 
@@ -955,7 +1197,7 @@ onUnmounted(() => {
 .monitor-title {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
   margin-bottom: 0.5rem;
 }
 
@@ -970,7 +1212,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f9fafb;
+  border-bottom: 1px solid rgba(248, 250, 252, 0.8);
 }
 
 .info-item:last-child {
@@ -979,14 +1221,14 @@ onUnmounted(() => {
 
 .info-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #64748b;
   font-weight: 500;
 }
 
 .info-value {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #111827;
+  color: #1e293b;
 }
 
 .info-value.status-online {
@@ -996,17 +1238,21 @@ onUnmounted(() => {
 /* 水平分隔线（小） */
 .monitor-divider-horizontal-small {
   height: 1px;
-  background: #f3f4f6;
+  background: rgba(241, 245, 249, 0.8);
   width: 100%;
 }
 
 /* 快速提示 */
 .tips-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .tip-item {
@@ -1023,11 +1269,11 @@ onUnmounted(() => {
 }
 
 .tip-item-success {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  background: rgba(236, 253, 245, 0.6);
 }
 
 .tip-item-info {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: rgba(239, 246, 255, 0.6);
 }
 
 .tip-icon {
@@ -1042,22 +1288,26 @@ onUnmounted(() => {
 .tip-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: #334155;
   margin-bottom: 0.125rem;
 }
 
 .tip-description {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #64748b;
 }
 
 /* 最近活动 */
 .activities-list {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .activity-item {
@@ -1065,7 +1315,7 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(241, 245, 249, 0.8);
   transition: background 0.15s ease;
 }
 
@@ -1074,7 +1324,7 @@ onUnmounted(() => {
 }
 
 .activity-item:hover {
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .activity-icon {
@@ -1119,14 +1369,14 @@ onUnmounted(() => {
 
 .activity-message {
   font-size: 0.875rem;
-  color: #111827;
+  color: #334155;
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
 
 .activity-time {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: #94a3b8;
   font-weight: 400;
 }
 
@@ -1135,7 +1385,7 @@ onUnmounted(() => {
   display: flex;
   gap: 2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .footer-item {
@@ -1150,6 +1400,10 @@ onUnmounted(() => {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
   .monitor-grid-layout {
     grid-template-columns: 1fr;
   }
@@ -1159,7 +1413,7 @@ onUnmounted(() => {
   }
 
   .monitor-right-column {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid rgba(241, 245, 249, 0.8);
     padding-top: 1.25rem;
   }
 }
@@ -1187,10 +1441,6 @@ onUnmounted(() => {
   }
 
   .secondary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-actions-grid {
     grid-template-columns: 1fr;
   }
 

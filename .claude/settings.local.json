@@ -14,7 +14,32 @@
       "Bash(pnpm remove:*)",
       "Bash(pnpm install:*)",
       "Bash(pnpm exec prisma generate:*)",
-      "Bash(pnpm run start:dev:*)"
+      "Bash(pnpm run start:dev:*)",
+      "Bash(pnpm exec tsx:*)",
+      "Bash(set PRISMA_SCHEMA_PATH=./prisma/schema.prisma:*)",
+      "Bash(chmod:*)",
+      "Bash(export:*)",
+      "Bash(set:*)",
+      "Bash(wsl:*)",
+      "Bash(git checkout:*)",
+      "Bash(pnpm run dev)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm list:*)",
+      "Bash(timeout /t 8)",
+      "Bash(ping:*)",
+      "Bash(findstr:*)",
+      "Bash(pnpm update:*)",
+      "Bash(curl:*)",
+      "Skill(frontend-design:frontend-design)",
+      "Skill(frontend-design:frontend-design:*)",
+      "Bash(del frontendnul)",
+      "Bash(cp:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run lint -- --no-fix pages/index.vue)",
+      "Bash(npm run)",
+      "Bash(npm run build)",
+      "mcp__zai-mcp-server__analyze_image"
     ]
   }
 }
