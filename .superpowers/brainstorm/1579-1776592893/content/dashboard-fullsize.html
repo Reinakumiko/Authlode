@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Mockup - Style C Full</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 10;
+  }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  }
+
+  .sidebar-logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 100%);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+
+  .sidebar-logo-text {
+    font-weight: 700; font-size: 15px; color: #1d1d1f; letter-spacing: -0.02em;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .nav-group-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #86868b;
+    font-weight: 600;
+    padding: 16px 10px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #48484a;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    margin-bottom: 1px;
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    background: rgba(0,0,0,0.04);
+    color: #1d1d1f;
+  }
+
+  .nav-item.active {
+    background: rgba(0,122,255,0.08);
+    color: #007AFF;
+  }
+
+  .nav-icon {
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 15px;
+    opacity: 0.7;
+  }
+
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    background: rgba(0,122,255,0.08);
+    color: #007AFF;
+    border-radius: 4px;
+  }
+
+  .sidebar-footer {
+    padding: 12px;
+    border-top: 0.5px solid rgba(0,0,0,0.06);
+  }
+
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+    cursor: pointer;
+  }
+
+  .sidebar-user:hover { background: rgba(0,0,0,0.04); }
+
+  .sidebar-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 13px;
+  }
+
+  .sidebar-user-name { font-size: 13px; font-weight: 600; color: #1d1d1f; }
+  .sidebar-user-email { font-size: 11px; color: #86868b; }
+
+  /* Main Content */
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  .header {
+    height: 56px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-search {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px; color: #86868b;
+    width: 240px;
+  }
+
+  .header-actions {
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .header-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s ease;
+    cursor: pointer;
+    font-size: 16px;
+    color: #48484a;
+  }
+
+  .header-btn:hover { background: rgba(0,0,0,0.06); }
+
+  .header-avatar {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+  }
+
+  /* Content */
+  .content {
+    padding: 28px;
+    max-width: 1200px;
+  }
+
+  /* Welcome */
+  .welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+  }
+
+  .welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d1d1f;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    color: #86868b;
+    margin-top: 4px;
+  }
+
+  .welcome-actions {
+    display: flex; gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .btn-primary {
+    background: #1d1d1f;
+    color: white;
+  }
+
+  .btn-primary:hover { background: #3a3a3c; }
+
+  .btn-secondary {
+    background: rgba(0,0,0,0.04);
+    color: #1d1d1f;
+  }
+
+  .btn-secondary:hover { background: rgba(0,0,0,0.08); }
+
+  /* Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    border: 0.5px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .metric-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
+  }
+
+  .metric-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .metric-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  .metric-dot.blue { background: #007AFF; box-shadow: 0 0 8px rgba(0,122,255,0.35); }
+  .metric-dot.purple { background: #5856D6; box-shadow: 0 0 8px rgba(88,86,214,0.35); }
+  .metric-dot.green { background: #34C759; box-shadow: 0 0 8px rgba(52,199,89,0.35); }
+  .metric-dot.orange { background: #FF9500; box-shadow: 0 0 8px rgba(255,149,0,0.35); }
+
+  .metric-label {
+    font-size: 13px; color: #86868b; font-weight: 500;
+  }
+
+  .metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d1d1f;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .metric-change {
+    font-size: 12px;
+    color: #34C759;
+    font-weight: 500;
+    margin-top: 8px;
+    display: flex; align-items: center; gap: 3px;
+  }
+
+  /* Sections */
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1d1d1f;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: #86868b;
+    margin-bottom: 14px;
+  }
+
+  /* Two-column grid */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* Cards */
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 18px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1d1d1f;
+  }
+
+  .card-header-sub {
+    font-size: 12px;
+    color: #86868b;
+    font-weight: 500;
+  }
+
+  .card-body { padding: 16px 20px 20px; }
+
+  /* System Monitor - Network */
+  .network-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .network-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #fafafa;
+    border-radius: 12px;
+    transition: background 0.15s ease;
+    cursor: pointer;
+  }
+
+  .network-item:hover { background: #f5f5f7; }
+
+  .network-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .network-icon.blue { background: rgba(0,122,255,0.08); }
+  .network-icon.purple { background: rgba(88,86,214,0.08); }
+  .network-icon.green { background: rgba(52,199,89,0.08); }
+
+  .network-val {
+    font-size: 18px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.02em;
+  }
+
+  .network-lbl {
+    font-size: 12px; color: #86868b; font-weight: 500;
+  }
+
+  /* Hardware Charts */
+  .hw-chart {
+    margin-bottom: 14px;
+  }
+
+  .hw-chart:last-child { margin-bottom: 0; }
+
+  .hw-chart-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .hw-chart-label {
+    font-size: 13px; font-weight: 600; color: #48484a;
+    flex: 1;
+  }
+
+  .hw-chart-val {
+    font-size: 13px; font-weight: 700;
+  }
+
+  .hw-chart-val.ok { color: #34C759; }
+  .hw-chart-val.warn { color: #FF9500; }
+  .hw-chart-val.danger { color: #FF3B30; }
+
+  .hw-chart-bar {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .hw-chart-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  .hw-chart-fill.blue { background: linear-gradient(90deg, #007AFF, #5856D6); }
+  .hw-chart-fill.purple { background: linear-gradient(90deg, #5856D6, #AF52DE); }
+  .hw-chart-fill.green { background: linear-gradient(90deg, #34C759, #30D158); }
+
+  /* System Info */
+  .info-list { display: flex; flex-direction: column; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.04);
+    font-size: 13px;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-key { color: #86868b; font-weight: 500; }
+  .info-val { color: #1d1d1f; font-weight: 600; }
+  .info-val.online { color: #34C759; display: flex; align-items: center; gap: 5px; }
+
+  .online-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #34C759;
+    box-shadow: 0 0 6px rgba(52,199,89,0.5);
+  }
+
+  /* Quick Actions */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .action-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #fafafa;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .action-card:hover {
+    background: #f0f0f2;
+    transform: translateY(-1px);
+  }
+
+  .action-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .action-icon.blue { background: rgba(0,122,255,0.08); }
+  .action-icon.purple { background: rgba(88,86,214,0.08); }
+  .action-icon.green { background: rgba(52,199,89,0.08); }
+  .action-icon.orange { background: rgba(255,149,0,0.08); }
+
+  .action-title {
+    font-size: 13px; font-weight: 600; color: #1d1d1f;
+  }
+
+  .action-desc {
+    font-size: 11px; color: #86868b; margin-top: 1px;
+  }
+
+  .action-arrow {
+    margin-left: auto;
+    color: #c7c7cc;
+    font-size: 14px;
+  }
+
+  .action-card:hover .action-arrow { color: #86868b; }
+
+  /* Activities */
+  .activity-list { }
+
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 0.5px solid rgba(0,0,0,0.04);
+    transition: background 0.15s ease;
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .activity-dot.blue { background: rgba(0,122,255,0.08); }
+  .activity-dot.purple { background: rgba(88,86,214,0.08); }
+  .activity-dot.orange { background: rgba(255,149,0,0.08); }
+  .activity-dot.red { background: rgba(255,59,48,0.08); }
+  .activity-dot.green { background: rgba(52,199,89,0.08); }
+
+  .activity-msg {
+    font-size: 13px; color: #1d1d1f; font-weight: 500; line-height: 1.4;
+  }
+
+  .activity-time {
+    font-size: 12px; color: #86868b; margin-top: 2px;
+  }
+
+  /* Tips */
+  .tips-list { }
+
+  .tip-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fafafa;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: background 0.15s ease;
+  }
+
+  .tip-item:last-child { margin-bottom: 0; }
+  .tip-item:hover { background: #f5f5f7; }
+
+  .tip-icon {
+    font-size: 20px;
+  }
+
+  .tip-title {
+    font-size: 13px; font-weight: 600; color: #1d1d1f;
+  }
+
+  .tip-desc {
+    font-size: 12px; color: #86868b; margin-top: 1px;
+  }
+
+  /* Three-column grid */
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* Footer */
+  .footer {
+    display: flex;
+    gap: 24px;
+    padding: 16px 0;
+    border-top: 0.5px solid rgba(0,0,0,0.06);
+    margin-top: 8px;
+  }
+
+  .footer-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: #86868b;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .network-row { grid-template-columns: 1fr; }
+    .actions-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">L</div>
+      <div class="sidebar-logo-text">Logto Manager</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-title">主要功能</div>
+      <a class="nav-item active" href="#">
+        <span class="nav-icon">⊞</span> 仪表板
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">👤</span> 用户管理
+        <span class="nav-badge">12.4K</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🏢</span> 组织管理
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🛡</span> 角色权限
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📱</span> 应用管理
+      </a>
+
+      <div class="nav-group-title">管理</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">✉</span> 邀请管理
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📋</span> 审计日志
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📊</span> 数据统计
+      </a>
+
+      <div class="nav-group-title">系统</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">⚙</span> 系统设置
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">A</div>
+        <div>
+          <div class="sidebar-user-name">管理员</div>
+          <div class="sidebar-user-email">admin@example.com</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-search">
+        🔍 搜索用户、组织、应用...
+      </div>
+      <div class="header-actions">
+        <div class="header-btn">🔔</div>
+        <div class="header-btn">
+          <div class="header-avatar"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Welcome -->
+      <div class="welcome">
+        <div>
+          <div class="welcome-title">欢迎回来</div>
+          <div class="welcome-subtitle">这是您的系统概览 · 当前时间 14:32:05</div>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn btn-primary">＋ 快速创建</button>
+          <button class="btn btn-secondary">↻ 刷新数据</button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-dot blue"></div>
+            <span class="metric-label">总用户数</span>
+          </div>
+          <div class="metric-value">12,847</div>
+          <div class="metric-change">↑ 12.5% 较上月</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-dot purple"></div>
+            <span class="metric-label">组织数量</span>
+          </div>
+          <div class="metric-value">156</div>
+          <div class="metric-change">↑ 3 新增</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-dot green"></div>
+            <span class="metric-label">应用接入</span>
+          </div>
+          <div class="metric-value">89</div>
+          <div class="metric-change">↑ 5 新增</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-dot orange"></div>
+            <span class="metric-label">活跃会话</span>
+          </div>
+          <div class="metric-value">892</div>
+          <div class="metric-change">↑ 8.3% 较昨日</div>
+        </div>
+      </div>
+
+      <!-- System Monitor + Info -->
+      <div class="two-col">
+        <!-- Left: Monitor -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">系统监控</div>
+              <div class="card-header-sub">网络 · 硬件 · 性能</div>
+            </div>
+            <span class="card-header-sub">实时</span>
+          </div>
+          <div class="card-body">
+            <!-- Network -->
+            <div class="network-row">
+              <div class="network-item">
+                <div class="network-icon blue">↓</div>
+                <div>
+                  <div class="network-val">85.3</div>
+                  <div class="network-lbl">下载 MB/s</div>
+                </div>
+              </div>
+              <div class="network-item">
+                <div class="network-icon purple">↑</div>
+                <div>
+                  <div class="network-val">12.5</div>
+                  <div class="network-lbl">上传 MB/s</div>
+                </div>
+              </div>
+              <div class="network-item">
+                <div class="network-icon green">◉</div>
+                <div>
+                  <div class="network-val">24</div>
+                  <div class="network-lbl">延迟 ms</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hardware Charts -->
+            <div class="hw-chart">
+              <div class="hw-chart-head">
+                <span class="hw-chart-label">CPU</span>
+                <span class="hw-chart-val ok">45%</span>
+              </div>
+              <div class="hw-chart-bar">
+                <div class="hw-chart-fill blue" style="width: 45%"></div>
+              </div>
+            </div>
+            <div class="hw-chart">
+              <div class="hw-chart-head">
+                <span class="hw-chart-label">内存</span>
+                <span class="hw-chart-val warn">62%</span>
+              </div>
+              <div class="hw-chart-bar">
+                <div class="hw-chart-fill purple" style="width: 62%"></div>
+              </div>
+            </div>
+            <div class="hw-chart">
+              <div class="hw-chart-head">
+                <span class="hw-chart-label">硬盘</span>
+                <span class="hw-chart-val ok">38%</span>
+              </div>
+              <div class="hw-chart-bar">
+                <div class="hw-chart-fill green" style="width: 38%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: System Info -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">系统信息</div>
+              <div class="card-header-sub">版本 · 服务 · 节点</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-list">
+              <div class="info-row">
+                <span class="info-key">版本</span>
+                <span class="info-val">v1.15.0</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">数据库</span>
+                <span class="info-val">PostgreSQL 15.2</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">缓存</span>
+                <span class="info-val">Redis 7.0.12</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">运行时间</span>
+                <span class="info-val">45天 12小时</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">主机名</span>
+                <span class="info-val">logto-node-01</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">IP 地址</span>
+                <span class="info-val">192.168.1.100</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">操作系统</span>
+                <span class="info-val">Ubuntu 22.04</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">状态</span>
+                <span class="info-val online"><span class="online-dot"></span> 在线</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Three columns: Tips, Quick Actions, Activities -->
+      <div class="three-col">
+        <!-- Tips -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">系统提示</div>
+              <div class="card-header-sub">重要信息提醒</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tips-list">
+              <div class="tip-item">
+                <span class="tip-icon">⚡</span>
+                <div>
+                  <div class="tip-title">性能优化</div>
+                  <div class="tip-desc">系统运行流畅</div>
+                </div>
+              </div>
+              <div class="tip-item">
+                <span class="tip-icon">🔒</span>
+                <div>
+                  <div class="tip-title">安全状态</div>
+                  <div class="tip-desc">所有安全检查通过</div>
+                </div>
+              </div>
+              <div class="tip-item">
+                <span class="tip-icon">📊</span>
+                <div>
+                  <div class="tip-title">数据备份</div>
+                  <div class="tip-desc">上次备份: 2小时前</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">快速操作</div>
+              <div class="card-header-sub">常用功能快捷入口</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="actions-grid">
+              <div class="action-card">
+                <div class="action-icon blue">👤</div>
+                <div>
+                  <div class="action-title">用户管理</div>
+                  <div class="action-desc">查看和管理用户</div>
+                </div>
+                <span class="action-arrow">›</span>
+              </div>
+              <div class="action-card">
+                <div class="action-icon purple">✉</div>
+                <div>
+                  <div class="action-title">邀请用户</div>
+                  <div class="action-desc">发送邀请给新用户</div>
+                </div>
+                <span class="action-arrow">›</span>
+              </div>
+              <div class="action-card">
+                <div class="action-icon green">🏢</div>
+                <div>
+                  <div class="action-title">组织架构</div>
+                  <div class="action-desc">管理组织结构</div>
+                </div>
+                <span class="action-arrow">›</span>
+              </div>
+              <div class="action-card">
+                <div class="action-icon orange">🛡</div>
+                <div>
+                  <div class="action-title">角色权限</div>
+                  <div class="action-desc">配置角色和权限</div>
+                </div>
+                <span class="action-arrow">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activities -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-header-title">最近活动</div>
+              <div class="card-header-sub">系统动态和操作记录</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-dot blue">👤</div>
+                <div>
+                  <div class="activity-msg">alice@example.com 登录系统</div>
+                  <div class="activity-time">2分钟前</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot purple">📱</div>
+                <div>
+                  <div class="activity-msg">应用 MyApp 成功接入</div>
+                  <div class="activity-time">15分钟前</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot orange">⚙</div>
+                <div>
+                  <div class="activity-msg">系统配置已更新</div>
+                  <div class="activity-time">1小时前</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot red">🛡</div>
+                <div>
+                  <div class="activity-msg">检测到异常登录尝试并阻止</div>
+                  <div class="activity-time">2小时前</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot green">✉</div>
+                <div>
+                  <div class="activity-msg">发送 5 封邀请邮件</div>
+                  <div class="activity-time">5小时前</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-item">🕐 最后更新: 14:32:05</div>
+        <div class="footer-item">✅ 系统运行正常</div>
+        <div class="footer-item">📦 v1.15.0</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

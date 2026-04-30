@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 + 动态告警 - 重做</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .glass {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 快捷入口 A: 横向列表 ===== */
+  .qa-card { padding: 16px 20px; max-width: 700px; }
+  .qa-title { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 12px; }
+  .qa-list { display: flex; flex-direction: column; }
+  .qa-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .qa-item:hover { background: rgba(255,255,255,0.6); }
+  .qa-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .qa-info { flex: 1; }
+  .qa-name { font-size: 13px; font-weight: 600; color: #1d1d1f; }
+  .qa-desc { font-size: 11px; color: #aeaeb2; font-weight: 500; margin-top: 1px; }
+  .qa-arrow { color: #c7c7cc; font-size: 13px; }
+
+  /* ===== 快捷入口 B: 网格带底色 ===== */
+  .qb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 700px; }
+  .qb-grid.wide { grid-template-columns: repeat(5, 1fr); }
+  .qb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; cursor: pointer;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.15s;
+  }
+  .qb-item:hover { background: rgba(255,255,255,0.7); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+  .qb-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+  .qb-name { font-size: 12px; font-weight: 600; color: #48484a; }
+
+  /* ===== 快捷入口 C: 药丸按钮 ===== */
+  .qc-wrap { display: flex; flex-wrap: wrap; gap: 8px; max-width: 700px; }
+  .qc-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: all 0.15s; font-size: 12px; font-weight: 600; color: #48484a;
+  }
+  .qc-pill:hover { background: rgba(255,255,255,0.7); box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .qc-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* ===== 动态告警 A: 内嵌卡片 ===== */
+  .al-card { padding: 14px 18px; max-width: 700px; display: flex; align-items: flex-start; gap: 12px; }
+  .al-icon-wrap {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .al-body { flex: 1; }
+  .al-title { font-size: 13px; font-weight: 600; color: #1d1d1f; }
+  .al-desc { font-size: 12px; color: #86868b; font-weight: 500; margin-top: 2px; }
+  .al-time { font-size: 11px; color: #aeaeb2; font-weight: 500; flex-shrink: 0; margin-top: 1px; }
+  .al-action { font-size: 11px; font-weight: 600; margin-top: 6px; cursor: pointer; }
+  .al-action:hover { opacity: 0.7; }
+
+  /* ===== 动态告警 B: 渐变边框 ===== */
+  .al2-card { padding: 14px 18px; max-width: 700px; position: relative; overflow: hidden; }
+  .al2-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+  .al2-card.warn::before { background: linear-gradient(180deg, #FF9500, #f59e0b); }
+  .al2-card.error::before { background: linear-gradient(180deg, #FF3B30, #ef4444); }
+  .al2-card.ok::before { background: linear-gradient(180deg, #34C759, #22c55e); }
+  .al2-inner { display: flex; align-items: flex-start; gap: 12px; }
+  .al2-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .al2-body { flex: 1; }
+  .al2-title { font-size: 13px; font-weight: 600; color: #1d1d1f; }
+  .al2-desc { font-size: 12px; color: #86868b; font-weight: 500; margin-top: 2px; }
+  .al2-time { font-size: 11px; color: #aeaeb2; font-weight: 500; flex-shrink: 0; }
+  .al2-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 0.5px solid rgba(0,0,0,0.04); }
+  .al2-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .al2-action { font-size: 11px; font-weight: 600; cursor: pointer; }
+  .al2-action:hover { opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<!-- ===== 快捷入口 ===== -->
+
+<!-- 方案 A: 列表式 -->
+<div class="section">
+  <div class="section-label">快捷入口 · 方案 A</div>
+  <div class="section-title">列表式</div>
+  <div class="section-desc">在一个卡片内，每行一个入口，带描述和箭头</div>
+
+  <div class="glass qa-card">
+    <div class="qa-title">快捷操作</div>
+    <div class="qa-list">
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">👤</div>
+        <div class="qa-info">
+          <div class="qa-name">用户管理</div>
+          <div class="qa-desc">查看和管理所有用户</div>
+        </div>
+        <div class="qa-arrow">›</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">✉️</div>
+        <div class="qa-info">
+          <div class="qa-name">邀请用户</div>
+          <div class="qa-desc">发送邀请链接或邮件</div>
+        </div>
+        <div class="qa-arrow">›</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏢</div>
+        <div class="qa-info">
+          <div class="qa-name">组织管理</div>
+          <div class="qa-desc">部门和团队架构</div>
+        </div>
+        <div class="qa-arrow">›</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🔑</div>
+        <div class="qa-info">
+          <div class="qa-name">角色权限</div>
+          <div class="qa-desc">自定义角色和权限规则</div>
+        </div>
+        <div class="qa-arrow">›</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">📱</div>
+        <div class="qa-info">
+          <div class="qa-name">应用管理</div>
+          <div class="qa-desc">配置接入的应用</div>
+        </div>
+        <div class="qa-arrow">›</div>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 B: 网格紧凑 -->
+<div class="section">
+  <div class="section-label">快捷入口 · 方案 B</div>
+  <div class="section-title">网格紧凑</div>
+  <div class="section-desc">图标 + 文字横排的小卡片，3 列网格</div>
+
+  <div class="qb-grid">
+    <div class="qb-item">
+      <div class="qb-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">👤</div>
+      <span class="qb-name">用户管理</span>
+    </div>
+    <div class="qb-item">
+      <div class="qb-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">✉️</div>
+      <span class="qb-name">邀请用户</span>
+    </div>
+    <div class="qb-item">
+      <div class="qb-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏢</div>
+      <span class="qb-name">组织管理</span>
+    </div>
+    <div class="qb-item">
+      <div class="qb-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🔑</div>
+      <span class="qb-name">角色权限</span>
+    </div>
+    <div class="qb-item">
+      <div class="qb-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">📱</div>
+      <span class="qb-name">应用管理</span>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 C: 药丸标签 -->
+<div class="section">
+  <div class="section-label">快捷入口 · 方案 C</div>
+  <div class="section-title">药丸标签</div>
+  <div class="section-desc">圆角药丸按钮横排，色点区分，可换行</div>
+
+  <div class="qc-wrap">
+    <div class="qc-pill"><div class="qc-dot" style="background:#6366f1"></div>用户管理</div>
+    <div class="qc-pill"><div class="qc-dot" style="background:#8b5cf6"></div>邀请用户</div>
+    <div class="qc-pill"><div class="qc-dot" style="background:#3b82f6"></div>组织管理</div>
+    <div class="qc-pill"><div class="qc-dot" style="background:#14b8a6"></div>角色权限</div>
+    <div class="qc-pill"><div class="qc-dot" style="background:#ec4899"></div>应用管理</div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 动态告警 ===== -->
+
+<!-- 方案 A: 内嵌图标卡片 -->
+<div class="section">
+  <div class="section-label">动态告警 · 方案 A</div>
+  <div class="section-title">图标底色卡片</div>
+  <div class="section-desc">图标带彩色底色背景，正常/警告/错误三色区分</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:700px">
+    <div class="glass al-card">
+      <div class="al-icon-wrap" style="background:rgba(52,199,89,0.1);color:#34C759">✅</div>
+      <div class="al-body">
+        <div class="al-title">系统运行正常</div>
+        <div class="al-desc">所有服务均正常，无异常告警</div>
+      </div>
+      <div class="al-time">刚刚检查</div>
+    </div>
+
+    <div class="glass al-card">
+      <div class="al-icon-wrap" style="background:rgba(255,149,0,0.1);color:#FF9500">⚠️</div>
+      <div class="al-body">
+        <div class="al-title">CPU 使用率偏高</div>
+        <div class="al-desc">过去 15 分钟平均使用率超过 80%</div>
+        <div class="al-action" style="color:#FF9500">查看详情 ›</div>
+      </div>
+      <div class="al-time">5 分钟前</div>
+    </div>
+
+    <div class="glass al-card">
+      <div class="al-icon-wrap" style="background:rgba(255,59,48,0.1);color:#FF3B30">🚨</div>
+      <div class="al-body">
+        <div class="al-title">异常登录检测</div>
+        <div class="al-desc">检测到来自新 IP 地址的管理员登录</div>
+        <div class="al-action" style="color:#FF3B30">立即处理 ›</div>
+      </div>
+      <div class="al-time">12 分钟前</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 B: 渐变边框 -->
+<div class="section">
+  <div class="section-label">动态告警 · 方案 B</div>
+  <div class="section-title">左侧渐变色条</div>
+  <div class="section-desc">左侧 3px 渐变色条 + 级别徽章 + 操作按钮</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:700px">
+    <div class="glass al2-card ok">
+      <div class="al2-inner">
+        <div class="al2-icon">✅</div>
+        <div class="al2-body">
+          <div class="al2-title">系统运行正常</div>
+          <div class="al2-desc">所有服务均正常，无异常告警</div>
+        </div>
+        <div class="al2-time">刚刚检查</div>
+      </div>
+      <div class="al2-footer">
+        <div class="al2-badge" style="background:rgba(52,199,89,0.08);color:#34C759">正常</div>
+      </div>
+    </div>
+
+    <div class="glass al2-card warn">
+      <div class="al2-inner">
+        <div class="al2-icon">⚠️</div>
+        <div class="al2-body">
+          <div class="al2-title">CPU 使用率偏高</div>
+          <div class="al2-desc">过去 15 分钟平均使用率超过 80%</div>
+        </div>
+        <div class="al2-time">5 分钟前</div>
+      </div>
+      <div class="al2-footer">
+        <div class="al2-badge" style="background:rgba(255,149,0,0.08);color:#FF9500">警告</div>
+        <div class="al2-action" style="color:#FF9500">查看详情 ›</div>
+      </div>
+    </div>
+
+    <div class="glass al2-card error">
+      <div class="al2-inner">
+        <div class="al2-icon">🚨</div>
+        <div class="al2-body">
+          <div class="al2-title">异常登录检测</div>
+          <div class="al2-desc">检测到来自新 IP 地址的管理员登录</div>
+        </div>
+        <div class="al2-time">12 分钟前</div>
+      </div>
+      <div class="al2-footer">
+        <div class="al2-badge" style="background:rgba(255,59,48,0.08);color:#FF3B30">严重</div>
+        <div class="al2-action" style="color:#FF3B30">立即处理 ›</div>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

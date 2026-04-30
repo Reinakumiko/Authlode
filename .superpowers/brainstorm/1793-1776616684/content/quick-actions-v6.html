@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 - 精制版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 方案 R: 精致 SVG 图标 + 数字 ===== */
+  .r-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .r-card {
+    position: relative; padding: 16px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(24px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03), 0 0 0 0.5px rgba(255,255,255,0.4) inset;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .r-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(255,255,255,0.5) inset;
+    transform: translateY(-2px);
+  }
+  .r-icon-wrap {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+  }
+  .r-card:hover .r-icon-wrap { transform: scale(1.05); }
+  .r-icon-wrap svg { width: 18px; height: 18px; }
+  .r-name { font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
+  .r-stat { display: flex; align-items: baseline; gap: 3px; }
+  .r-num { font-size: 20px; font-weight: 800; letter-spacing: -0.04em; color: #1d1d1f; line-height: 1; }
+  .r-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+  .r-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    opacity: 0.6; transition: opacity 0.2s, height 0.2s;
+  }
+  .r-card:hover .r-bar { opacity: 1; height: 4px; }
+
+  /* ===== 方案 S: 无背景图标 + 更克制 ===== */
+  .s-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .s-card {
+    position: relative; padding: 16px; cursor: pointer;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .s-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    transform: translateY(-1px);
+  }
+  .s-icon {
+    width: 24px; height: 24px; margin-bottom: 10px;
+    transition: transform 0.2s;
+  }
+  .s-card:hover .s-icon { transform: translateY(-1px); }
+  .s-icon svg { width: 24px; height: 24px; }
+  .s-name { font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 2px; }
+  .s-stat { font-size: 11px; color: #aeaeb2; font-weight: 500; }
+  .s-stat strong { color: #636366; font-weight: 700; font-size: 13px; }
+  .s-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    opacity: 0.5; transition: opacity 0.2s;
+  }
+  .s-card:hover .s-bar { opacity: 1; }
+
+  /* ===== 方案 T: 线条图标 + 左侧色标 ===== */
+  .t-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .t-card {
+    position: relative; padding: 16px 16px 16px 20px; cursor: pointer;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .t-card::before {
+    content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
+    border-radius: 0 2px 2px 0; opacity: 0.7; transition: opacity 0.2s;
+  }
+  .t-card:hover::before { opacity: 1; }
+  .t-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    transform: translateY(-1px);
+  }
+  .t-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .t-icon svg { width: 16px; height: 16px; }
+  .t-name { font-size: 12px; font-weight: 600; color: #1d1d1f; flex: 1; }
+  .t-num { font-size: 16px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; }
+  .t-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+  .t-bar { height: 3px; border-radius: 2px; margin-top: 8px; opacity: 0.5; transition: opacity 0.2s; }
+  .t-card:hover .t-bar { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<!-- 方案 R: 精致 SVG 图标 + 数字 + 底部渐变条 -->
+<div class="section">
+  <div class="section-label">方案 R</div>
+  <div class="section-title">精致 SVG 图标 + 数字</div>
+  <div class="section-desc">带底色圆角的 SVG 线条图标 + 大数字 + 底部渐变条 hover 动效</div>
+
+  <div class="r-row">
+    <div class="r-card">
+      <div class="r-icon-wrap" style="background:rgba(99,102,241,0.08)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="r-name">用户管理</div>
+      <div class="r-stat"><span class="r-num">128</span><span class="r-unit">位用户</span></div>
+      <div class="r-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-icon-wrap" style="background:rgba(139,92,246,0.08)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="3"/>
+          <path d="M8 4V2m8 2V2"/>
+          <path d="M12 10v4m-2-2h4"/>
+        </svg>
+      </div>
+      <div class="r-name">邀请用户</div>
+      <div class="r-stat"><span class="r-num">5</span><span class="r-unit">待处理</span></div>
+      <div class="r-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-icon-wrap" style="background:rgba(59,130,246,0.08)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="r-name">组织管理</div>
+      <div class="r-stat"><span class="r-num">12</span><span class="r-unit">个组织</span></div>
+      <div class="r-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-icon-wrap" style="background:rgba(20,184,166,0.08)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10"/>
+          <path d="M22 12c0-1.5-.5-3-1.5-4.2"/>
+          <path d="M17 3.5A10 10 0 0 1 22 12"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <div class="r-name">角色权限</div>
+      <div class="r-stat"><span class="r-num">8</span><span class="r-unit">个角色</span></div>
+      <div class="r-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-icon-wrap" style="background:rgba(236,72,153,0.08)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="3"/>
+          <path d="M12 18h.01"/>
+        </svg>
+      </div>
+      <div class="r-name">应用管理</div>
+      <div class="r-stat"><span class="r-num">6</span><span class="r-unit">个应用</span></div>
+      <div class="r-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 S: 无底色图标 + 克制风格 -->
+<div class="section">
+  <div class="section-label">方案 S</div>
+  <div class="section-title">裸 SVG 图标 + 克制风格</div>
+  <div class="section-desc">图标无底色圆角，纯线条 SVG + 数字在描述行内</div>
+
+  <div class="s-row">
+    <div class="s-card">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="s-name">用户管理</div>
+      <div class="s-stat"><strong>128</strong> 位用户</div>
+      <div class="s-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+
+    <div class="s-card">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <path d="M22 6l-10 7L2 6"/>
+        </svg>
+      </div>
+      <div class="s-name">邀请用户</div>
+      <div class="s-stat"><strong>5</strong> 待处理</div>
+      <div class="s-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+
+    <div class="s-card">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="s-name">组织管理</div>
+      <div class="s-stat"><strong>12</strong> 个组织</div>
+      <div class="s-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+
+    <div class="s-card">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+        </svg>
+      </div>
+      <div class="s-name">角色权限</div>
+      <div class="s-stat"><strong>8</strong> 个角色</div>
+      <div class="s-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+
+    <div class="s-card">
+      <div class="s-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="3"/>
+          <path d="M12 18h.01"/>
+        </svg>
+      </div>
+      <div class="s-name">应用管理</div>
+      <div class="s-stat"><strong>6</strong> 个应用</div>
+      <div class="s-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 T: 左侧色标 + 线条图标 + 数字 -->
+<div class="section">
+  <div class="section-label">方案 T</div>
+  <div class="section-title">左侧色标 + SVG 图标</div>
+  <div class="section-desc">左侧竖色条 + 小 SVG 图标 + 大数字 + 底部渐变条</div>
+
+  <div class="t-row">
+    <div class="t-card">
+      <div style="position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#6366f1,#8b5cf6)"></div>
+      <div class="t-top">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <span class="t-name">用户管理</span>
+      </div>
+      <div><span class="t-num">128</span><span class="t-unit"> 位用户</span></div>
+      <div class="t-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+
+    <div class="t-card">
+      <div style="position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#8b5cf6,#a855f7)"></div>
+      <div class="t-top">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <path d="M22 6l-10 7L2 6"/>
+          </svg>
+        </div>
+        <span class="t-name">邀请用户</span>
+      </div>
+      <div><span class="t-num">5</span><span class="t-unit"> 待处理</span></div>
+      <div class="t-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+
+    <div class="t-card">
+      <div style="position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#3b82f6,#2563eb)"></div>
+      <div class="t-top">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <span class="t-name">组织管理</span>
+      </div>
+      <div><span class="t-num">12</span><span class="t-unit"> 个组织</span></div>
+      <div class="t-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+
+    <div class="t-card">
+      <div style="position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#14b8a6,#06b6d4)"></div>
+      <div class="t-top">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+          </svg>
+        </div>
+        <span class="t-name">角色权限</span>
+      </div>
+      <div><span class="t-num">8</span><span class="t-unit"> 个角色</span></div>
+      <div class="t-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+
+    <div class="t-card">
+      <div style="position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#ec4899,#db2777)"></div>
+      <div class="t-top">
+        <div class="t-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="3"/>
+            <path d="M12 18h.01"/>
+          </svg>
+        </div>
+        <span class="t-name">应用管理</span>
+      </div>
+      <div><span class="t-num">6</span><span class="t-unit"> 个应用</span></div>
+      <div class="t-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

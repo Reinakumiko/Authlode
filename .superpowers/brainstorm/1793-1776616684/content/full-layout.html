@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard 完整布局 — 1080p 充实版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --sp-4:4px;--sp-8:8px;--sp-10:10px;--sp-12:12px;--sp-14:14px;--sp-16:16px;--sp-20:20px;--sp-24:24px;--sp-28:28px;--sp-32:32px;--sp-40:40px;
+    --r-sm:8px;--r-md:12px;--r-lg:14px;--r-xl:16px;
+    --sh-1:0 1px 3px rgba(0,0,0,0.04);--sh-2:0 2px 8px rgba(0,0,0,0.04);--sh-3:0 8px 24px rgba(0,0,0,0.08);
+    --icon-stroke:1.5px;--ease:cubic-bezier(0.4,0,0.2,1);--dur:200ms;
+    --c-indigo:#6366f1;--c-violet:#8b5cf6;--c-blue:#3b82f6;--c-teal:#14b8a6;--c-pink:#ec4899;--c-green:#34C759;
+    --c-text:#1d1d1f;--c-text-2:#48484a;--c-text-3:#86868b;--c-text-4:#aeaeb2;--c-border:rgba(0,0,0,0.04);
+  }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(160deg,#f0f4ff 0%,#faf5ff 50%,#f0fdf4 100%);min-height:100vh;-webkit-font-smoothing:antialiased;color:var(--c-text);display:flex; }
+
+  /* ===== 侧边栏 ===== */
+  .sidebar { width:240px;min-height:100vh;flex-shrink:0;background:linear-gradient(180deg,rgba(99,102,241,0.06) 0%,rgba(139,92,246,0.04) 50%,rgba(20,184,166,0.06) 100%);backdrop-filter:blur(30px);border-right:0.5px solid rgba(255,255,255,0.4);padding:var(--sp-24) var(--sp-16);display:flex;flex-direction:column; }
+  .sb-brand { display:flex;align-items:center;gap:10px;margin-bottom:var(--sp-32); }
+  .sb-logo { width:32px;height:32px;border-radius:var(--r-sm);background:linear-gradient(135deg,var(--c-indigo),var(--c-violet));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800; }
+  .sb-title { font-size:14px;font-weight:700; }
+  .sb-sub { font-size:10px;color:var(--c-text-4);font-weight:500; }
+  .sb-group { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--c-violet);margin:var(--sp-24) 0 var(--sp-8); }
+  .sb-item { display:flex;align-items:center;gap:10px;padding:var(--sp-8) var(--sp-12);border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--c-text-3);cursor:pointer;transition:all var(--dur) var(--ease); }
+  .sb-item:hover { background:rgba(255,255,255,0.4);color:var(--c-text-2); }
+  .sb-item.active { background:rgba(255,255,255,0.6);color:var(--c-indigo);font-weight:600;box-shadow:0 0 0 0.5px rgba(99,102,241,0.15); }
+  .sb-item svg { width:16px;height:16px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none; }
+
+  /* ===== 主内容 ===== */
+  .main { flex:1;min-height:100vh;overflow-y:auto;padding:var(--sp-32) var(--sp-40); }
+  .glass { background:rgba(255,255,255,0.5);backdrop-filter:blur(20px);border:0.5px solid rgba(255,255,255,0.6);border-radius:var(--r-lg);box-shadow:var(--sh-2); }
+  .status-dot { width:8px;height:8px;border-radius:50%;display:inline-block; }
+  .status-dot.on { background:var(--c-green);box-shadow:0 0 6px rgba(52,199,89,0.4); }
+  .sec-label { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--c-text-4);margin-bottom:var(--sp-10); }
+  .row { display:grid;gap:var(--sp-14);margin-bottom:var(--sp-28); }
+  .card-base { background:rgba(255,255,255,0.55);backdrop-filter:blur(20px);border:0.5px solid rgba(255,255,255,0.7);border-radius:var(--r-lg);box-shadow:var(--sh-1);transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease); }
+  .card-base:hover { transform:translateY(-1px);box-shadow:var(--sh-3); }
+
+  /* 欢迎区 */
+  .welcome { display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-32); }
+  .w-title { font-size:22px;font-weight:800;letter-spacing:-0.03em; }
+  .w-sub { font-size:13px;color:var(--c-text-3);font-weight:500;margin-top:4px; }
+  .w-actions { display:flex;gap:var(--sp-8); }
+  .w-btn { padding:var(--sp-8) var(--sp-16);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.5);backdrop-filter:blur(16px);transition:all var(--dur) var(--ease);display:flex;align-items:center;gap:6px; }
+  .w-btn:hover { background:rgba(255,255,255,0.7); }
+  .w-btn.primary { background:linear-gradient(135deg,var(--c-indigo),var(--c-violet));color:#fff;border:none; }
+  .w-btn svg { width:14px;height:14px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none; }
+
+  /* 指标卡片 */
+  .metrics { grid-template-columns:repeat(5,1fr); }
+  .m-card { padding:var(--sp-16);position:relative;overflow:hidden; }
+  .m-top { display:flex;align-items:flex-start;justify-content:space-between; }
+  .m-num { font-size:24px;font-weight:800;letter-spacing:-0.04em; }
+  .m-label { font-size:12px;font-weight:600;color:var(--c-text-2); }
+  .m-change { font-size:10px;font-weight:600;margin-top:2px; }
+  .m-bar { height:6px;border-radius:3px;margin-top:var(--sp-14); }
+
+  /* 负载趋势 + 服务状态 */
+  .trend-row { grid-template-columns:1.6fr 1fr; }
+  .trend-card { padding:var(--sp-20);position:relative;overflow:hidden; }
+  .trend-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-16); }
+  .trend-title { font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px; }
+  .trend-title svg { width:16px;height:16px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none; }
+  .trend-tabs { display:flex;gap:2px;background:rgba(0,0,0,0.04);border-radius:var(--r-sm);padding:2px; }
+  .trend-tab { padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;color:var(--c-text-4);cursor:pointer;transition:all 0.15s; }
+  .trend-tab.active { background:#fff;color:var(--c-text);box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+  .trend-stats { display:flex;gap:var(--sp-24);margin-bottom:var(--sp-12); }
+  .ts-item { }
+  .ts-label { font-size:11px;color:var(--c-text-4);font-weight:500; }
+  .ts-val { font-size:18px;font-weight:800;letter-spacing:-0.03em;margin-top:2px; }
+  .ts-change { font-size:10px;font-weight:600; }
+  .trend-chart { width:100%;height:120px; }
+
+  /* 右侧信息卡 */
+  .info-card { padding:var(--sp-20);display:flex;flex-direction:column;gap:var(--sp-16); }
+  .info-title { font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px; }
+  .info-title svg { width:16px;height:16px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none; }
+  .info-row { display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:0.5px solid var(--c-border); }
+  .info-row:last-child { border-bottom:none; }
+  .info-key { color:var(--c-text-3);font-weight:500;display:flex;align-items:center;gap:6px; }
+  .info-val { font-weight:600;color:var(--c-text); }
+  .info-actions { display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:var(--sp-8);border-top:0.5px solid var(--c-border); }
+  .info-action { display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;font-weight:500;color:var(--c-text-2);transition:all 0.15s; }
+  .info-action:hover { background:rgba(255,255,255,0.5);color:var(--c-indigo); }
+  .info-action svg { width:14px;height:14px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none;color:var(--c-text-4); }
+  .info-action:hover svg { color:var(--c-indigo); }
+  .info-action .arrow { margin-left:auto;color:var(--c-text-4);font-size:11px; }
+
+  /* 硬件监控 */
+  .hw-grid { grid-template-columns:200px 1fr 200px; }
+  .st-card { padding:var(--sp-16); }
+  .st-title { font-size:14px;font-weight:700;color:var(--c-text-2);margin-bottom:18px; }
+  .st-list { display:flex;flex-direction:column;gap:12px; }
+  .st-item { display:flex;align-items:center;justify-content:space-between;font-size:13px; }
+  .st-left { display:flex;align-items:center;gap:var(--sp-8);color:var(--c-text-3);font-weight:500; }
+  .st-val { font-weight:600;color:var(--c-text); }
+
+  .hw-mid { display:flex;flex-direction:column;gap:var(--sp-12); }
+  .hw-card { padding:var(--sp-12) var(--sp-16);background:rgba(255,255,255,0.55);backdrop-filter:blur(20px);border:0.5px solid rgba(255,255,255,0.7);border-radius:var(--r-md);box-shadow:var(--sh-1); }
+  .hw-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-8); }
+  .hw-label { display:flex;align-items:center;gap:var(--sp-8); }
+  .hw-dot { width:5px;height:5px;border-radius:50%; }
+  .hw-name { font-size:13px;font-weight:600;color:var(--c-text-3); }
+  .hw-right { display:flex;align-items:baseline;gap:2px; }
+  .hw-val { font-size:17px;font-weight:800;letter-spacing:-0.03em; }
+  .hw-unit { font-size:10px;font-weight:600;opacity:0.5; }
+  .hw-chart { width:100%;height:36px; }
+
+  .disk-card { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--sp-16); }
+  .pie-wrap { position:relative;width:110px;height:110px; }
+  .pie-center { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center; }
+  .pie-val { font-size:20px;font-weight:800;letter-spacing:-0.03em; }
+  .pie-unit { font-size:9px;color:var(--c-text-3);font-weight:500; }
+  .pie-label { margin-top:var(--sp-12);text-align:center; }
+  .pie-name { font-size:12px;font-weight:600;color:var(--c-text-2); }
+  .pie-detail { font-size:10px;color:var(--c-text-4);margin-top:2px;font-weight:500; }
+
+  /* 双栏 */
+  .dual { grid-template-columns:1.2fr 1fr; }
+  .dual-card { padding:var(--sp-20); }
+  .dual-title { font-size:14px;font-weight:700;margin-bottom:var(--sp-16);display:flex;align-items:center;gap:var(--sp-8); }
+  .dual-title svg { width:16px;height:16px;stroke-width:var(--icon-stroke);stroke-linecap:round;stroke-linejoin:round;fill:none; }
+
+  .act-item { display:flex;align-items:center;gap:var(--sp-12);padding:var(--sp-10) 0;border-bottom:0.5px solid var(--c-border); }
+  .act-item:last-child { border-bottom:none; }
+  .act-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+  .act-text { flex:1;font-size:13px;font-weight:500;color:var(--c-text-2); }
+  .act-text strong { font-weight:600;color:var(--c-text); }
+  .act-time { font-size:11px;color:var(--c-text-4);font-weight:500;flex-shrink:0; }
+
+  .al-item { display:flex;align-items:flex-start;gap:var(--sp-10);padding:var(--sp-10) 0;border-bottom:0.5px solid var(--c-border); }
+  .al-item:last-child { border-bottom:none; }
+  .al-icon { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .al-icon svg { width:14px;height:14px;stroke-width:2px;stroke-linecap:round;stroke-linejoin:round;fill:none; }
+  .al-body { flex:1; }
+  .al-head { font-size:13px;font-weight:600; }
+  .al-desc { font-size:12px;color:var(--c-text-3);font-weight:500;margin-top:2px; }
+  .al-time { font-size:11px;color:var(--c-text-4);font-weight:500;flex-shrink:0;margin-top:1px; }
+
+  /* 底部 */
+  .footer { display:flex;align-items:center;justify-content:space-between;padding:var(--sp-10) var(--sp-16);font-size:11px;color:var(--c-text-4);font-weight:500; }
+  .footer-left { display:flex;align-items:center;gap:var(--sp-8); }
+  .footer-dot { width:6px;height:6px;border-radius:50%;background:var(--c-green);box-shadow:0 0 4px rgba(52,199,89,0.4); }
+  .footer-right { display:flex;gap:var(--sp-16); }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand"><div class="sb-logo">L</div><div><div class="sb-title">Logto Manager</div><div class="sb-sub">管理控制台</div></div></div>
+  <div class="sb-group">概览</div>
+  <div class="sb-item active"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Dashboard</div>
+  <div class="sb-group">管理</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 用户管理</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 邀请管理</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> 组织管理</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 角色权限</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg> 应用管理</div>
+  <div class="sb-group">系统</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 系统设置</div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> 审计日志</div>
+</nav>
+
+<main class="main">
+
+  <!-- 欢迎 -->
+  <div class="welcome">
+    <div><div class="w-title">欢迎回来，管理员</div><div class="w-sub">2026年4月22日 星期三</div></div>
+    <div class="w-actions">
+      <div class="w-btn"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 刷新数据</div>
+      <div class="w-btn primary"><svg viewBox="0 0 24 24" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 快速创建</div>
+    </div>
+  </div>
+
+  <!-- 指标卡片 -->
+  <div class="sec-label">概览指标</div>
+  <div class="row metrics">
+    <div class="card-base m-card"><div class="m-top"><div class="m-num">128</div><div style="text-align:right"><div class="m-label">总用户</div><div class="m-change" style="color:var(--c-green)">+3 今日</div></div></div><div class="m-bar" style="background:linear-gradient(90deg,var(--c-indigo),#818cf8)"></div></div>
+    <div class="card-base m-card"><div class="m-top"><div class="m-num">12</div><div style="text-align:right"><div class="m-label">组织</div><div class="m-change" style="color:var(--c-text-4)">稳定</div></div></div><div class="m-bar" style="background:linear-gradient(90deg,var(--c-violet),#a78bfa)"></div></div>
+    <div class="card-base m-card"><div class="m-top"><div class="m-num">6</div><div style="text-align:right"><div class="m-label">应用</div><div class="m-change" style="color:var(--c-blue)">+1 本周</div></div></div><div class="m-bar" style="background:linear-gradient(90deg,var(--c-blue),#60a5fa)"></div></div>
+    <div class="card-base m-card"><div class="m-top"><div class="m-num">23</div><div style="text-align:right"><div class="m-label">活跃会话</div><div class="m-change" style="color:var(--c-green)">+3</div></div></div><div class="m-bar" style="background:linear-gradient(90deg,var(--c-teal),#2dd4bf)"></div></div>
+    <div class="card-base m-card"><div class="m-top"><div class="m-num">5</div><div style="text-align:right"><div class="m-label">待处理邀请</div><div class="m-change" style="color:#f59e0b">需处理</div></div></div><div class="m-bar" style="background:linear-gradient(90deg,var(--c-pink),#f472b6)"></div></div>
+  </div>
+
+  <!-- 负载趋势 + 快捷操作 -->
+  <div class="sec-label">系统负载</div>
+  <div class="row trend-row">
+    <!-- 趋势图 -->
+    <div class="glass trend-card">
+      <div class="trend-head">
+        <div class="trend-title"><svg viewBox="0 0 24 24" stroke="var(--c-indigo)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 活跃会话趋势</div>
+        <div class="trend-tabs"><div class="trend-tab">24h</div><div class="trend-tab active">7天</div><div class="trend-tab">30天</div></div>
+      </div>
+      <div class="trend-stats">
+        <div class="ts-item"><div class="ts-label">当前</div><div class="ts-val">23 <span class="ts-change" style="color:var(--c-green)">+3</span></div></div>
+        <div class="ts-item"><div class="ts-label">峰值</div><div class="ts-val">48</div></div>
+        <div class="ts-item"><div class="ts-label">平均</div><div class="ts-val">18</div></div>
+        <div class="ts-item"><div class="ts-label">今日活跃</div><div class="ts-val">34</div></div>
+      </div>
+      <div class="trend-chart">
+        <svg viewBox="0 0 520 120" preserveAspectRatio="none" style="width:100%;height:100%">
+          <defs>
+            <linearGradient id="tF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.15"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0.01"/></linearGradient>
+          </defs>
+          <line x1="0" y1="30" x2="520" y2="30" stroke="rgba(0,0,0,0.03)" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="0" y1="60" x2="520" y2="60" stroke="rgba(0,0,0,0.03)" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="0" y1="90" x2="520" y2="90" stroke="rgba(0,0,0,0.03)" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <text x="2" y="28" font-size="8" fill="#c7c7cc" font-weight="500">50</text>
+          <text x="2" y="58" font-size="8" fill="#c7c7cc" font-weight="500">30</text>
+          <text x="2" y="88" font-size="8" fill="#c7c7cc" font-weight="500">10</text>
+          <path d="M20 80 C40 72,60 58,80 62 C100 66,120 42,160 48 C200 54,220 34,260 38 C300 42,320 56,360 50 C400 44,420 30,460 36 C480 40,500 44,520 42 L520 120 L20 120Z" fill="url(#tF)"/>
+          <path d="M20 80 C40 72,60 58,80 62 C100 66,120 42,160 48 C200 54,220 34,260 38 C300 42,320 56,360 50 C400 44,420 30,460 36 C480 40,500 44,520 42" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="520" cy="42" r="4" fill="#6366f1" stroke="white" stroke-width="2"/>
+          <circle cx="460" cy="36" r="3" fill="none" stroke="#6366f1" stroke-width="1" opacity="0.5"/>
+          <text x="460" y="28" font-size="8" fill="#6366f1" text-anchor="middle" font-weight="600" opacity="0.7">48</text>
+          <!-- X 轴标签 -->
+          <text x="20" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周一</text>
+          <text x="92" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周二</text>
+          <text x="164" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周三</text>
+          <text x="236" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周四</text>
+          <text x="308" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周五</text>
+          <text x="380" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周六</text>
+          <text x="452" y="115" font-size="8" fill="#c7c7cc" font-weight="500">周日</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 快捷操作 + 系统信息 -->
+    <div class="glass info-card">
+      <div class="info-title"><svg viewBox="0 0 24 24" stroke="var(--c-indigo)"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> 快捷操作</div>
+      <div class="info-actions">
+        <div class="info-action"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 用户管理<span class="arrow">→</span></div>
+        <div class="info-action"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 邀请用户<span class="arrow">→</span></div>
+        <div class="info-action"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> 组织管理<span class="arrow">→</span></div>
+        <div class="info-action"><svg viewBox="0 0 24 24" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 角色权限<span class="arrow">→</span></div>
+        <div class="info-action"><svg viewBox="0 0 24 24" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg> 应用管理<span class="arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 硬件监控 -->
+  <div class="sec-label">系统监控</div>
+  <div class="row hw-grid">
+    <div class="glass st-card">
+      <div class="st-title">服务状态</div>
+      <div class="st-list">
+        <div class="st-item"><div class="st-left"><span class="status-dot on"></span> Logto</div><div class="st-val" style="color:var(--c-green)">在线</div></div>
+        <div class="st-item"><div class="st-left"><span class="status-dot on"></span> 数据库</div><div class="st-val" style="color:var(--c-green)">正常</div></div>
+        <div class="st-item"><div class="st-left"><span class="status-dot on"></span> 缓存</div><div class="st-val" style="color:var(--c-green)">正常</div></div>
+        <div class="st-item"><div class="st-left">运行</div><div class="st-val">45天12时</div></div>
+        <div class="st-item"><div class="st-left">版本</div><div class="st-val">v1.15.0</div></div>
+        <div class="st-item"><div class="st-left">网络</div><div class="st-val">85 Mbps</div></div>
+      </div>
+    </div>
+    <div class="hw-mid">
+      <div class="hw-card">
+        <div class="hw-head"><div class="hw-label"><div class="hw-dot" style="background:var(--c-indigo)"></div><span class="hw-name">CPU</span></div><div class="hw-right"><span class="hw-val" style="color:var(--c-indigo)">45</span><span class="hw-unit" style="color:var(--c-indigo)">%</span></div></div>
+        <div class="hw-chart"><svg viewBox="0 0 240 36" preserveAspectRatio="none" style="width:100%;height:100%"><defs><linearGradient id="cF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient></defs><path d="M0 22 C12 19,24 14,36 16 C48 18,56 10,72 12 C88 14,100 8,120 10 C140 12,148 18,168 14 C188 10,200 14,216 12 C228 11,234 14,240 16 L240 36 L0 36Z" fill="url(#cF)"/><path d="M0 22 C12 19,24 14,36 16 C48 18,56 10,72 12 C88 14,100 8,120 10 C140 12,148 18,168 14 C188 10,200 14,216 12 C228 11,234 14,240 16" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/><circle cx="240" cy="16" r="2.5" fill="#6366f1" stroke="white" stroke-width="1.5"/></svg></div>
+      </div>
+      <div class="hw-card">
+        <div class="hw-head"><div class="hw-label"><div class="hw-dot" style="background:var(--c-violet)"></div><span class="hw-name">内存</span></div><div class="hw-right"><span class="hw-val" style="color:var(--c-violet)">62</span><span class="hw-unit" style="color:var(--c-violet)">%</span></div></div>
+        <div class="hw-chart"><svg viewBox="0 0 240 36" preserveAspectRatio="none" style="width:100%;height:100%"><defs><linearGradient id="mF" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.18"/><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient></defs><path d="M0 14 C12 12,24 10,36 11 C48 12,60 8,72 9 C84 10,96 6,120 8 C144 10,156 12,168 10 C180 8,192 10,216 8 C228 7,234 9,240 10 L240 36 L0 36Z" fill="url(#mF)"/><path d="M0 14 C12 12,24 10,36 11 C48 12,60 8,72 9 C84 10,96 6,120 8 C144 10,156 12,168 10 C180 8,192 10,216 8 C228 7,234 9,240 10" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/><circle cx="240" cy="10" r="2.5" fill="#8b5cf6" stroke="white" stroke-width="1.5"/></svg></div>
+      </div>
+    </div>
+    <div class="glass disk-card">
+      <div class="pie-wrap"><svg viewBox="0 0 110 110" style="width:100%;height:100%"><defs><linearGradient id="dG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#14b8a6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><circle cx="55" cy="55" r="42" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="9"/><circle cx="55" cy="55" r="42" fill="none" stroke="url(#dG)" stroke-width="9" stroke-linecap="round" stroke-dasharray="100.27 263.89" transform="rotate(-90 55 55)"/></svg><div class="pie-center"><div class="pie-val">38%</div><div class="pie-unit">已使用</div></div></div>
+      <div class="pie-label"><div class="pie-name">硬盘</div><div class="pie-detail">190 / 500 GB</div></div>
+    </div>
+  </div>
+
+  <!-- 活动流 + 告警 -->
+  <div class="sec-label">动态</div>
+  <div class="row dual">
+    <div class="glass dual-card">
+      <div class="dual-title"><svg viewBox="0 0 24 24" stroke="var(--c-indigo)"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 最近活动</div>
+      <div class="act-item"><div class="act-dot" style="background:var(--c-indigo)"></div><div class="act-text"><strong>管理员</strong> 邀请了新用户 <strong>zhang.wei@company.com</strong></div><div class="act-time">5 分钟前</div></div>
+      <div class="act-item"><div class="act-dot" style="background:var(--c-blue)"></div><div class="act-text"><strong>李明</strong> 加入了组织 <strong>技术部</strong></div><div class="act-time">23 分钟前</div></div>
+      <div class="act-item"><div class="act-dot" style="background:var(--c-violet)"></div><div class="act-text"><strong>管理员</strong> 更新了角色 <strong>部门主管</strong> 的权限</div><div class="act-time">1 小时前</div></div>
+      <div class="act-item"><div class="act-dot" style="background:var(--c-teal)"></div><div class="act-text"><strong>王芳</strong> 完成了首次登录</div><div class="act-time">2 小时前</div></div>
+      <div class="act-item"><div class="act-dot" style="background:var(--c-pink)"></div><div class="act-text"><strong>管理员</strong> 创建了新应用 <strong>内部 wiki</strong></div><div class="act-time">昨天 16:30</div></div>
+      <div class="act-item"><div class="act-dot" style="background:#f59e0b"></div><div class="act-text">系统自动清理了 <strong>3</strong> 个过期邀请</div><div class="act-time">昨天 09:00</div></div>
+    </div>
+    <div class="glass dual-card">
+      <div class="dual-title"><svg viewBox="0 0 24 24" stroke="var(--c-teal)"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> 系统告警</div>
+      <div class="al-item">
+        <div class="al-icon" style="background:rgba(52,199,89,0.1)"><svg viewBox="0 0 24 24" stroke="var(--c-green)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <div class="al-body"><div class="al-head">系统运行正常</div><div class="al-desc">所有服务均正常，无异常告警</div></div><div class="al-time">刚刚</div>
+      </div>
+      <div class="al-item">
+        <div class="al-icon" style="background:rgba(255,149,0,0.1)"><svg viewBox="0 0 24 24" stroke="#FF9500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="al-body"><div class="al-head">CPU 使用率偏高</div><div class="al-desc">过去 15 分钟平均使用率超过 80%</div></div><div class="al-time">5 分钟前</div>
+      </div>
+      <div class="al-item">
+        <div class="al-icon" style="background:rgba(255,59,48,0.1)"><svg viewBox="0 0 24 24" stroke="#FF3B30"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+        <div class="al-body"><div class="al-head">异常登录检测</div><div class="al-desc">检测到来自新 IP 的管理员登录</div></div><div class="al-time">12 分钟前</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="glass footer">
+    <div class="footer-left"><div class="footer-dot"></div><span>系统正常运行中</span></div>
+    <div class="footer-right"><span>最后更新: 10 秒前</span><span>v1.15.0</span></div>
+  </div>
+
+</main>
+</body>
+</html>

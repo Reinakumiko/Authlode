@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计细节选择</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    -webkit-font-smoothing: antialiased;
+    padding: 40px;
+  }
+
+  h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .desc { font-size: 14px; color: #86868b; margin-bottom: 40px; }
+
+  .section { margin-bottom: 48px; }
+  .section-title {
+    font-size: 17px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em;
+  }
+  .section-sub { font-size: 13px; color: #86868b; margin-bottom: 16px; }
+
+  .options-row {
+    display: grid;
+    gap: 16px;
+  }
+
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .option {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .option:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+
+  .option.selected {
+    border-color: #007AFF;
+    box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.15);
+  }
+
+  .option-preview {
+    padding: 20px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .option-label {
+    padding: 12px 16px;
+    border-top: 0.5px solid rgba(0,0,0,0.06);
+    background: #fafafa;
+  }
+
+  .option-name {
+    font-size: 13px; font-weight: 600; color: #1d1d1f; margin-bottom: 2px;
+  }
+
+  .option-desc {
+    font-size: 11px; color: #86868b; line-height: 1.4;
+  }
+
+  /* ===== 各选项的预览样式 ===== */
+
+  /* 1. Metric Card 样式 */
+  .metric-preview { width: 100%; }
+
+  .mp-a {
+    background: #fff; border-radius: 16px; padding: 20px;
+    border: 0.5px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .mp-a .dot { width: 8px; height: 8px; border-radius: 50%; background: #007AFF; box-shadow: 0 0 8px rgba(0,122,255,0.35); display: inline-block; margin-right: 8px; }
+  .mp-a .label { font-size: 13px; color: #86868b; font-weight: 500; }
+  .mp-a .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; margin-top: 14px; }
+  .mp-a .change { font-size: 12px; color: #34C759; margin-top: 6px; }
+
+  .mp-b {
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(20px);
+    border-radius: 16px; padding: 20px;
+    border: 1px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
+  .mp-b .icon-box {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #007AFF, #5856D6);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,122,255,0.2);
+    color: white; font-size: 18px;
+  }
+  .mp-b .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+  .mp-b .label { font-size: 13px; color: #86868b; margin-top: 4px; }
+
+  .mp-c {
+    background: #fff; border-radius: 16px; padding: 20px;
+    border: 0.5px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .mp-c .ring {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: conic-gradient(#007AFF 0% 65%, #f0f0f0 65% 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mp-c .ring-inner {
+    width: 38px; height: 38px; border-radius: 50%; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #007AFF;
+  }
+  .mp-c .val { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+  .mp-c .label { font-size: 13px; color: #86868b; margin-top: 2px; }
+  .mp-c .change { font-size: 11px; color: #34C759; margin-top: 2px; }
+
+  .mp-d {
+    background: linear-gradient(135deg, rgba(238,242,255,0.9), rgba(219,234,254,0.7));
+    border-radius: 16px; padding: 20px;
+    border: 0.5px solid rgba(147,197,253,0.3);
+    box-shadow: 0 4px 12px rgba(59,130,246,0.06);
+  }
+  .mp-d .icon-box {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: #007AFF; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px; color: white; font-size: 18px;
+  }
+  .mp-d .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: #1e3a5f; }
+  .mp-d .label { font-size: 13px; color: #007AFF; margin-top: 4px; font-weight: 500; }
+
+  /* 2. Icon 风格 */
+  .icon-preview {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    justify-content: center; padding: 10px 0;
+  }
+
+  .icon-a {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, #007AFF, #5856D6);
+    display: flex; align-items: center; justify-content: center;
+    color: white; box-shadow: 0 2px 6px rgba(0,122,255,0.2);
+  }
+
+  .icon-b {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(0,122,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: #007AFF;
+  }
+
+  .icon-c {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,122,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: #007AFF;
+  }
+
+  .icon-d {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #007AFF; box-shadow: 0 0 8px rgba(0,122,255,0.35);
+  }
+
+  /* 3. 背景风格 */
+  .bg-preview { width: 100%; height: 140px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #86868b; font-weight: 500; }
+
+  .bg-a { background: #ffffff; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.06); }
+  .bg-b { background: #f5f5f7; }
+  .bg-c {
+    background: #ffffff;
+    position: relative; overflow: hidden;
+  }
+  .bg-c::before {
+    content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(0,122,255,0.06) 0%, transparent 70%); border-radius: 50%;
+  }
+  .bg-c::after {
+    content: ''; position: absolute; bottom: -20px; left: -20px; width: 80px; height: 80px;
+    background: radial-gradient(circle, rgba(88,86,214,0.05) 0%, transparent 70%); border-radius: 50%;
+  }
+  .bg-d {
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+  }
+
+  /* 4. 侧边栏风格 */
+  .sidebar-preview {
+    width: 100%; height: 200px; border-radius: 12px; overflow: hidden;
+  }
+
+  .sb-a {
+    background: rgba(255,255,255,0.72); backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(0,0,0,0.08); padding: 12px;
+  }
+  .sb-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    border-radius: 6px; font-size: 11px; color: #48484a; margin-bottom: 2px;
+  }
+  .sb-item.active { background: rgba(0,122,255,0.08); color: #007AFF; }
+  .sb-dot { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+
+  .sb-b {
+    background: #ffffff; border-right: 1px solid rgba(0,0,0,0.06); padding: 12px;
+  }
+
+  .sb-c {
+    background: #1d1d1f; padding: 12px;
+  }
+  .sb-c .sb-item { color: rgba(255,255,255,0.6); }
+  .sb-c .sb-item.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .sb-d {
+    background: linear-gradient(180deg, #1d1d1f 0%, #2c2c2e 100%); padding: 12px;
+  }
+  .sb-d .sb-item { color: rgba(255,255,255,0.6); }
+  .sb-d .sb-item.active { background: rgba(0,122,255,0.2); color: #4da3ff; }
+
+  /* 5. 进度条/图表风格 */
+  .chart-preview { width: 100%; padding: 10px 0; }
+
+  .bar-a .bar {
+    height: 6px; background: #f0f0f0; border-radius: 3px; margin-bottom: 10px; overflow: hidden;
+  }
+  .bar-a .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #007AFF, #5856D6); }
+  .bar-a .bar-label { font-size: 11px; color: #86868b; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .bar-a .bar-val { font-weight: 600; color: #1d1d1f; }
+
+  .bar-b .bar {
+    height: 24px; background: #f0f0f0; border-radius: 6px; margin-bottom: 10px; overflow: hidden;
+    position: relative;
+  }
+  .bar-b .bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #007AFF, #5856D6); transition: width 0.3s; }
+  .bar-b .bar-text { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 600; color: #1d1d1f; }
+
+  .bar-c .line-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .bar-c .line-label { font-size: 11px; color: #86868b; width: 36px; }
+  .bar-c .line-track { flex: 1; height: 3px; background: #f0f0f0; border-radius: 2px; overflow: hidden; }
+  .bar-c .line-fill { height: 100%; border-radius: 2px; }
+  .bar-c .line-val { font-size: 11px; font-weight: 600; width: 30px; text-align: right; }
+
+  /* 6. 圆角大小 */
+  .radius-preview { display: flex; gap: 16px; align-items: center; justify-content: center; }
+  .radius-box {
+    width: 60px; height: 60px; background: #fff; border: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: #86868b;
+  }
+
+  /* Selection state text */
+  .selection-hint {
+    text-align: center; padding: 12px; font-size: 12px; color: #86868b; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>设计细节选择</h1>
+<p class="desc">逐个选择你偏好的样式 — 点击卡片即可标记偏好</p>
+
+<!-- 1. 指标卡片样式 -->
+<div class="section">
+  <div class="section-title">1. 指标卡片样式</div>
+  <div class="section-sub">数据展示卡片的整体外观</div>
+  <div class="options-row cols-4">
+    <div class="option" onclick="toggleSelect(this)" data-choice="metric-dot">
+      <div class="option-preview">
+        <div class="metric-preview">
+          <div class="mp-a">
+            <div style="display:flex;align-items:center;"><span class="dot"></span><span class="label">总用户</span></div>
+            <div class="val">12,847</div>
+            <div class="change">↑ 12.5%</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 彩色圆点</div>
+        <div class="option-desc">极简白底 + 小圆点标识 + 大数字</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="metric-icon">
+      <div class="option-preview">
+        <div class="metric-preview">
+          <div class="mp-b">
+            <div class="icon-box">👤</div>
+            <div class="val">12,847</div>
+            <div class="label">总用户</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 渐变图标</div>
+        <div class="option-desc">渐变色图标框 + 毛玻璃卡片</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="metric-ring">
+      <div class="option-preview">
+        <div class="metric-preview">
+          <div class="mp-c">
+            <div class="ring"><div class="ring-inner">65%</div></div>
+            <div>
+              <div class="val">12,847</div>
+              <div class="label">总用户</div>
+              <div class="change">↑ 12.5%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 环形进度</div>
+        <div class="option-desc">圆环图 + 横向数字排列</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="metric-tint">
+      <div class="option-preview">
+        <div class="metric-preview">
+          <div class="mp-d">
+            <div class="icon-box">👤</div>
+            <div class="val">12,847</div>
+            <div class="label">总用户 ↑ 12.5%</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">D. 色彩底色</div>
+        <div class="option-desc">淡色底卡片 + 对应色调</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 图标风格 -->
+<div class="section">
+  <div class="section-title">2. 图标风格</div>
+  <div class="section-sub">功能图标在侧边栏和卡片中的样式</div>
+  <div class="options-row cols-4">
+    <div class="option" onclick="toggleSelect(this)" data-choice="icon-gradient">
+      <div class="option-preview">
+        <div class="icon-preview">
+          <div class="icon-a">👤</div>
+          <div class="icon-a" style="background:linear-gradient(135deg,#34C759,#30D158)">🏢</div>
+          <div class="icon-a" style="background:linear-gradient(135deg,#FF9500,#FF6B00)">📱</div>
+          <div class="icon-a" style="background:linear-gradient(135deg,#5856D6,#AF52DE)">🛡</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 渐变方块</div>
+        <div class="option-desc">彩色渐变背景 + 圆角方块</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="icon-soft">
+      <div class="option-preview">
+        <div class="icon-preview">
+          <div class="icon-b">👤</div>
+          <div class="icon-b" style="background:rgba(52,199,89,0.08);color:#34C759">🏢</div>
+          <div class="icon-b" style="background:rgba(255,149,0,0.08);color:#FF9500">📱</div>
+          <div class="icon-b" style="background:rgba(88,86,214,0.08);color:#5856D6">🛡</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 柔和底色</div>
+        <div class="option-desc">淡色背景 + 对应色彩图标</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="icon-circle">
+      <div class="option-preview">
+        <div class="icon-preview">
+          <div class="icon-c">👤</div>
+          <div class="icon-c" style="background:rgba(52,199,89,0.06);color:#34C759">🏢</div>
+          <div class="icon-c" style="background:rgba(255,149,0,0.06);color:#FF9500">📱</div>
+          <div class="icon-c" style="background:rgba(88,86,214,0.06);color:#5856D6">🛡</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 圆形底色</div>
+        <div class="option-desc">圆形淡色背景 + 彩色图标</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="icon-dot">
+      <div class="option-preview">
+        <div class="icon-preview">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="icon-d"></div>
+            <span style="font-size:11px;color:#86868b">用户</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="icon-d" style="background:#34C759;box-shadow:0 0 8px rgba(52,199,89,0.35)"></div>
+            <span style="font-size:11px;color:#86868b">组织</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="icon-d" style="background:#FF9500;box-shadow:0 0 8px rgba(255,149,0,0.35)"></div>
+            <span style="font-size:11px;color:#86868b">应用</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="icon-d" style="background:#5856D6;box-shadow:0 0 8px rgba(88,86,214,0.35)"></div>
+            <span style="font-size:11px;color:#86868b">权限</span>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">D. 纯色圆点</div>
+        <div class="option-desc">极简小圆点 + 发光效果，无图标框</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 页面背景 -->
+<div class="section">
+  <div class="section-title">3. 页面背景</div>
+  <div class="section-sub">整体页面的底色和氛围</div>
+  <div class="options-row cols-4">
+    <div class="option" onclick="toggleSelect(this)" data-choice="bg-pure">
+      <div class="option-preview">
+        <div class="bg-preview bg-a">纯白 #ffffff</div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 纯白</div>
+        <div class="option-desc">干净无暇的白色底</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="bg-gray">
+      <div class="option-preview">
+        <div class="bg-preview bg-b">浅灰 #f5f5f7</div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 浅灰</div>
+        <div class="option-desc">Apple 经典浅灰底</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="bg-orb">
+      <div class="option-preview">
+        <div class="bg-preview bg-c">白底 + 光晕装饰</div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 白底光晕</div>
+        <div class="option-desc">白底 + 角落极淡彩色光球</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="bg-gradient">
+      <div class="option-preview">
+        <div class="bg-preview bg-d">柔和蓝紫绿渐变</div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">D. 柔和渐变</div>
+        <div class="option-desc">极淡的蓝紫绿三色渐变</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 侧边栏风格 -->
+<div class="section">
+  <div class="section-title">4. 侧边栏风格</div>
+  <div class="section-sub">左侧导航栏的整体外观</div>
+  <div class="options-row cols-4">
+    <div class="option" onclick="toggleSelect(this)" data-choice="sb-glass">
+      <div class="option-preview" style="padding:0">
+        <div class="sidebar-preview sb-a">
+          <div style="font-size:10px;font-weight:700;padding:8px 8px 12px;border-bottom:0.5px solid rgba(0,0,0,0.06);margin-bottom:6px">Logto Manager</div>
+          <div class="sb-item active"><span class="sb-dot">⊞</span> 仪表板</div>
+          <div class="sb-item"><span class="sb-dot">👤</span> 用户管理</div>
+          <div class="sb-item"><span class="sb-dot">🏢</span> 组织管理</div>
+          <div class="sb-item"><span class="sb-dot">🛡</span> 角色权限</div>
+          <div class="sb-item"><span class="sb-dot">📱</span> 应用管理</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 毛玻璃</div>
+        <div class="option-desc">半透明模糊效果 + 微弱边框</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="sb-white">
+      <div class="option-preview" style="padding:0">
+        <div class="sidebar-preview sb-b">
+          <div style="font-size:10px;font-weight:700;padding:8px 8px 12px;border-bottom:0.5px solid rgba(0,0,0,0.06);margin-bottom:6px">Logto Manager</div>
+          <div class="sb-item active" style="background:rgba(0,0,0,0.04);color:#1d1d1f;font-weight:600"><span class="sb-dot">⊞</span> 仪表板</div>
+          <div class="sb-item"><span class="sb-dot">👤</span> 用户管理</div>
+          <div class="sb-item"><span class="sb-dot">🏢</span> 组织管理</div>
+          <div class="sb-item"><span class="sb-dot">🛡</span> 角色权限</div>
+          <div class="sb-item"><span class="sb-dot">📱</span> 应用管理</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 纯白</div>
+        <div class="option-desc">纯白底 + 细边框分隔</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="sb-dark">
+      <div class="option-preview" style="padding:0">
+        <div class="sidebar-preview sb-c">
+          <div style="font-size:10px;font-weight:700;padding:8px 8px 12px;border-bottom:0.5px solid rgba(255,255,255,0.08);margin-bottom:6px;color:#fff">Logto Manager</div>
+          <div class="sb-item active"><span class="sb-dot">⊞</span> 仪表板</div>
+          <div class="sb-item"><span class="sb-dot">👤</span> 用户管理</div>
+          <div class="sb-item"><span class="sb-dot">🏢</span> 组织管理</div>
+          <div class="sb-item"><span class="sb-dot">🛡</span> 角色权限</div>
+          <div class="sb-item"><span class="sb-dot">📱</span> 应用管理</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 深色</div>
+        <div class="option-desc">深黑底 + 亮色高亮项</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="sb-gradient-dark">
+      <div class="option-preview" style="padding:0">
+        <div class="sidebar-preview sb-d">
+          <div style="font-size:10px;font-weight:700;padding:8px 8px 12px;border-bottom:0.5px solid rgba(255,255,255,0.08);margin-bottom:6px;color:#fff">Logto Manager</div>
+          <div class="sb-item active"><span class="sb-dot">⊞</span> 仪表板</div>
+          <div class="sb-item"><span class="sb-dot">👤</span> 用户管理</div>
+          <div class="sb-item"><span class="sb-dot">🏢</span> 组织管理</div>
+          <div class="sb-item"><span class="sb-dot">🛡</span> 角色权限</div>
+          <div class="sb-item"><span class="sb-dot">📱</span> 应用管理</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">D. 渐变深色</div>
+        <div class="option-desc">深色渐变 + 蓝色高亮</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. 进度/数据展示 -->
+<div class="section">
+  <div class="section-title">5. 数据展示方式</div>
+  <div class="section-sub">硬件监控、网络等数据的呈现形式</div>
+  <div class="options-row cols-3">
+    <div class="option" onclick="toggleSelect(this)" data-choice="chart-bar">
+      <div class="option-preview">
+        <div class="chart-preview">
+          <div class="bar-a">
+            <div class="bar-label"><span>CPU</span><span class="bar-val">45%</span></div>
+            <div class="bar"><div class="bar-fill" style="width:45%"></div></div>
+            <div class="bar-label"><span>内存</span><span class="bar-val">62%</span></div>
+            <div class="bar"><div class="bar-fill" style="width:62%;background:linear-gradient(90deg,#5856D6,#AF52DE)"></div></div>
+            <div class="bar-label"><span>硬盘</span><span class="bar-val">38%</span></div>
+            <div class="bar"><div class="bar-fill" style="width:38%;background:linear-gradient(90deg,#34C759,#30D158)"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 细进度条</div>
+        <div class="option-desc">6px 薄条 + 渐变色填充</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="chart-thick">
+      <div class="option-preview">
+        <div class="chart-preview">
+          <div class="bar-b">
+            <div style="font-size:11px;color:#86868b;margin-bottom:4px">CPU</div>
+            <div class="bar"><div class="bar-fill" style="width:45%"></div><div class="bar-text">45%</div></div>
+            <div style="font-size:11px;color:#86868b;margin-bottom:4px">内存</div>
+            <div class="bar"><div class="bar-fill" style="width:62%;background:linear-gradient(90deg,#5856D6,#AF52DE)"></div><div class="bar-text">62%</div></div>
+            <div style="font-size:11px;color:#86868b;margin-bottom:4px">硬盘</div>
+            <div class="bar"><div class="bar-fill" style="width:38%;background:linear-gradient(90deg,#34C759,#30D158)"></div><div class="bar-text">38%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 粗进度条</div>
+        <div class="option-desc">24px 宽条 + 内嵌百分比</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="chart-line">
+      <div class="option-preview">
+        <div class="chart-preview">
+          <div class="bar-c">
+            <div class="line-row">
+              <span class="line-label">CPU</span>
+              <div class="line-track"><div class="line-fill" style="width:45%;background:#007AFF"></div></div>
+              <span class="line-val" style="color:#007AFF">45%</span>
+            </div>
+            <div class="line-row">
+              <span class="line-label">内存</span>
+              <div class="line-track"><div class="line-fill" style="width:62%;background:#5856D6"></div></div>
+              <span class="line-val" style="color:#5856D6">62%</span>
+            </div>
+            <div class="line-row">
+              <span class="line-label">硬盘</span>
+              <div class="line-track"><div class="line-fill" style="width:38%;background:#34C759"></div></div>
+              <span class="line-val" style="color:#34C759">38%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 横向线型</div>
+        <div class="option-desc">3px 极细线 + 行内标签</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 圆角大小 -->
+<div class="section">
+  <div class="section-title">6. 圆角大小</div>
+  <div class="section-sub">卡片和按钮的圆角程度</div>
+  <div class="options-row cols-4">
+    <div class="option" onclick="toggleSelect(this)" data-choice="radius-sm">
+      <div class="option-preview">
+        <div class="radius-preview">
+          <div class="radius-box" style="border-radius:6px">6px</div>
+          <div class="radius-box" style="border-radius:6px;width:80px;height:40px">6px</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 小圆角 6px</div>
+        <div class="option-desc">克制、商务感</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="radius-md">
+      <div class="option-preview">
+        <div class="radius-preview">
+          <div class="radius-box" style="border-radius:10px">10px</div>
+          <div class="radius-box" style="border-radius:10px;width:80px;height:40px">10px</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 中圆角 10px</div>
+        <div class="option-desc">平衡、现代感</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="radius-lg">
+      <div class="option-preview">
+        <div class="radius-preview">
+          <div class="radius-box" style="border-radius:16px">16px</div>
+          <div class="radius-box" style="border-radius:16px;width:80px;height:40px">16px</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">C. 大圆角 16px</div>
+        <div class="option-desc">Apple 风格、柔和感</div>
+      </div>
+    </div>
+
+    <div class="option" onclick="toggleSelect(this)" data-choice="radius-xl">
+      <div class="option-preview">
+        <div class="radius-preview">
+          <div class="radius-box" style="border-radius:20px">20px</div>
+          <div class="radius-box" style="border-radius:20px;width:80px;height:40px">20px</div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">D. 超大圆角 20px</div>
+        <div class="option-desc">圆润、亲和感</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  const parent = el.closest('.options-row');
+  const siblings = parent.querySelectorAll('.option');
+  siblings.forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+
+</body>
+</html>

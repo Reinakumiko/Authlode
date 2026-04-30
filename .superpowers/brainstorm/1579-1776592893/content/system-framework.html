@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统级设计框架</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    padding: 32px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .desc { font-size: 14px; color: #86868b; margin-bottom: 32px; }
+  .note { background: rgba(0,122,255,0.06); border-radius: 10px; padding: 14px 18px; margin-bottom: 32px; font-size: 13px; color: #48484a; line-height: 1.5; }
+
+  .section { margin-bottom: 48px; }
+  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: #86868b; margin-bottom: 14px; }
+
+  .options-row { display: grid; gap: 20px; }
+  .cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .option {
+    border-radius: 16px; overflow: hidden; cursor: pointer;
+    transition: all 0.2s ease; border: 2px solid transparent;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .option:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .option.selected { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.15); }
+  .option-preview { min-height: 380px; position: relative; }
+  .option-label {
+    padding: 14px 18px; border-top: 0.5px solid rgba(0,0,0,0.06); background: #fafafa;
+  }
+  .option-name { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 2px; }
+  .option-desc { font-size: 12px; color: #86868b; line-height: 1.4; }
+
+  /* ===== 方案通用 ===== */
+  .frame { width: 100%; height: 100%; display: flex; position: absolute; top: 0; left: 0; }
+
+  /* 侧边栏通用 */
+  .sidebar { width: 200px; display: flex; flex-direction: column; }
+  .sidebar-logo {
+    padding: 14px 14px 12px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .sidebar-logo-icon {
+    width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+  }
+  .sidebar-logo-text { font-weight: 700; font-size: 13px; letter-spacing: -0.01em; }
+  .sidebar-nav { flex: 1; padding: 10px 8px; overflow: hidden; }
+  .nav-group { margin-bottom: 12px; }
+  .nav-group-title {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+    padding: 4px 8px 4px; margin-bottom: 2px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 7px; padding: 5px 8px;
+    border-radius: 6px; font-size: 11px; font-weight: 500; text-decoration: none;
+    transition: all 0.15s ease; margin-bottom: 1px;
+  }
+  .nav-item.active { font-weight: 600; }
+  .nav-icon { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .sidebar-footer {
+    padding: 10px; border-top: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .sidebar-user { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; }
+  .sidebar-avatar {
+    width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 10px;
+  }
+  .sidebar-uname { font-size: 11px; font-weight: 600; }
+  .sidebar-uemail { font-size: 9px; }
+
+  /* 主内容区 */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  /* 顶栏 */
+  .header {
+    height: 48px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+  }
+  .header-search {
+    display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+    border-radius: 6px; font-size: 11px; width: 200px;
+  }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .header-av { width: 26px; height: 26px; border-radius: 50%; }
+
+  /* 内容 */
+  .content { padding: 20px; }
+  .content-title { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .content-sub { font-size: 12px; margin-bottom: 16px; }
+
+  /* 卡片 */
+  .card { padding: 16px; }
+  .card-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .mini-card { padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .mini-label { font-size: 10px; font-weight: 500; }
+  .mini-val { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  .mini-change { font-size: 9px; font-weight: 500; }
+  .mini-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-bottom: 4px; }
+
+  /* ===== 方案 A: 清透白 ===== */
+  .theme-a .sidebar {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(0,0,0,0.08);
+  }
+  .theme-a .sidebar-logo-icon { background: #1d1d1f; color: white; }
+  .theme-a .sidebar-logo-text { color: #1d1d1f; }
+  .theme-a .nav-group-title { color: #86868b; }
+  .theme-a .nav-item { color: #48484a; }
+  .theme-a .nav-item:hover { background: rgba(0,0,0,0.04); }
+  .theme-a .nav-item.active { background: rgba(0,122,255,0.08); color: #007AFF; }
+  .theme-a .sidebar-footer { border-color: rgba(0,0,0,0.06); }
+  .theme-a .sidebar-user { color: #1d1d1f; }
+  .theme-a .sidebar-avatar { background: linear-gradient(135deg, #007AFF, #5856D6); color: white; }
+  .theme-a .sidebar-uname { color: #1d1d1f; }
+  .theme-a .sidebar-uemail { color: #86868b; }
+
+  .theme-a .main {
+    background: #ffffff;
+    background-image:
+      radial-gradient(circle at 85% 15%, rgba(0,122,255,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 15% 85%, rgba(88,86,214,0.03) 0%, transparent 50%);
+  }
+  .theme-a .header {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(30px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .theme-a .header-search { background: rgba(0,0,0,0.03); color: #86868b; border: 0.5px solid rgba(0,0,0,0.04); }
+  .theme-a .header-btn { color: #48484a; }
+  .theme-a .header-btn:hover { background: rgba(0,0,0,0.04); }
+  .theme-a .header-av { background: linear-gradient(135deg, #007AFF, #5856D6); }
+
+  .theme-a .content-title { color: #1d1d1f; }
+  .theme-a .content-sub { color: #86868b; }
+  .theme-a .card {
+    background: #ffffff;
+    border: 0.5px solid rgba(0,0,0,0.06);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .theme-a .card-title { color: #1d1d1f; }
+  .theme-a .mini-card {
+    background: #fafafa; border-radius: 8px;
+  }
+  .theme-a .mini-label { color: #86868b; }
+  .theme-a .mini-val { color: #1d1d1f; }
+  .theme-a .mini-change { color: #34C759; }
+  .theme-a .mini-icon { background: rgba(0,122,255,0.06); color: #007AFF; }
+  .theme-a .mini-icon:nth-child(1) { background: rgba(0,122,255,0.06); color: #007AFF; }
+
+  /* ===== 方案 B: 柔光 ===== */
+  .theme-b .sidebar {
+    background: #ffffff;
+    border-right: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .theme-b .sidebar-logo-icon { background: #1d1d1f; color: white; }
+  .theme-b .sidebar-logo-text { color: #1d1d1f; }
+  .theme-b .nav-group-title { color: #86868b; }
+  .theme-b .nav-item { color: #48484a; }
+  .theme-b .nav-item:hover { background: rgba(0,0,0,0.04); }
+  .theme-b .nav-item.active { background: rgba(0,0,0,0.05); color: #1d1d1f; font-weight: 600; }
+  .theme-b .sidebar-footer { border-color: rgba(0,0,0,0.06); }
+  .theme-b .sidebar-user { color: #1d1d1f; }
+  .theme-b .sidebar-avatar { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+  .theme-b .sidebar-uname { color: #1d1d1f; }
+  .theme-b .sidebar-uemail { color: #86868b; }
+
+  .theme-b .main {
+    background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%);
+  }
+  .theme-b .header {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(30px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  }
+  .theme-b .header-search { background: rgba(0,0,0,0.03); color: #86868b; border: 0.5px solid rgba(0,0,0,0.04); }
+  .theme-b .header-btn { color: #48484a; }
+  .theme-b .header-btn:hover { background: rgba(0,0,0,0.04); }
+  .theme-b .header-av { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+  .theme-b .content-title { color: #1d1d1f; }
+  .theme-b .content-sub { color: #86868b; }
+  .theme-b .card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.8);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .theme-b .card-title { color: #1d1d1f; }
+  .theme-b .mini-card {
+    background: rgba(255,255,255,0.6); border-radius: 8px;
+    border: 0.5px solid rgba(0,0,0,0.04);
+  }
+  .theme-b .mini-label { color: #86868b; }
+  .theme-b .mini-val { color: #1d1d1f; }
+  .theme-b .mini-change { color: #34C759; }
+  .theme-b .mini-icon { background: rgba(0,122,255,0.06); color: #007AFF; }
+
+  /* Tags */
+  .tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+  }
+  .tag-blue { background: rgba(0,122,255,0.08); color: #007AFF; }
+  .tag-gray { background: rgba(0,0,0,0.04); color: #48484a; }
+</style>
+</head>
+<body>
+
+<h1>系统级设计框架</h1>
+<p class="desc">两套完整框架方案 — 影响所有页面的侧边栏、顶栏、背景、卡片基础样式</p>
+
+<div class="note">
+  根据你的偏好：圆角 6-10px、图标用圆形底色或纯圆点、背景白底光晕或柔和渐变、侧边栏毛玻璃或纯白、数据用粗进度条。<br>
+  以下两套方案综合了这些偏好，区别在于整体"温度感"不同。
+</div>
+
+<div class="section">
+  <div class="section-title">选择系统框架</div>
+  <div class="section-sub">点击选择你偏好的整体框架</div>
+  <div class="options-row cols-2">
+
+    <!-- 方案 A: 清透白 -->
+    <div class="option" onclick="toggleSelect(this)" data-choice="framework-clean">
+      <div class="option-preview">
+        <div class="frame theme-a">
+          <!-- Sidebar -->
+          <aside class="sidebar">
+            <div class="sidebar-logo">
+              <div class="sidebar-logo-icon">L</div>
+              <div class="sidebar-logo-text">Logto Manager</div>
+            </div>
+            <nav class="sidebar-nav">
+              <div class="nav-group">
+                <div class="nav-group-title">主要</div>
+                <a class="nav-item active"><span class="nav-icon">⊞</span> 仪表板</a>
+                <a class="nav-item"><span class="nav-icon">👤</span> 用户管理 <span style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(0,122,255,0.08);color:#007AFF;border-radius:3px;font-weight:600">12.4K</span></a>
+                <a class="nav-item"><span class="nav-icon">🏢</span> 组织管理</a>
+                <a class="nav-item"><span class="nav-icon">🛡</span> 角色权限</a>
+                <a class="nav-item"><span class="nav-icon">📱</span> 应用管理</a>
+              </div>
+              <div class="nav-group">
+                <div class="nav-group-title">管理</div>
+                <a class="nav-item"><span class="nav-icon">✉</span> 邀请管理</a>
+                <a class="nav-item"><span class="nav-icon">📋</span> 审计日志</a>
+              </div>
+              <div class="nav-group">
+                <div class="nav-group-title">系统</div>
+                <a class="nav-item"><span class="nav-icon">⚙</span> 系统设置</a>
+              </div>
+            </nav>
+            <div class="sidebar-footer">
+              <div class="sidebar-user">
+                <div class="sidebar-avatar">A</div>
+                <div><div class="sidebar-uname">管理员</div><div class="sidebar-uemail">admin@ex…</div></div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main -->
+          <div class="main">
+            <header class="header">
+              <div class="header-search">🔍 搜索…</div>
+              <div class="header-right">
+                <div class="header-btn">🔔</div>
+                <div class="header-av"></div>
+              </div>
+            </header>
+            <div class="content">
+              <div class="content-title">欢迎回来</div>
+              <div class="content-sub">这是您的系统概览 · 当前时间 14:32</div>
+
+              <div class="card" style="margin-bottom:12px">
+                <div class="card-title">概览数据</div>
+                <div class="card-grid">
+                  <div class="mini-card">
+                    <div class="mini-icon">👤</div>
+                    <div class="mini-label">总用户</div>
+                    <div class="mini-val">12,847</div>
+                    <div class="mini-change">↑ 12.5%</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(88,86,214,0.06);color:#5856D6">🏢</div>
+                    <div class="mini-label">组织</div>
+                    <div class="mini-val">156</div>
+                    <div class="mini-change">↑ 3</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(52,199,89,0.06);color:#34C759">📱</div>
+                    <div class="mini-label">应用</div>
+                    <div class="mini-val">89</div>
+                    <div class="mini-change">↑ 5</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(255,149,0,0.06);color:#FF9500">⚡</div>
+                    <div class="mini-label">会话</div>
+                    <div class="mini-val">892</div>
+                    <div class="mini-change">↑ 8.3%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">系统监控</div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">CPU</div>
+                <div style="height:18px;background:#f0f0f0;border-radius:5px;overflow:hidden;margin-bottom:8px">
+                  <div style="height:100%;width:45%;background:linear-gradient(90deg,#007AFF,#5856D6);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">45%</div>
+                </div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">内存</div>
+                <div style="height:18px;background:#f0f0f0;border-radius:5px;overflow:hidden;margin-bottom:8px">
+                  <div style="height:100%;width:62%;background:linear-gradient(90deg,#5856D6,#AF52DE);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">62%</div>
+                </div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">硬盘</div>
+                <div style="height:18px;background:#f0f0f0;border-radius:5px;overflow:hidden">
+                  <div style="height:100%;width:38%;background:linear-gradient(90deg,#34C759,#30D158);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">38%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">A. 清透白</div>
+        <div class="option-desc">纯白底 + 极淡光晕装饰 + 毛玻璃侧边栏。最接近 Apple 原生 App 的感觉，干净透亮。</div>
+        <div class="tags">
+          <span class="tag tag-blue">毛玻璃侧栏</span>
+          <span class="tag tag-gray">白底光晕</span>
+          <span class="tag tag-gray">圆点图标</span>
+          <span class="tag tag-gray">10px圆角</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 方案 B: 柔光 -->
+    <div class="option" onclick="toggleSelect(this)" data-choice="framework-soft">
+      <div class="option-preview">
+        <div class="frame theme-b">
+          <!-- Sidebar -->
+          <aside class="sidebar">
+            <div class="sidebar-logo">
+              <div class="sidebar-logo-icon">L</div>
+              <div class="sidebar-logo-text">Logto Manager</div>
+            </div>
+            <nav class="sidebar-nav">
+              <div class="nav-group">
+                <div class="nav-group-title">主要</div>
+                <a class="nav-item active"><span class="nav-icon">⊞</span> 仪表板</a>
+                <a class="nav-item"><span class="nav-icon">👤</span> 用户管理 <span style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(0,0,0,0.05);border-radius:3px;font-weight:600">12.4K</span></a>
+                <a class="nav-item"><span class="nav-icon">🏢</span> 组织管理</a>
+                <a class="nav-item"><span class="nav-icon">🛡</span> 角色权限</a>
+                <a class="nav-item"><span class="nav-icon">📱</span> 应用管理</a>
+              </div>
+              <div class="nav-group">
+                <div class="nav-group-title">管理</div>
+                <a class="nav-item"><span class="nav-icon">✉</span> 邀请管理</a>
+                <a class="nav-item"><span class="nav-icon">📋</span> 审计日志</a>
+              </div>
+              <div class="nav-group">
+                <div class="nav-group-title">系统</div>
+                <a class="nav-item"><span class="nav-icon">⚙</span> 系统设置</a>
+              </div>
+            </nav>
+            <div class="sidebar-footer">
+              <div class="sidebar-user">
+                <div class="sidebar-avatar">A</div>
+                <div><div class="sidebar-uname">管理员</div><div class="sidebar-uemail">admin@ex…</div></div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main -->
+          <div class="main">
+            <header class="header">
+              <div class="header-search">🔍 搜索…</div>
+              <div class="header-right">
+                <div class="header-btn">🔔</div>
+                <div class="header-av"></div>
+              </div>
+            </header>
+            <div class="content">
+              <div class="content-title">欢迎回来</div>
+              <div class="content-sub">这是您的系统概览 · 当前时间 14:32</div>
+
+              <div class="card" style="margin-bottom:12px">
+                <div class="card-title">概览数据</div>
+                <div class="card-grid">
+                  <div class="mini-card">
+                    <div class="mini-icon">👤</div>
+                    <div class="mini-label">总用户</div>
+                    <div class="mini-val">12,847</div>
+                    <div class="mini-change">↑ 12.5%</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(88,86,214,0.06);color:#5856D6">🏢</div>
+                    <div class="mini-label">组织</div>
+                    <div class="mini-val">156</div>
+                    <div class="mini-change">↑ 3</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(52,199,89,0.06);color:#34C759">📱</div>
+                    <div class="mini-label">应用</div>
+                    <div class="mini-val">89</div>
+                    <div class="mini-change">↑ 5</div>
+                  </div>
+                  <div class="mini-card">
+                    <div class="mini-icon" style="background:rgba(255,149,0,0.06);color:#FF9500">⚡</div>
+                    <div class="mini-label">会话</div>
+                    <div class="mini-val">892</div>
+                    <div class="mini-change">↑ 8.3%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">系统监控</div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">CPU</div>
+                <div style="height:18px;background:rgba(0,0,0,0.03);border-radius:5px;overflow:hidden;margin-bottom:8px">
+                  <div style="height:100%;width:45%;background:linear-gradient(90deg,#007AFF,#5856D6);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">45%</div>
+                </div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">内存</div>
+                <div style="height:18px;background:rgba(0,0,0,0.03);border-radius:5px;overflow:hidden;margin-bottom:8px">
+                  <div style="height:100%;width:62%;background:linear-gradient(90deg,#5856D6,#AF52DE);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">62%</div>
+                </div>
+                <div style="font-size:10px;color:#86868b;margin-bottom:4px">硬盘</div>
+                <div style="height:18px;background:rgba(0,0,0,0.03);border-radius:5px;overflow:hidden">
+                  <div style="height:100%;width:38%;background:linear-gradient(90deg,#34C759,#30D158);border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:9px;font-weight:600;color:white">38%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <div class="option-name">B. 柔光</div>
+        <div class="option-desc">柔和蓝紫绿渐变底 + 纯白侧边栏 + 毛玻璃卡片。更有层次感和温度，整体偏柔和。</div>
+        <div class="tags">
+          <span class="tag tag-blue">纯白侧栏</span>
+          <span class="tag tag-gray">渐变底色</span>
+          <span class="tag tag-gray">毛玻璃卡片</span>
+          <span class="tag tag-gray">10px圆角</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  const parent = el.closest('.options-row');
+  const siblings = parent.querySelectorAll('.option');
+  siblings.forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+
+</body>
+</html>

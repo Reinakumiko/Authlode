@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>背景选择</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .step { font-size: 12px; color: #007AFF; font-weight: 600; margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+  .option {
+    border-radius: 14px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .option:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .option.selected { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.15); }
+
+  .preview { height: 300px; position: relative; display: flex; flex-direction: column; }
+
+  /* 模拟内容卡片，让背景差异更明显 */
+  .fake-header {
+    height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; font-size: 11px;
+    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .fake-search {
+    background: rgba(0,0,0,0.03); border-radius: 5px; padding: 4px 8px;
+    font-size: 10px; color: #86868b; width: 140px;
+  }
+  .fake-content { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .fake-title { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .fake-sub { font-size: 11px; color: #86868b; }
+  .fake-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+  .fake-card {
+    padding: 12px; border-radius: 8px;
+    border: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .fake-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 8px; }
+  .fake-val { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .fake-lbl { font-size: 10px; color: #86868b; margin-top: 2px; }
+
+  .option-label {
+    padding: 12px 16px; border-top: 0.5px solid rgba(0,0,0,0.06); background: #fafafa;
+  }
+  .option-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .option-desc { font-size: 11px; color: #86868b; line-height: 1.4; }
+
+  /* ===== 4种背景 ===== */
+
+  /* A. 纯白 */
+  .bg-a { background: #ffffff; }
+  .bg-a .fake-header { background: #ffffff; }
+  .bg-a .fake-card { background: #fafafa; }
+
+  /* B. 白底光晕 */
+  .bg-b { background: #ffffff; overflow: hidden; }
+  .bg-b .fake-header { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); }
+  .bg-b .fake-card { background: #fafafa; }
+  .bg-b .orb1 {
+    position: absolute; top: -40px; right: -40px; width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(0,122,255,0.05) 0%, transparent 70%); border-radius: 50%;
+    pointer-events: none;
+  }
+  .bg-b .orb2 {
+    position: absolute; bottom: -30px; left: -30px; width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(88,86,214,0.04) 0%, transparent 70%); border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* C. 浅灰 */
+  .bg-c { background: #f5f5f7; }
+  .bg-c .fake-header { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); }
+  .bg-c .fake-card { background: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+
+  /* D. 柔和渐变 */
+  .bg-d { background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%); }
+  .bg-d .fake-header { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); }
+  .bg-d .fake-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(10px); border-color: rgba(255,255,255,0.6); }
+</style>
+</head>
+<body>
+
+<div class="step">步骤 1 / 6</div>
+<h1>页面背景</h1>
+<p class="desc">这是所有页面的底色，会直接影响整体氛围感</p>
+
+<div class="grid">
+  <div class="option" onclick="toggleSelect(this)" data-choice="bg-white">
+    <div class="preview bg-a">
+      <div class="fake-header">
+        <div class="fake-search">🔍 搜索…</div>
+        <span style="font-size:12px">🔔</span>
+      </div>
+      <div class="fake-content">
+        <div class="fake-title">欢迎回来</div>
+        <div class="fake-sub">系统概览 · 14:32</div>
+        <div class="fake-cards">
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#007AFF;box-shadow:0 0 6px rgba(0,122,255,0.3)"></div>
+            <div class="fake-val">12,847</div>
+            <div class="fake-lbl">总用户</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#5856D6;box-shadow:0 0 6px rgba(88,86,214,0.3)"></div>
+            <div class="fake-val">156</div>
+            <div class="fake-lbl">组织</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#34C759;box-shadow:0 0 6px rgba(52,199,89,0.3)"></div>
+            <div class="fake-val">89</div>
+            <div class="fake-lbl">应用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">A. 纯白</div>
+      <div class="option-desc">干净利落的白色，没有多余装饰。卡片用浅灰底区分。</div>
+    </div>
+  </div>
+
+  <div class="option" onclick="toggleSelect(this)" data-choice="bg-orb">
+    <div class="preview bg-b">
+      <div class="orb1"></div>
+      <div class="orb2"></div>
+      <div class="fake-header">
+        <div class="fake-search">🔍 搜索…</div>
+        <span style="font-size:12px">🔔</span>
+      </div>
+      <div class="fake-content">
+        <div class="fake-title">欢迎回来</div>
+        <div class="fake-sub">系统概览 · 14:32</div>
+        <div class="fake-cards">
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#007AFF;box-shadow:0 0 6px rgba(0,122,255,0.3)"></div>
+            <div class="fake-val">12,847</div>
+            <div class="fake-lbl">总用户</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#5856D6;box-shadow:0 0 6px rgba(88,86,214,0.3)"></div>
+            <div class="fake-val">156</div>
+            <div class="fake-lbl">组织</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#34C759;box-shadow:0 0 6px rgba(52,199,89,0.3)"></div>
+            <div class="fake-val">89</div>
+            <div class="fake-lbl">应用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">B. 白底光晕</div>
+      <div class="option-desc">白色底 + 角落极淡的彩色光球。若有若无的点缀，不抢注意力。</div>
+    </div>
+  </div>
+
+  <div class="option" onclick="toggleSelect(this)" data-choice="bg-gray">
+    <div class="preview bg-c">
+      <div class="fake-header">
+        <div class="fake-search">🔍 搜索…</div>
+        <span style="font-size:12px">🔔</span>
+      </div>
+      <div class="fake-content">
+        <div class="fake-title">欢迎回来</div>
+        <div class="fake-sub">系统概览 · 14:32</div>
+        <div class="fake-cards">
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#007AFF;box-shadow:0 0 6px rgba(0,122,255,0.3)"></div>
+            <div class="fake-val">12,847</div>
+            <div class="fake-lbl">总用户</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#5856D6;box-shadow:0 0 6px rgba(88,86,214,0.3)"></div>
+            <div class="fake-val">156</div>
+            <div class="fake-lbl">组织</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#34C759;box-shadow:0 0 6px rgba(52,199,89,0.3)"></div>
+            <div class="fake-val">89</div>
+            <div class="fake-lbl">应用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">C. 浅灰</div>
+      <div class="option-desc">Apple 经典 #f5f5f7 浅灰底，白卡片浮在灰底上，层次分明。</div>
+    </div>
+  </div>
+
+  <div class="option" onclick="toggleSelect(this)" data-choice="bg-gradient">
+    <div class="preview bg-d">
+      <div class="fake-header">
+        <div class="fake-search">🔍 搜索…</div>
+        <span style="font-size:12px">🔔</span>
+      </div>
+      <div class="fake-content">
+        <div class="fake-title">欢迎回来</div>
+        <div class="fake-sub">系统概览 · 14:32</div>
+        <div class="fake-cards">
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#007AFF;box-shadow:0 0 6px rgba(0,122,255,0.3)"></div>
+            <div class="fake-val">12,847</div>
+            <div class="fake-lbl">总用户</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#5856D6;box-shadow:0 0 6px rgba(88,86,214,0.3)"></div>
+            <div class="fake-val">156</div>
+            <div class="fake-lbl">组织</div>
+          </div>
+          <div class="fake-card">
+            <div class="fake-dot" style="background:#34C759;box-shadow:0 0 6px rgba(52,199,89,0.3)"></div>
+            <div class="fake-val">89</div>
+            <div class="fake-lbl">应用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">D. 柔和渐变</div>
+      <div class="option-desc">极淡的蓝→紫→绿渐变，像蒙了层彩色薄雾。卡片带毛玻璃效果。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  const parent = el.closest('.grid');
+  parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

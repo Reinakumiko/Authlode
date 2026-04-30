@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 - 第三轮</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .glass {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== H: Raycast 风格命令面板 ===== */
+  .rh-card { max-width: 480px; overflow: hidden; }
+  .rh-head { padding: 14px 18px; border-bottom: 0.5px solid rgba(0,0,0,0.04); display: flex; align-items: center; gap: 8px; }
+  .rh-search {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-family: inherit; font-size: 13px; font-weight: 500; color: #1d1d1f;
+  }
+  .rh-search::placeholder { color: #c7c7cc; }
+  .rh-kbd { font-size: 10px; color: #aeaeb2; font-weight: 500; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.04); }
+  .rh-list { padding: 6px; }
+  .rh-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer;
+    transition: background 0.1s;
+  }
+  .rh-item:hover, .rh-item.active { background: rgba(99,102,241,0.08); }
+  .rh-item.active .rh-name { color: #6366f1; }
+  .rh-icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .rh-name { font-size: 13px; font-weight: 500; color: #1d1d1f; flex: 1; }
+  .rh-shortcut { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+
+  /* ===== I: 简单文字链接行 ===== */
+  .ri-card { padding: 14px 18px; max-width: 700px; display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+  .ri-title { font-size: 13px; font-weight: 700; color: #1d1d1f; margin-right: 16px; }
+  .ri-link {
+    font-size: 12px; font-weight: 500; color: #6366f1; cursor: pointer;
+    padding: 4px 12px; border-radius: 6px; transition: background 0.15s;
+    text-decoration: none;
+  }
+  .ri-link:hover { background: rgba(99,102,241,0.06); }
+  .ri-sep { width: 1px; height: 12px; background: rgba(0,0,0,0.08); margin: 0 2px; }
+
+  /* ===== J: 玻璃卡片网格 + 渐变顶条 ===== */
+  .rj-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 700px; }
+  .rj-item {
+    padding: 14px 10px 12px; cursor: pointer; text-align: center;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .rj-item::before {
+    content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 2px;
+    border-radius: 0 0 2px 2px;
+  }
+  .rj-item:hover { background: rgba(255,255,255,0.7); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+  .rj-icon { font-size: 20px; margin-bottom: 6px; display: block; }
+  .rj-name { font-size: 11px; font-weight: 600; color: #48484a; }
+
+  /* ===== K: 与指标卡片同风格 ===== */
+  .rk-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .rk-item {
+    padding: 12px 14px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s;
+  }
+  .rk-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .rk-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .rk-name { font-size: 12px; font-weight: 700; color: #1d1d1f; }
+  .rk-arrow { font-size: 12px; color: #c7c7cc; }
+  .rk-desc { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+  .rk-bar { height: 3px; border-radius: 2px; margin-top: 8px; }
+
+  /* ===== L: 两栏列表 ===== */
+  .rl-card { padding: 16px 18px; max-width: 420px; }
+  .rl-title { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
+  .rl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .rl-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; cursor: pointer; border-radius: 8px;
+    transition: background 0.15s; font-size: 12px; font-weight: 500; color: #48484a;
+  }
+  .rl-item:hover { background: rgba(255,255,255,0.6); }
+  .rl-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- H: Raycast 命令面板 -->
+<div class="section">
+  <div class="section-label">方案 H</div>
+  <div class="section-title">Raycast 命令面板风格</div>
+  <div class="section-desc">模拟命令面板，搜索框 + 列表 + 快捷键提示</div>
+
+  <div class="glass rh-card">
+    <div class="rh-head">
+      <span style="font-size:13px;color:#aeaeb2">🔍</span>
+      <input class="rh-search" placeholder="搜索操作..." readonly>
+      <span class="rh-kbd">⌘K</span>
+    </div>
+    <div class="rh-list">
+      <div class="rh-item active">
+        <div class="rh-icon" style="background:rgba(99,102,241,0.08);color:#6366f1">👤</div>
+        <span class="rh-name">用户管理</span>
+        <span class="rh-shortcut">⌘1</span>
+      </div>
+      <div class="rh-item">
+        <div class="rh-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6">✉️</div>
+        <span class="rh-name">邀请用户</span>
+        <span class="rh-shortcut">⌘2</span>
+      </div>
+      <div class="rh-item">
+        <div class="rh-icon" style="background:rgba(59,130,246,0.08);color:#3b82f6">🏢</div>
+        <span class="rh-name">组织管理</span>
+        <span class="rh-shortcut">⌘3</span>
+      </div>
+      <div class="rh-item">
+        <div class="rh-icon" style="background:rgba(20,184,166,0.08);color:#14b8a6">🔑</div>
+        <span class="rh-name">角色权限</span>
+        <span class="rh-shortcut">⌘4</span>
+      </div>
+      <div class="rh-item">
+        <div class="rh-icon" style="background:rgba(236,72,153,0.08);color:#ec4899">📱</div>
+        <span class="rh-name">应用管理</span>
+        <span class="rh-shortcut">⌘5</span>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- I: 简单文字链接 -->
+<div class="section">
+  <div class="section-label">方案 I</div>
+  <div class="section-title">简单文字链接行</div>
+  <div class="section-desc">标题 + 文字链接，用分隔线隔开，最朴素</div>
+
+  <div class="glass ri-card">
+    <span class="ri-title">快捷操作</span>
+    <a class="ri-link">用户管理</a>
+    <div class="ri-sep"></div>
+    <a class="ri-link">邀请用户</a>
+    <div class="ri-sep"></div>
+    <a class="ri-link">组织管理</a>
+    <div class="ri-sep"></div>
+    <a class="ri-link">角色权限</a>
+    <div class="ri-sep"></div>
+    <a class="ri-link">应用管理</a>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- J: 渐变顶条网格 -->
+<div class="section">
+  <div class="section-label">方案 J</div>
+  <div class="section-title">渐变顶条卡片</div>
+  <div class="section-desc">每个小卡片顶部 2px 对应色渐变条，图标居中</div>
+
+  <div class="rj-grid">
+    <div class="rj-item">
+      <div style="position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:0 0 2px 2px"></div>
+      <span class="rj-icon">👤</span>
+      <span class="rj-name">用户管理</span>
+    </div>
+    <div class="rj-item">
+      <div style="position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#8b5cf6,#a855f7);border-radius:0 0 2px 2px"></div>
+      <span class="rj-icon">✉️</span>
+      <span class="rj-name">邀请用户</span>
+    </div>
+    <div class="rj-item">
+      <div style="position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:0 0 2px 2px"></div>
+      <span class="rj-icon">🏢</span>
+      <span class="rj-name">组织管理</span>
+    </div>
+    <div class="rj-item">
+      <div style="position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#14b8a6,#06b6d4);border-radius:0 0 2px 2px"></div>
+      <span class="rj-icon">🔑</span>
+      <span class="rj-name">角色权限</span>
+    </div>
+    <div class="rj-item">
+      <div style="position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#ec4899,#db2777);border-radius:0 0 2px 2px"></div>
+      <span class="rj-icon">📱</span>
+      <span class="rj-name">应用管理</span>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K: 与指标卡片同风格 -->
+<div class="section">
+  <div class="section-label">方案 K</div>
+  <div class="section-title">指标卡片同风格</div>
+  <div class="section-desc">和已确认的指标卡片用一样的玻璃卡片 + 底部渐变条</div>
+
+  <div class="rk-row">
+    <div class="rk-item">
+      <div class="rk-head">
+        <span class="rk-name">用户管理</span>
+        <span class="rk-arrow">→</span>
+      </div>
+      <div class="rk-desc">查看和管理所有用户</div>
+      <div class="rk-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="rk-item">
+      <div class="rk-head">
+        <span class="rk-name">邀请用户</span>
+        <span class="rk-arrow">→</span>
+      </div>
+      <div class="rk-desc">发送邀请链接</div>
+      <div class="rk-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="rk-item">
+      <div class="rk-head">
+        <span class="rk-name">组织管理</span>
+        <span class="rk-arrow">→</span>
+      </div>
+      <div class="rk-desc">部门和团队架构</div>
+      <div class="rk-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="rk-item">
+      <div class="rk-head">
+        <span class="rk-name">角色权限</span>
+        <span class="rk-arrow">→</span>
+      </div>
+      <div class="rk-desc">自定义角色权限</div>
+      <div class="rk-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="rk-item">
+      <div class="rk-head">
+        <span class="rk-name">应用管理</span>
+        <span class="rk-arrow">→</span>
+      </div>
+      <div class="rk-desc">配置接入的应用</div>
+      <div class="rk-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- L: 两栏紧凑列表 -->
+<div class="section">
+  <div class="section-label">方案 L</div>
+  <div class="section-title">两栏紧凑色点列表</div>
+  <div class="section-desc">类似活动流风格，2x3 网格，纯文字 + 色点</div>
+
+  <div class="glass rl-card">
+    <div class="rl-title">快捷操作</div>
+    <div class="rl-grid">
+      <div class="rl-item"><div class="rl-dot" style="background:#6366f1"></div>用户管理</div>
+      <div class="rl-item"><div class="rl-dot" style="background:#8b5cf6"></div>邀请用户</div>
+      <div class="rl-item"><div class="rl-dot" style="background:#3b82f6"></div>组织管理</div>
+      <div class="rl-item"><div class="rl-dot" style="background:#14b8a6"></div>角色权限</div>
+      <div class="rl-item"><div class="rl-dot" style="background:#ec4899"></div>应用管理</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

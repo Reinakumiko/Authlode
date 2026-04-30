@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计风格画廊</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .hint { background: rgba(0,122,255,0.06); border-radius: 10px; padding: 12px 16px; margin-bottom: 28px; font-size: 12px; color: #48484a; line-height: 1.5; }
+
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .card {
+    border-radius: 14px; overflow: hidden; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;
+    transition: all 0.2s ease; border: 2px solid transparent;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .card.liked { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 12px rgba(0,122,255,0.12); }
+  .card.noped { opacity: 0.35; }
+
+  .card-visual { height: 180px; position: relative; overflow: hidden; }
+
+  .card-info { padding: 12px 14px; border-top: 0.5px solid rgba(0,0,0,0.05); }
+  .card-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .card-desc { font-size: 10px; color: #86868b; line-height: 1.4; margin-bottom: 8px; }
+  .card-ref { font-size: 9px; color: #007AFF; font-weight: 500; }
+
+  .vote { display: flex; gap: 6px; }
+  .vb {
+    padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff;
+    transition: all 0.15s;
+  }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 12 种风格 ===== */
+
+  /* 1. Glassmorphism 经典 */
+  .s1 { background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; }
+  .s1-card { width: 75%; padding: 16px; border-radius: 14px; background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.25); color: white; text-align: center; }
+  .s1-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .s1-card p { font-size: 10px; opacity: 0.8; }
+  .s1-circles { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+  .s1-c { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); }
+
+  /* 2. Aurora 极光 */
+  .s2 { background: #0f0f1a; display: flex; align-items: center; justify-content: center; position: relative; }
+  .s2::before { content: ''; position: absolute; width: 120px; height: 120px; background: radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%); top: 10%; left: 15%; border-radius: 50%; filter: blur(30px); }
+  .s2::after { content: ''; position: absolute; width: 100px; height: 100px; background: radial-gradient(circle, rgba(236,72,153,0.35), transparent 70%); bottom: 10%; right: 15%; border-radius: 50%; filter: blur(25px); }
+  .s2-card { width: 70%; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.9); text-align: center; position: relative; z-index: 1; }
+  .s2-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .s2-card p { font-size: 10px; opacity: 0.5; }
+
+  /* 3. Bento Grid */
+  .s3 { background: #f5f5f7; padding: 14px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; }
+  .s3-b { border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; color: #fff; }
+  .s3-b:nth-child(1) { background: #6366f1; grid-row: span 2; }
+  .s3-b:nth-child(2) { background: #8b5cf6; }
+  .s3-b:nth-child(3) { background: #a78bfa; }
+  .s3-b:nth-child(4) { background: #14b8a6; grid-column: span 2; }
+
+  /* 4. Neumorphism */
+  .s4 { background: #e4e8ec; display: flex; align-items: center; justify-content: center; }
+  .s4-card { width: 70%; padding: 18px; border-radius: 16px; background: #e4e8ec; box-shadow: 8px 8px 16px #c8ccd0, -8px -8px 16px #ffffff; text-align: center; }
+  .s4-card h3 { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 6px; }
+  .s4-card p { font-size: 10px; color: #888; }
+  .s4-row { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+  .s4-dot { width: 28px; height: 28px; border-radius: 50%; background: #e4e8ec; box-shadow: 4px 4px 8px #c8ccd0, -4px -4px 8px #ffffff; }
+
+  /* 5. Soft Gradient Cards */
+  .s5 { background: linear-gradient(160deg, #f0f4ff, #faf5ff, #f0fdf4); display: flex; align-items: center; justify-content: center; }
+  .s5-card { width: 70%; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); border: 0.5px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); text-align: center; }
+  .s5-card h3 { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 4px; }
+  .s5-card p { font-size: 10px; color: #86868b; }
+  .s5-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+  .s5-d { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* 6. Vaporwave */
+  .s6 { background: linear-gradient(135deg, #ff6b9d, #c44dff, #6e3aff); display: flex; align-items: center; justify-content: center; }
+  .s6-card { width: 70%; padding: 16px; border-radius: 14px; background: rgba(255,255,255,0.15); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); color: white; text-align: center; }
+  .s6-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+  .s6-card p { font-size: 10px; opacity: 0.7; }
+
+  /* 7. Swiss/网格 */
+  .s7 { background: #fff; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 1px; }
+  .s7-c { background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+  .s7-c.black { background: #000; color: #fff; font-size: 24px; font-weight: 800; }
+  .s7-c.blue { background: #0055ff; }
+  .s7-c.red { background: #ff3300; }
+
+  /* 8. Organic Blob */
+  .s8 { background: linear-gradient(135deg, #fdf2f8, #ede9fe, #e0f2fe); display: flex; align-items: center; justify-content: center; }
+  .s8-blob1 { position: absolute; width: 100px; height: 100px; background: linear-gradient(135deg, #f472b6, #a855f7); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; opacity: 0.3; top: 10%; left: 10%; filter: blur(2px); }
+  .s8-blob2 { position: absolute; width: 80px; height: 80px; background: linear-gradient(135deg, #60a5fa, #34d399); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; opacity: 0.25; bottom: 10%; right: 10%; filter: blur(2px); }
+  .s8-card { width: 65%; padding: 16px; border-radius: 20px; background: rgba(255,255,255,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); text-align: center; position: relative; z-index: 1; }
+  .s8-card h3 { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 4px; }
+  .s8-card p { font-size: 10px; color: #86868b; }
+
+  /* 9. Cyberpunk */
+  .s9 { background: #0a0a0f; display: flex; align-items: center; justify-content: center; position: relative; }
+  .s9::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.03) 2px, rgba(0,255,136,0.03) 4px); }
+  .s9-card { width: 70%; padding: 16px; border-radius: 2px; background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); text-align: center; position: relative; z-index: 1; }
+  .s9-card h3 { font-size: 14px; font-weight: 700; color: #00ff88; margin-bottom: 4px; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+  .s9-card p { font-size: 10px; color: rgba(0,255,136,0.5); }
+
+  /* 10. Soft 3D */
+  .s10 { background: linear-gradient(180deg, #f0f0f5, #e8e8f0); display: flex; align-items: center; justify-content: center; }
+  .s10-card { width: 65%; padding: 20px; border-radius: 18px; background: linear-gradient(145deg, #ffffff, #e6e6ef); box-shadow: 6px 6px 12px #d0d0d9, -6px -6px 12px #ffffff; text-align: center; }
+  .s10-card h3 { font-size: 14px; font-weight: 700; color: #1d1d1f; margin-bottom: 4px; }
+  .s10-card p { font-size: 10px; color: #86868b; }
+  .s10-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #6366f1, #8b5cf6); margin-top: 10px; }
+
+  /* 11. Material You */
+  .s11 { background: #f0f0f5; display: flex; align-items: center; justify-content: center; }
+  .s11-card { width: 70%; padding: 16px; border-radius: 20px; background: #ede8f5; color: #1d1b20; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .s11-card h3 { font-size: 14px; font-weight: 700; color: #1d1b20; margin-bottom: 4px; }
+  .s11-card p { font-size: 10px; color: #49454f; }
+  .s11-chips { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .s11-chip { padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 600; }
+  .s11-chip.filled { background: #6750a4; color: white; }
+  .s11-chip.outline { border: 1px solid #79747e; color: #49454f; background: transparent; }
+
+  /* 12. Tokyo Night */
+  .s12 { background: linear-gradient(135deg, #1a1b2e, #24283b); display: flex; align-items: center; justify-content: center; }
+  .s12-card { width: 70%; padding: 16px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); text-align: center; }
+  .s12-card h3 { font-size: 14px; font-weight: 700; color: #c0caf5; margin-bottom: 4px; }
+  .s12-card p { font-size: 10px; color: #565f89; }
+  .s12-bar { height: 4px; border-radius: 2px; background: #1a1b2e; margin-top: 10px; overflow: hidden; }
+  .s12-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #7aa2f7, #bb9af7); }
+</style>
+</head>
+<body>
+
+<h1>设计风格画廊</h1>
+<p class="desc">12 种当下流行的设计风格，慢慢看，告诉我你对每种的感觉</p>
+<div class="hint">不用急着选"最终方案"——看到喜欢的点👍，不喜欢的点👎，不确定就跳过。我会从你的反应里理解你的审美。</div>
+
+<div class="gallery">
+
+  <!-- 1 -->
+  <div class="card" id="c1">
+    <div class="card-visual s1">
+      <div class="s1-card">
+        <div class="s1-circles"><div class="s1-c"></div><div class="s1-c"></div><div class="s1-c"></div></div>
+        <h3>Glassmorphism</h3>
+        <p>经典毛玻璃 + 半透明卡片<br>浮在渐变背景上</p>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">1. Glassmorphism 经典</div>
+      <div class="card-desc">渐变底色 + 白色半透明毛玻璃卡片。最经典的玻璃拟态效果。</div>
+      <div class="card-ref">参考: iOS/macOS 控制中心, Dribbble 热门</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c1',1)">👍</button>
+        <button class="vb" onclick="v(this,'c1',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card" id="c2">
+    <div class="card-visual s2">
+      <div class="s2-card">
+        <h3>Aurora 极光</h3>
+        <p>暗色底 + 发光色球<br>神秘、深邃、有氛围</p>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">2. Aurora 极光</div>
+      <div class="card-desc">深色背景上漂浮着柔和的彩色光球，像极光一样。暗色但不沉闷。</div>
+      <div class="card-ref">参考: Stripe 官网, Linear, macOS 屏保</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c2',1)">👍</button>
+        <button class="vb" onclick="v(this,'c2',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card" id="c3">
+    <div class="card-visual s3">
+      <div class="s3-b">数据<br>12,847</div>
+      <div class="s3-b">156</div>
+      <div class="s3-b">89</div>
+      <div class="s3-b">系统状态正常</div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">3. Bento Grid</div>
+      <div class="card-desc">不等大小的方块网格布局，像日式便当盒。活泼、有节奏感。</div>
+      <div class="card-ref">参考: Apple 产品页数据展示, Gumroad</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c3',1)">👍</button>
+        <button class="vb" onclick="v(this,'c3',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card" id="c4">
+    <div class="card-visual s4">
+      <div class="s4-card">
+        <h3>Neumorphism</h3>
+        <p>柔和凸起质感<br>温润、有触感</p>
+        <div class="s4-row"><div class="s4-dot"></div><div class="s4-dot"></div><div class="s4-dot"></div></div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">4. Neumorphism 新拟态</div>
+      <div class="card-desc">浅灰底 + 内外阴影产生凸起/凹陷效果。像实体按钮一样有触感。</div>
+      <div class="card-ref">参考: 2020 设计趋势, 概念 UI</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c4',1)">👍</button>
+        <button class="vb" onclick="v(this,'c4',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card" id="c5">
+    <div class="card-visual s5">
+      <div class="s5-card">
+        <h3>Soft Gradient</h3>
+        <p>柔和渐变底 + 轻透卡片</p>
+        <div class="s5-dots">
+          <div class="s5-d" style="background:#6366f1;box-shadow:0 0 8px rgba(99,102,241,0.4)"></div>
+          <div class="s5-d" style="background:#8b5cf6;box-shadow:0 0 8px rgba(139,92,246,0.4)"></div>
+          <div class="s5-d" style="background:#14b8a6;box-shadow:0 0 8px rgba(20,184,166,0.4)"></div>
+          <div class="s5-d" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.4)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">5. Soft Gradient 柔渐变</div>
+      <div class="card-desc">极淡的多色渐变底 + 轻透毛玻璃卡片。温润、有层次、不刺眼。</div>
+      <div class="card-ref">参考: Arc Browser, Raycast, macOS Widget</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c5',1)">👍</button>
+        <button class="vb" onclick="v(this,'c5',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="card" id="c6">
+    <div class="card-visual s6">
+      <div class="s6-card">
+        <h3>Vaporwave</h3>
+        <p>高饱和粉紫渐变<br>梦幻、炫酷、有个性</p>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">6. Vaporwave 蒸汽波</div>
+      <div class="card-desc">高饱和粉紫渐变 + 半透明卡片。颜色更浓更炫，有复古未来感。</div>
+      <div class="card-ref">参考: 蒸汽波美学, 概念设计</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c6',1)">👍</button>
+        <button class="vb" onclick="v(this,'c6',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="card" id="c7">
+    <div class="card-visual s7">
+      <div class="s7-c black">A</div>
+      <div class="s7-c"></div>
+      <div class="s7-c blue"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c red"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c blue"></div>
+      <div class="s7-c"></div>
+      <div class="s7-c"></div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">7. Swiss Grid 瑞士网格</div>
+      <div class="card-desc">严格网格 + 红蓝黑三原色 + 大量留白。理性、有序、设计感强。</div>
+      <div class="card-ref">参考: 瑞士平面设计, Apple Music</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c7',1)">👍</button>
+        <button class="vb" onclick="v(this,'c7',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="card" id="c8">
+    <div class="card-visual s8">
+      <div class="s8-blob1"></div>
+      <div class="s8-blob2"></div>
+      <div class="s8-card">
+        <h3>Organic Blob</h3>
+        <p>有机形状 + 柔和色彩<br>自然、亲和、有温度</p>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">8. Organic Blob 有机形状</div>
+      <div class="card-desc">不规则色块 + 柔和渐变 + 毛玻璃卡片。自然流动的曲线，不方方正正。</div>
+      <div class="card-ref">参考: Stripe, Gumroad, 很多 SaaS 落地页</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c8',1)">👍</button>
+        <button class="vb" onclick="v(this,'c8',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="card" id="c9">
+    <div class="card-visual s9">
+      <div class="s9-card">
+        <h3>Cyberpunk</h3>
+        <p>暗色 + 荧光绿 + 扫描线<br>赛博朋克、硬核科技</p>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">9. Cyberpunk 赛博朋克</div>
+      <div class="card-desc">深黑底 + 荧光绿/品红 + 扫描线效果。硬核科技感，像黑客终端。</div>
+      <div class="card-ref">参考: 赛博朋克游戏 UI, 终端模拟器</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c9',1)">👍</button>
+        <button class="vb" onclick="v(this,'c9',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="card" id="c10">
+    <div class="card-visual s10">
+      <div class="s10-card">
+        <h3>Soft 3D</h3>
+        <p>柔和立体感卡片<br>有质感、有深度</p>
+        <div class="s10-bar"></div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">10. Soft 3D 柔和立体</div>
+      <div class="card-desc">浅色底 + 多方向阴影产生立体感。比新拟态更现代，像浮起的纸质卡片。</div>
+      <div class="card-ref">参考: Clarity 设计系统, Apple Card</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c10',1)">👍</button>
+        <button class="vb" onclick="v(this,'c10',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="card" id="c11">
+    <div class="card-visual s11">
+      <div class="s11-card">
+        <h3>Material You</h3>
+        <p>Google 动态配色<br>圆润、统一、个性化</p>
+        <div class="s11-chips">
+          <span class="s11-chip filled">用户</span>
+          <span class="s11-chip outline">组织</span>
+          <span class="s11-chip outline">应用</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">11. Material You</div>
+      <div class="card-desc">Google 设计语言。大圆角 + 动态配色 + 药丸按钮。圆润亲和。</div>
+      <div class="card-ref">参考: Android 12+, Google 产品</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c11',1)">👍</button>
+        <button class="vb" onclick="v(this,'c11',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="card" id="c12">
+    <div class="card-visual s12">
+      <div class="s12-card">
+        <h3>Tokyo Night</h3>
+        <p>深蓝底 + 柔蓝紫光<br>深夜主题、护眼、高级</p>
+        <div class="s12-bar"><div class="s12-fill" style="width:60%"></div></div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">12. Tokyo Night</div>
+      <div class="card-desc">深蓝灰底 + 柔和蓝紫色调。暗色但优雅，像夜间城市的灯光。开发者最爱。</div>
+      <div class="card-ref">参考: VS Code Tokyo Night 主题, GitHub Dark</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'c12',1)">👍</button>
+        <button class="vb" onclick="v(this,'c12',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function v(btn, cardId, like) {
+  const card = document.getElementById(cardId);
+  const row = btn.closest('.vote');
+  const btns = row.querySelectorAll('.vb');
+  btns.forEach(b => b.classList.remove('lk', 'nk'));
+  card.classList.remove('liked', 'noped');
+  card.style.opacity = '';
+
+  if (like) { btn.classList.add('lk'); card.classList.add('liked'); }
+  else { btn.classList.add('nk'); card.classList.add('noped'); }
+}
+</script>
+</body>
+</html>

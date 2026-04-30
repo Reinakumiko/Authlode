@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 - ui-ux-pro-max 版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 设计 token ===== */
+  :root {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --icon-size: 20px;
+    --icon-stroke: 1.5px;
+    --shadow-rest: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.03);
+    --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
+    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ===== 方案 U: 渐变条 + SVG 图标 + 数字 (ui-ux-pro-max 规范) ===== */
+  .u-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 700px;
+  }
+  .u-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 0.5px solid rgba(255,255,255,0.7);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-rest);
+    transition: transform var(--transition), box-shadow var(--transition);
+    overflow: hidden;
+    /* touch target: 整个卡片可点 */
+    min-height: 120px;
+  }
+  .u-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .u-card:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: var(--shadow-rest);
+    transition-duration: 80ms;
+  }
+
+  /* 图标区域 */
+  .u-icon-area {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    transition: transform var(--transition);
+  }
+  .u-card:hover .u-icon-area { transform: scale(1.08); }
+  .u-icon-area svg {
+    width: var(--icon-size); height: var(--icon-size);
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round; stroke-linejoin: round;
+    fill: none;
+  }
+
+  /* 文字 */
+  .u-label { font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 2px; }
+  .u-stat { display: flex; align-items: baseline; gap: 3px; }
+  .u-num { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; line-height: 1.2; }
+  .u-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+
+  /* 底部渐变条 */
+  .u-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    opacity: 0.5;
+    transition: opacity var(--transition), height 150ms ease;
+  }
+  .u-card:hover .u-bar { opacity: 1; height: 4px; }
+
+  /* ===== 方案 V: 微光效果 + 进度条 ===== */
+  .v-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 700px;
+  }
+  .v-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 0.5px solid rgba(255,255,255,0.7);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-rest);
+    transition: transform var(--transition), box-shadow var(--transition);
+    overflow: hidden;
+    min-height: 130px;
+  }
+  .v-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  .v-card:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  /* 微光边框效果 */
+  .v-card::before {
+    content: '';
+    position: absolute;
+    inset: -0.5px;
+    border-radius: var(--radius-lg);
+    padding: 0.5px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .v-card:hover::before { opacity: 1; }
+
+  .v-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .v-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .v-icon svg {
+    width: 18px; height: 18px;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round; stroke-linejoin: round;
+    fill: none;
+  }
+  .v-label { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .v-num { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: #1d1d1f; line-height: 1; margin-bottom: 8px; }
+  .v-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+
+  /* 进度条 */
+  .v-progress-track {
+    width: 100%; height: 4px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .v-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ===== 方案 W: 极简 + 色点指示 ===== */
+  .w-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 700px;
+  }
+  .w-card {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 0.5px solid rgba(255,255,255,0.7);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-rest);
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    min-height: 120px;
+  }
+  .w-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    background: rgba(255,255,255,0.65);
+  }
+  .w-card:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  .w-dot-bar {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
+  }
+  .w-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .w-dot-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .w-icon svg {
+    width: 20px; height: 20px;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round; stroke-linejoin: round;
+    fill: none;
+    margin-bottom: 8px;
+  }
+  .w-num { font-size: 20px; font-weight: 800; letter-spacing: -0.04em; color: #1d1d1f; line-height: 1.2; }
+  .w-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; margin-left: 3px; }
+  .w-bar {
+    margin-top: auto;
+    height: 3px; border-radius: 2px;
+    opacity: 0.5;
+    transition: opacity var(--transition);
+  }
+  .w-card:hover .w-bar { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- 方案 U: 规范化渐变条版 -->
+<div class="section">
+  <div class="section-label">方案 U</div>
+  <div class="section-title">渐变条 + SVG 图标 + 数字（规范版）</div>
+  <div class="section-desc">遵循 ui-ux-pro-max 规范：统一 stroke 1.5px、8dp 间距、touch target >=44px、200ms ease</div>
+
+  <div class="u-row">
+    <div class="u-card" tabindex="0">
+      <div class="u-icon-area" style="background:rgba(99,102,241,0.08)">
+        <svg viewBox="0 0 24 24" stroke="#6366f1">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="u-label">用户管理</div>
+      <div class="u-stat"><span class="u-num">128</span><span class="u-unit">位用户</span></div>
+      <div class="u-bar" style="background:linear-gradient(90deg,#6366f1,#818cf8)"></div>
+    </div>
+
+    <div class="u-card" tabindex="0">
+      <div class="u-icon-area" style="background:rgba(139,92,246,0.08)">
+        <svg viewBox="0 0 24 24" stroke="#8b5cf6">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M8 10h.01M12 10h.01M16 10h.01"/>
+        </svg>
+      </div>
+      <div class="u-label">邀请用户</div>
+      <div class="u-stat"><span class="u-num">5</span><span class="u-unit">待处理</span></div>
+      <div class="u-bar" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div>
+    </div>
+
+    <div class="u-card" tabindex="0">
+      <div class="u-icon-area" style="background:rgba(59,130,246,0.08)">
+        <svg viewBox="0 0 24 24" stroke="#3b82f6">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div class="u-label">组织管理</div>
+      <div class="u-stat"><span class="u-num">12</span><span class="u-unit">个组织</span></div>
+      <div class="u-bar" style="background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+    </div>
+
+    <div class="u-card" tabindex="0">
+      <div class="u-icon-area" style="background:rgba(20,184,166,0.08)">
+        <svg viewBox="0 0 24 24" stroke="#14b8a6">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="u-label">角色权限</div>
+      <div class="u-stat"><span class="u-num">8</span><span class="u-unit">个角色</span></div>
+      <div class="u-bar" style="background:linear-gradient(90deg,#14b8a6,#2dd4bf)"></div>
+    </div>
+
+    <div class="u-card" tabindex="0">
+      <div class="u-icon-area" style="background:rgba(236,72,153,0.08)">
+        <svg viewBox="0 0 24 24" stroke="#ec4899">
+          <rect x="5" y="2" width="14" height="20" rx="3"/>
+          <path d="M12 18h.01"/>
+        </svg>
+      </div>
+      <div class="u-label">应用管理</div>
+      <div class="u-stat"><span class="u-num">6</span><span class="u-unit">个应用</span></div>
+      <div class="u-bar" style="background:linear-gradient(90deg,#ec4899,#f472b6)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 V: 微光边框 + 进度条 -->
+<div class="section">
+  <div class="section-label">方案 V</div>
+  <div class="section-title">微光边框 + 进度条</div>
+  <div class="section-desc">hover 出现渐变微光边框 + 底部进度条填充动画</div>
+
+  <div class="v-row">
+    <div class="v-card" tabindex="0">
+      <div class="v-top">
+        <div class="v-icon" style="background:rgba(99,102,241,0.08)">
+          <svg viewBox="0 0 24 24" stroke="#6366f1">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <span class="v-label">用户管理</span>
+      </div>
+      <div><span class="v-num">128</span><span class="v-unit">位</span></div>
+      <div class="v-progress-track">
+        <div class="v-progress-fill" style="width:64%;background:linear-gradient(90deg,#6366f1,#818cf8)"></div>
+      </div>
+    </div>
+
+    <div class="v-card" tabindex="0">
+      <div class="v-top">
+        <div class="v-icon" style="background:rgba(139,92,246,0.08)">
+          <svg viewBox="0 0 24 24" stroke="#8b5cf6">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <path d="M8 10h.01M12 10h.01M16 10h.01"/>
+          </svg>
+        </div>
+        <span class="v-label">邀请用户</span>
+      </div>
+      <div><span class="v-num">5</span><span class="v-unit">待处理</span></div>
+      <div class="v-progress-track">
+        <div class="v-progress-fill" style="width:25%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div>
+      </div>
+    </div>
+
+    <div class="v-card" tabindex="0">
+      <div class="v-top">
+        <div class="v-icon" style="background:rgba(59,130,246,0.08)">
+          <svg viewBox="0 0 24 24" stroke="#3b82f6">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </div>
+        <span class="v-label">组织管理</span>
+      </div>
+      <div><span class="v-num">12</span><span class="v-unit">个</span></div>
+      <div class="v-progress-track">
+        <div class="v-progress-fill" style="width:40%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+      </div>
+    </div>
+
+    <div class="v-card" tabindex="0">
+      <div class="v-top">
+        <div class="v-icon" style="background:rgba(20,184,166,0.08)">
+          <svg viewBox="0 0 24 24" stroke="#14b8a6">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="v-label">角色权限</span>
+      </div>
+      <div><span class="v-num">8</span><span class="v-unit">个</span></div>
+      <div class="v-progress-track">
+        <div class="v-progress-fill" style="width:32%;background:linear-gradient(90deg,#14b8a6,#2dd4bf)"></div>
+      </div>
+    </div>
+
+    <div class="v-card" tabindex="0">
+      <div class="v-top">
+        <div class="v-icon" style="background:rgba(236,72,153,0.08)">
+          <svg viewBox="0 0 24 24" stroke="#ec4899">
+            <rect x="5" y="2" width="14" height="20" rx="3"/>
+            <path d="M12 18h.01"/>
+          </svg>
+        </div>
+        <span class="v-label">应用管理</span>
+      </div>
+      <div><span class="v-num">6</span><span class="v-unit">个</span></div>
+      <div class="v-progress-track">
+        <div class="v-progress-fill" style="width:24%;background:linear-gradient(90deg,#ec4899,#f472b6)"></div>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- 方案 W: 色点 + 图标 + 数字 + 渐变条 -->
+<div class="section">
+  <div class="section-label">方案 W</div>
+  <div class="section-title">色点指示 + SVG + 渐变条</div>
+  <div class="section-desc">顶部色点+小标签 + SVG图标 + 数字 + 底部渐变条，多层视觉层次</div>
+
+  <div class="w-row">
+    <div class="w-card" tabindex="0">
+      <div class="w-dot-bar">
+        <div class="w-dot" style="background:#6366f1;box-shadow:0 0 4px rgba(99,102,241,0.3)"></div>
+        <span class="w-dot-label" style="color:#6366f1">USERS</span>
+      </div>
+      <div class="w-icon">
+        <svg viewBox="0 0 24 24" stroke="#6366f1">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div><span class="w-num">128</span><span class="w-unit">位用户</span></div>
+      <div class="w-bar" style="background:linear-gradient(90deg,#6366f1,#818cf8)"></div>
+    </div>
+
+    <div class="w-card" tabindex="0">
+      <div class="w-dot-bar">
+        <div class="w-dot" style="background:#8b5cf6;box-shadow:0 0 4px rgba(139,92,246,0.3)"></div>
+        <span class="w-dot-label" style="color:#8b5cf6">INVITE</span>
+      </div>
+      <div class="w-icon">
+        <svg viewBox="0 0 24 24" stroke="#8b5cf6">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M8 10h.01M12 10h.01M16 10h.01"/>
+        </svg>
+      </div>
+      <div><span class="w-num">5</span><span class="w-unit">待处理</span></div>
+      <div class="w-bar" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div>
+    </div>
+
+    <div class="w-card" tabindex="0">
+      <div class="w-dot-bar">
+        <div class="w-dot" style="background:#3b82f6;box-shadow:0 0 4px rgba(59,130,246,0.3)"></div>
+        <span class="w-dot-label" style="color:#3b82f6">ORG</span>
+      </div>
+      <div class="w-icon">
+        <svg viewBox="0 0 24 24" stroke="#3b82f6">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+      </div>
+      <div><span class="w-num">12</span><span class="w-unit">个组织</span></div>
+      <div class="w-bar" style="background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+    </div>
+
+    <div class="w-card" tabindex="0">
+      <div class="w-dot-bar">
+        <div class="w-dot" style="background:#14b8a6;box-shadow:0 0 4px rgba(20,184,166,0.3)"></div>
+        <span class="w-dot-label" style="color:#14b8a6">ROLE</span>
+      </div>
+      <div class="w-icon">
+        <svg viewBox="0 0 24 24" stroke="#14b8a6">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div><span class="w-num">8</span><span class="w-unit">个角色</span></div>
+      <div class="w-bar" style="background:linear-gradient(90deg,#14b8a6,#2dd4bf)"></div>
+    </div>
+
+    <div class="w-card" tabindex="0">
+      <div class="w-dot-bar">
+        <div class="w-dot" style="background:#ec4899;box-shadow:0 0 4px rgba(236,72,153,0.3)"></div>
+        <span class="w-dot-label" style="color:#ec4899">APP</span>
+      </div>
+      <div class="w-icon">
+        <svg viewBox="0 0 24 24" stroke="#ec4899">
+          <rect x="5" y="2" width="14" height="20" rx="3"/>
+          <path d="M12 18h.01"/>
+        </svg>
+      </div>
+      <div><span class="w-num">6</span><span class="w-unit">个应用</span></div>
+      <div class="w-bar" style="background:linear-gradient(90deg,#ec4899,#f472b6)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 - K 变体</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .glass {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== K2: 加数字统计 ===== */
+  .k2-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k2-item {
+    padding: 14px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .k2-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .k2-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+  .k2-name { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .k2-arrow { font-size: 11px; color: #c7c7cc; }
+  .k2-count { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; margin-top: 4px; }
+  .k2-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; margin-left: 2px; }
+  .k2-bar { height: 3px; border-radius: 2px; margin-top: 10px; }
+
+  /* ===== K3: 加左侧色条 ===== */
+  .k3-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k3-item {
+    padding: 14px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .k3-item::before {
+    content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 2px 2px 0;
+  }
+  .k3-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .k3-inner { margin-left: 4px; }
+  .k3-head { display: flex; align-items: center; justify-content: space-between; }
+  .k3-name { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .k3-arrow { font-size: 11px; color: #c7c7cc; }
+  .k3-desc { font-size: 10px; color: #aeaeb2; font-weight: 500; margin-top: 2px; }
+  .k3-bar { height: 3px; border-radius: 2px; margin-top: 10px; }
+
+  /* ===== K4: 加图标 + 更大 ===== */
+  .k4-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 580px; }
+  .k4-item {
+    padding: 16px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .k4-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .k4-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .k4-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .k4-name { font-size: 13px; font-weight: 700; color: #1d1d1f; flex: 1; }
+  .k4-arrow { font-size: 12px; color: #c7c7cc; }
+  .k4-desc { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+  .k4-bar { height: 3px; border-radius: 2px; margin-top: 10px; }
+
+  /* ===== K5: 加图标 + 5列紧凑 ===== */
+  .k5-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k5-item {
+    padding: 14px 12px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .k5-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .k5-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .k5-icon {
+    width: 26px; height: 26px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .k5-name { font-size: 12px; font-weight: 600; color: #1d1d1f; flex: 1; }
+  .k5-bar { height: 3px; border-radius: 2px; }
+
+  /* ===== K6: 底部渐变条更粗 + 悬停动画 ===== */
+  .k6-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k6-item {
+    padding: 16px 14px; cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .k6-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .k6-name { font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
+  .k6-desc { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+  .k6-bar { height: 4px; border-radius: 2px; margin-top: 12px; opacity: 0.7; transition: opacity 0.15s; }
+  .k6-item:hover .k6-bar { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- K2: 加数字 -->
+<div class="section">
+  <div class="section-label">方案 K2</div>
+  <div class="section-title">K + 数字统计</div>
+  <div class="section-desc">卡片内加入数量（如用户数/组织数），更有信息量</div>
+
+  <div class="k2-row">
+    <div class="k2-item">
+      <div class="k2-head"><span class="k2-name">用户管理</span><span class="k2-arrow">→</span></div>
+      <div><span class="k2-count">128</span><span class="k2-unit">位用户</span></div>
+      <div class="k2-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="k2-item">
+      <div class="k2-head"><span class="k2-name">邀请用户</span><span class="k2-arrow">→</span></div>
+      <div><span class="k2-count">5</span><span class="k2-unit">待处理</span></div>
+      <div class="k2-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="k2-item">
+      <div class="k2-head"><span class="k2-name">组织管理</span><span class="k2-arrow">→</span></div>
+      <div><span class="k2-count">12</span><span class="k2-unit">个组织</span></div>
+      <div class="k2-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="k2-item">
+      <div class="k2-head"><span class="k2-name">角色权限</span><span class="k2-arrow">→</span></div>
+      <div><span class="k2-count">8</span><span class="k2-unit">个角色</span></div>
+      <div class="k2-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="k2-item">
+      <div class="k2-head"><span class="k2-name">应用管理</span><span class="k2-arrow">→</span></div>
+      <div><span class="k2-count">6</span><span class="k2-unit">个应用</span></div>
+      <div class="k2-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K3: 左侧色条 -->
+<div class="section">
+  <div class="section-label">方案 K3</div>
+  <div class="section-title">K + 左侧色条</div>
+  <div class="section-desc">底部渐变条换成左侧竖色条</div>
+
+  <div class="k3-row">
+    <div class="k3-item">
+      <div style="position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#6366f1,#8b5cf6)"></div>
+      <div class="k3-inner">
+        <div class="k3-head"><span class="k3-name">用户管理</span><span class="k3-arrow">→</span></div>
+        <div class="k3-desc">查看和管理所有用户</div>
+        <div class="k3-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+      </div>
+    </div>
+    <div class="k3-item">
+      <div style="position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#8b5cf6,#a855f7)"></div>
+      <div class="k3-inner">
+        <div class="k3-head"><span class="k3-name">邀请用户</span><span class="k3-arrow">→</span></div>
+        <div class="k3-desc">发送邀请链接</div>
+        <div class="k3-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+      </div>
+    </div>
+    <div class="k3-item">
+      <div style="position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#3b82f6,#2563eb)"></div>
+      <div class="k3-inner">
+        <div class="k3-head"><span class="k3-name">组织管理</span><span class="k3-arrow">→</span></div>
+        <div class="k3-desc">部门和团队架构</div>
+        <div class="k3-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+      </div>
+    </div>
+    <div class="k3-item">
+      <div style="position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#14b8a6,#06b6d4)"></div>
+      <div class="k3-inner">
+        <div class="k3-head"><span class="k3-name">角色权限</span><span class="k3-arrow">→</span></div>
+        <div class="k3-desc">自定义角色权限</div>
+        <div class="k3-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+      </div>
+    </div>
+    <div class="k3-item">
+      <div style="position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:linear-gradient(180deg,#ec4899,#db2777)"></div>
+      <div class="k3-inner">
+        <div class="k3-head"><span class="k3-name">应用管理</span><span class="k3-arrow">→</span></div>
+        <div class="k3-desc">配置接入的应用</div>
+        <div class="k3-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K4: 加图标 3列 -->
+<div class="section">
+  <div class="section-label">方案 K4</div>
+  <div class="section-title">K + 图标 + 3列</div>
+  <div class="section-desc">加图标，改成 3 列更宽松</div>
+
+  <div class="k4-row">
+    <div class="k4-item">
+      <div class="k4-top">
+        <div class="k4-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">👤</div>
+        <span class="k4-name">用户管理</span>
+        <span class="k4-arrow">→</span>
+      </div>
+      <div class="k4-desc">查看和管理所有用户</div>
+      <div class="k4-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="k4-item">
+      <div class="k4-top">
+        <div class="k4-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">✉️</div>
+        <span class="k4-name">邀请用户</span>
+        <span class="k4-arrow">→</span>
+      </div>
+      <div class="k4-desc">发送邀请链接或邮件</div>
+      <div class="k4-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="k4-item">
+      <div class="k4-top">
+        <div class="k4-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏢</div>
+        <span class="k4-name">组织管理</span>
+        <span class="k4-arrow">→</span>
+      </div>
+      <div class="k4-desc">部门和团队架构</div>
+      <div class="k4-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="k4-item">
+      <div class="k4-top">
+        <div class="k4-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🔑</div>
+        <span class="k4-name">角色权限</span>
+        <span class="k4-arrow">→</span>
+      </div>
+      <div class="k4-desc">自定义角色和权限规则</div>
+      <div class="k4-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="k4-item">
+      <div class="k4-top">
+        <div class="k4-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">📱</div>
+        <span class="k4-name">应用管理</span>
+        <span class="k4-arrow">→</span>
+      </div>
+      <div class="k4-desc">配置接入的应用</div>
+      <div class="k4-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K5: 图标+5列紧凑 -->
+<div class="section">
+  <div class="section-label">方案 K5</div>
+  <div class="section-title">K + 图标 + 5列紧凑</div>
+  <div class="section-desc">图标+名称紧凑排列，保留底部渐变条</div>
+
+  <div class="k5-row">
+    <div class="k5-item">
+      <div class="k5-top">
+        <div class="k5-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">👤</div>
+        <span class="k5-name">用户管理</span>
+      </div>
+      <div class="k5-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="k5-item">
+      <div class="k5-top">
+        <div class="k5-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">✉️</div>
+        <span class="k5-name">邀请用户</span>
+      </div>
+      <div class="k5-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="k5-item">
+      <div class="k5-top">
+        <div class="k5-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏢</div>
+        <span class="k5-name">组织管理</span>
+      </div>
+      <div class="k5-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="k5-item">
+      <div class="k5-top">
+        <div class="k5-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🔑</div>
+        <span class="k5-name">角色权限</span>
+      </div>
+      <div class="k5-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="k5-item">
+      <div class="k5-top">
+        <div class="k5-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">📱</div>
+        <span class="k5-name">应用管理</span>
+      </div>
+      <div class="k5-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K6: 更粗渐变条 + hover -->
+<div class="section">
+  <div class="section-label">方案 K6</div>
+  <div class="section-title">K + 粗渐变条 + 悬停效果</div>
+  <div class="section-desc">底部条更粗(4px)，hover 时条亮起</div>
+
+  <div class="k6-row">
+    <div class="k6-item">
+      <div class="k6-name">用户管理</div>
+      <div class="k6-desc">查看和管理所有用户</div>
+      <div class="k6-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="k6-item">
+      <div class="k6-name">邀请用户</div>
+      <div class="k6-desc">发送邀请链接</div>
+      <div class="k6-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="k6-item">
+      <div class="k6-name">组织管理</div>
+      <div class="k6-desc">部门和团队架构</div>
+      <div class="k6-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="k6-item">
+      <div class="k6-name">角色权限</div>
+      <div class="k6-desc">自定义角色权限</div>
+      <div class="k6-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="k6-item">
+      <div class="k6-name">应用管理</div>
+      <div class="k6-desc">配置接入的应用</div>
+      <div class="k6-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>应用方式探索</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .context { background: rgba(0,122,255,0.06); border-radius: 10px; padding: 12px 16px; margin-bottom: 28px; font-size: 12px; color: #48484a; line-height: 1.5; }
+
+  .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+  .card {
+    border-radius: 14px; overflow: hidden; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer;
+    transition: all 0.2s ease; border: 2px solid transparent;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .card.liked { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 12px rgba(0,122,255,0.12); }
+  .card.noped { opacity: 0.35; }
+
+  .card-visual { height: 240px; position: relative; overflow: hidden; }
+
+  .card-info { padding: 12px 14px; border-top: 0.5px solid rgba(0,0,0,0.05); }
+  .card-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .card-desc { font-size: 10px; color: #86868b; line-height: 1.4; margin-bottom: 8px; }
+  .vote { display: flex; gap: 6px; }
+  .vb { padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== A. 色球散落 ===== */
+  .va { background: #f8f9fc; position: relative; }
+  .va-orb1 { position: absolute; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,0.2), transparent 70%); top: -20px; right: -20px; filter: blur(20px); }
+  .va-orb2 { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%); bottom: 10%; left: -10px; filter: blur(15px); }
+  .va-orb3 { position: absolute; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(20,184,166,0.12), transparent 70%); top: 50%; right: 20%; filter: blur(18px); }
+  .va-content { position: relative; z-index: 1; padding: 20px; }
+  .va-card {
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 12px;
+    padding: 14px; margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .va-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .va-row { display: flex; gap: 6px; }
+  .va-mini { flex: 1; padding: 8px; border-radius: 8px; background: rgba(99,102,241,0.06); text-align: center; }
+  .va-mini-val { font-size: 14px; font-weight: 700; }
+  .va-mini-lbl { font-size: 8px; color: #86868b; }
+
+  /* ===== B. Mesh 网格渐变 ===== */
+  .vb-bg {
+    background: #f5f5f7;
+    background-image:
+      radial-gradient(at 20% 20%, rgba(99,102,241,0.12) 0px, transparent 50%),
+      radial-gradient(at 80% 10%, rgba(168,85,247,0.1) 0px, transparent 50%),
+      radial-gradient(at 50% 80%, rgba(20,184,166,0.08) 0px, transparent 50%),
+      radial-gradient(at 90% 70%, rgba(236,72,153,0.06) 0px, transparent 50%);
+  }
+  .vb-content { padding: 20px; }
+  .vb-card {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(255,255,255,0.5); border-radius: 14px;
+    padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .vb-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .vb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .vb-item { padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.4); }
+  .vb-item-val { font-size: 16px; font-weight: 700; }
+  .vb-item-lbl { font-size: 8px; color: #86868b; margin-top: 2px; }
+  .vb-item-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 6px; }
+
+  /* ===== C. 波浪分界 ===== */
+  .vc { background: linear-gradient(180deg, #f0f4ff 0%, #faf5ff 100%); position: relative; }
+  .vc-wave { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; }
+  .vc-content { padding: 20px; position: relative; z-index: 1; }
+  .vc-card {
+    background: rgba(255,255,255,0.6); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+  .vc-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .vc-bar-row { margin-bottom: 8px; }
+  .vc-bar-lbl { font-size: 9px; color: #86868b; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .vc-bar { height: 14px; background: rgba(0,0,0,0.03); border-radius: 4px; overflow: hidden; }
+  .vc-fill { height: 100%; border-radius: 4px; }
+
+  /* ===== D. 深色毛玻璃 ===== */
+  .vd { background: linear-gradient(135deg, #1a1a2e, #16213e); display: flex; align-items: center; justify-content: center; }
+  .vd-card {
+    width: 80%; padding: 18px; border-radius: 14px;
+    background: rgba(255,255,255,0.06); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .vd-title { font-size: 14px; font-weight: 700; color: #e2e8f0; margin-bottom: 10px; }
+  .vd-row { display: flex; gap: 8px; }
+  .vd-mini { flex: 1; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+  .vd-mini-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 6px; }
+  .vd-mini-val { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+  .vd-mini-lbl { font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  /* ===== E. 双色分区 ===== */
+  .ve { display: flex; }
+  .ve-left { width: 40%; background: linear-gradient(180deg, rgba(99,102,241,0.15), rgba(168,85,247,0.12)); padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+  .ve-right { flex: 1; background: linear-gradient(160deg, #f8faff, #faf5ff); padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+  .ve-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .ve-stat { margin-bottom: 10px; }
+  .ve-stat-val { font-size: 18px; font-weight: 700; color: #6366f1; }
+  .ve-stat-lbl { font-size: 8px; color: #86868b; }
+  .ve-card {
+    background: rgba(255,255,255,0.6); backdrop-filter: blur(12px);
+    border-radius: 10px; padding: 10px; margin-bottom: 6px;
+    border: 0.5px solid rgba(255,255,255,0.5);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-size: 9px; color: #48484a;
+  }
+
+  /* ===== F. 极简毛玻璃 ===== */
+  .vf { background: linear-gradient(160deg, #f0f4ff, #faf5ff, #f0fdf4); position: relative; }
+  .vf::before { content: ''; position: absolute; top: 20px; right: 20px; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%); filter: blur(15px); }
+  .vf-content { padding: 20px; position: relative; z-index: 1; }
+  .vf-title { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 14px; }
+  .vf-cards { display: flex; gap: 8px; margin-bottom: 10px; }
+  .vf-card {
+    flex: 1; padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(255,255,255,0.5);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .vf-val { font-size: 16px; font-weight: 700; }
+  .vf-lbl { font-size: 8px; color: #86868b; margin-top: 2px; }
+  .vf-bar { height: 4px; border-radius: 2px; background: rgba(99,102,241,0.12); margin-top: 8px; overflow: hidden; }
+  .vf-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #6366f1, #a855f7); }
+
+  /* ===== G. 多层叠放 ===== */
+  .vg { background: linear-gradient(135deg, #f0f4ff, #ede9fe); display: flex; align-items: center; justify-content: center; position: relative; }
+  .vg-card1 {
+    position: absolute; width: 65%; height: 55%; top: 15%; left: 8%;
+    border-radius: 14px; background: rgba(255,255,255,0.3); backdrop-filter: blur(10px);
+    border: 0.5px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    transform: rotate(-3deg);
+  }
+  .vg-card2 {
+    position: absolute; width: 65%; height: 55%; top: 18%; left: 18%;
+    border-radius: 14px; background: rgba(255,255,255,0.4); backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(255,255,255,0.5);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    transform: rotate(1deg);
+  }
+  .vg-card3 {
+    position: absolute; width: 65%; height: 55%; top: 22%; left: 25%;
+    border-radius: 14px; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    padding: 14px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .vg-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .vg-row { display: flex; gap: 6px; }
+  .vg-mini { flex: 1; padding: 8px; border-radius: 8px; background: rgba(99,102,241,0.06); text-align: center; }
+  .vg-mini-val { font-size: 14px; font-weight: 700; }
+  .vg-mini-lbl { font-size: 7px; color: #86868b; }
+
+  /* ===== H. 流体色带 ===== */
+  .vh { background: #f5f5f7; position: relative; overflow: hidden; }
+  .vh-ribbon1 {
+    position: absolute; width: 200%; height: 60px; top: 15%; left: -20%;
+    background: linear-gradient(90deg, rgba(99,102,241,0.1), rgba(168,85,247,0.08), rgba(20,184,166,0.1), rgba(99,102,241,0.1));
+    border-radius: 50%; transform: rotate(-5deg); filter: blur(25px);
+  }
+  .vh-ribbon2 {
+    position: absolute; width: 200%; height: 50px; bottom: 20%; left: -10%;
+    background: linear-gradient(90deg, rgba(20,184,166,0.08), rgba(59,130,246,0.1), rgba(168,85,247,0.08));
+    border-radius: 50%; transform: rotate(3deg); filter: blur(20px);
+  }
+  .vh-content { position: relative; z-index: 1; padding: 20px; }
+  .vh-card {
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 12px;
+    padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+  }
+  .vh-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .vh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .vh-mini { padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.5); }
+  .vh-mini-val { font-size: 14px; font-weight: 700; }
+  .vh-mini-lbl { font-size: 8px; color: #86868b; }
+  .vh-mini-dot { width: 6px; height: 6px; border-radius: 50%; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<h1>应用方式探索</h1>
+<p class="desc">都在"柔和渐变 + 毛玻璃 + 流动感"范围内，但应用方式不同</p>
+<div class="context">关注点：渐变怎么走、色块怎么放、卡片怎么浮、整体氛围感。不限 Apple 方向。</div>
+
+<div class="gallery">
+
+  <!-- A. 色球散落 -->
+  <div class="card" id="ca">
+    <div class="card-visual va">
+      <div class="va-orb1"></div>
+      <div class="va-orb2"></div>
+      <div class="va-orb3"></div>
+      <div class="va-content">
+        <div class="va-card">
+          <div class="va-title">欢迎回来</div>
+          <div class="va-row">
+            <div class="va-mini"><div class="va-mini-val">12,847</div><div class="va-mini-lbl">总用户</div></div>
+            <div class="va-mini"><div class="va-mini-val">156</div><div class="va-mini-lbl">组织</div></div>
+            <div class="va-mini"><div class="va-mini-val">89</div><div class="va-mini-lbl">应用</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">A. 色球散落</div>
+      <div class="card-desc">浅色底上散落几个模糊色球（蓝/紫/青），卡片浮在中间。装饰感强但不抢眼。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'ca',1)">👍</button>
+        <button class="vb" onclick="v(this,'ca',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- B. Mesh 网格渐变 -->
+  <div class="card" id="cb">
+    <div class="card-visual vb-bg">
+      <div class="vb-content">
+        <div class="vb-card">
+          <div class="vb-title">欢迎回来</div>
+          <div class="vb-grid">
+            <div class="vb-item"><div class="vb-item-dot" style="background:#6366f1;box-shadow:0 0 6px rgba(99,102,241,0.3)"></div><div class="vb-item-val">12,847</div><div class="vb-item-lbl">总用户</div></div>
+            <div class="vb-item"><div class="vb-item-dot" style="background:#a855f7;box-shadow:0 0 6px rgba(168,85,247,0.3)"></div><div class="vb-item-val">156</div><div class="vb-item-lbl">组织</div></div>
+            <div class="vb-item"><div class="vb-item-dot" style="background:#14b8a6;box-shadow:0 0 6px rgba(20,184,166,0.3)"></div><div class="vb-item-val">89</div><div class="vb-item-lbl">应用</div></div>
+            <div class="vb-item"><div class="vb-item-dot" style="background:#ec4899;box-shadow:0 0 6px rgba(236,72,153,0.3)"></div><div class="vb-item-val">892</div><div class="vb-item-lbl">会话</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">B. Mesh 渐变</div>
+      <div class="card-desc">多个渐变点叠加形成网格状底色，像透过彩色玻璃看。多色但柔和融合。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'cb',1)">👍</button>
+        <button class="vb" onclick="v(this,'cb',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. 波浪分界 -->
+  <div class="card" id="cc">
+    <div class="card-visual vc">
+      <div class="vc-content">
+        <div class="vc-card">
+          <div class="vc-title">系统监控</div>
+          <div class="vc-bar-row"><div class="vc-bar-lbl"><span>CPU</span><span>45%</span></div><div class="vc-bar"><div class="vc-fill" style="width:45%;background:linear-gradient(90deg,#6366f1,#a855f7)"></div></div></div>
+          <div class="vc-bar-row"><div class="vc-bar-lbl"><span>内存</span><span>62%</span></div><div class="vc-bar"><div class="vc-fill" style="width:62%;background:linear-gradient(90deg,#a855f7,#ec4899)"></div></div></div>
+          <div class="vc-bar-row"><div class="vc-bar-lbl"><span>硬盘</span><span>38%</span></div><div class="vc-bar"><div class="vc-fill" style="width:38%;background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div></div></div>
+        </div>
+      </div>
+      <svg class="vc-wave" viewBox="0 0 400 60" preserveAspectRatio="none">
+        <path d="M0 30 Q 50 0 100 25 T 200 20 T 300 30 T 400 15 L 400 60 L 0 60 Z" fill="rgba(255,255,255,0.4)"/>
+        <path d="M0 40 Q 60 20 120 35 T 240 25 T 360 35 T 400 30 L 400 60 L 0 60 Z" fill="rgba(255,255,255,0.25)"/>
+      </svg>
+    </div>
+    <div class="card-info">
+      <div class="card-name">C. 波浪分界</div>
+      <div class="card-desc">渐变色区域用 SVG 波浪曲线分隔，像海浪。有机流动感强，但结构清晰。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'cc',1)">👍</button>
+        <button class="vb" onclick="v(this,'cc',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- D. 深色毛玻璃 -->
+  <div class="card" id="cd">
+    <div class="card-visual vd">
+      <div class="vd-card">
+        <div class="vd-title">欢迎回来</div>
+        <div class="vd-row">
+          <div class="vd-mini"><div class="vd-mini-dot" style="background:#818cf8;box-shadow:0 0 8px rgba(129,140,248,0.5)"></div><div class="vd-mini-val">12,847</div><div class="vd-mini-lbl">总用户</div></div>
+          <div class="vd-mini"><div class="vd-mini-dot" style="background:#c084fc;box-shadow:0 0 8px rgba(192,132,252,0.5)"></div><div class="vd-mini-val">156</div><div class="vd-mini-lbl">组织</div></div>
+          <div class="vd-mini"><div class="vd-mini-dot" style="background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.5)"></div><div class="vd-mini-val">89</div><div class="vd-mini-lbl">应用</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">D. 深色毛玻璃</div>
+      <div class="card-desc">深蓝底 + 半透明暗色卡片 + 发光圆点。暗色但有毛玻璃质感，彩色圆点像星星。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'cd',1)">👍</button>
+        <button class="vb" onclick="v(this,'cd',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- E. 双色分区 -->
+  <div class="card" id="ce">
+    <div class="card-visual ve">
+      <div class="ve-left">
+        <div class="ve-title">概览</div>
+        <div class="ve-stat"><div class="ve-stat-val">12,847</div><div class="ve-stat-lbl">总用户</div></div>
+        <div class="ve-stat"><div class="ve-stat-val" style="color:#a855f7">156</div><div class="ve-stat-lbl">组织</div></div>
+      </div>
+      <div class="ve-right">
+        <div class="ve-card">CPU 45% · 内存 62%</div>
+        <div class="ve-card">系统运行正常</div>
+        <div class="ve-card">5 条新活动</div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">E. 双色分区</div>
+      <div class="card-desc">左侧淡紫渐变色块放大数字，右侧白色区域放详情。信息层次分明。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'ce',1)">👍</button>
+        <button class="vb" onclick="v(this,'ce',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- F. 极简毛玻璃 -->
+  <div class="card" id="cf">
+    <div class="card-visual vf">
+      <div class="vf-content">
+        <div class="vf-title">欢迎回来</div>
+        <div class="vf-cards">
+          <div class="vf-card"><div class="vf-val">12,847</div><div class="vf-lbl">总用户</div><div class="vf-bar"><div class="vf-fill" style="width:65%"></div></div></div>
+          <div class="vf-card"><div class="vf-val">156</div><div class="vf-lbl">组织</div><div class="vf-bar"><div class="vf-fill" style="width:30%;background:linear-gradient(90deg,#a855f7,#ec4899)"></div></div></div>
+        </div>
+        <div class="vf-card" style="padding:10px 12px">
+          <span style="font-size:10px;color:#86868b">CPU 45% · 内存 62% · 硬盘 38%</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">F. 极简毛玻璃</div>
+      <div class="card-desc">几乎没有装饰，只有一个极淡的色球。毛玻璃卡片直接浮在渐变底上。克制、干净。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'cf',1)">👍</button>
+        <button class="vb" onclick="v(this,'cf',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- G. 多层叠放 -->
+  <div class="card" id="cg">
+    <div class="card-visual vg">
+      <div class="vg-card1"></div>
+      <div class="vg-card2"></div>
+      <div class="vg-card3">
+        <div class="vg-title">概览</div>
+        <div class="vg-row">
+          <div class="vg-mini"><div class="vg-mini-val">12,847</div><div class="vg-mini-lbl">用户</div></div>
+          <div class="vg-mini"><div class="vg-mini-val">156</div><div class="vg-mini-lbl">组织</div></div>
+          <div class="vg-mini"><div class="vg-mini-val">89</div><div class="vg-mini-lbl">应用</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">G. 多层叠放</div>
+      <div class="card-desc">2-3 层毛玻璃卡片微微错开叠放，有深度感和层次。像一叠磨砂玻璃片。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'cg',1)">👍</button>
+        <button class="vb" onclick="v(this,'cg',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- H. 流体色带 -->
+  <div class="card" id="ch">
+    <div class="card-visual vh">
+      <div class="vh-ribbon1"></div>
+      <div class="vh-ribbon2"></div>
+      <div class="vh-content">
+        <div class="vh-card">
+          <div class="vh-title">欢迎回来</div>
+          <div class="vh-grid">
+            <div class="vh-mini"><div class="vh-mini-dot" style="background:#6366f1;box-shadow:0 0 6px rgba(99,102,241,0.3)"></div><div class="vh-mini-val">12,847</div><div class="vh-mini-lbl">总用户</div></div>
+            <div class="vh-mini"><div class="vh-mini-dot" style="background:#14b8a6;box-shadow:0 0 6px rgba(20,184,166,0.3)"></div><div class="vh-mini-val">156</div><div class="vh-mini-lbl">组织</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">H. 流体色带</div>
+      <div class="card-desc">横向流动的模糊色带穿过背景，像光在流动。卡片浮在色带之间。动态、有韵律。</div>
+      <div class="vote">
+        <button class="vb" onclick="v(this,'ch',1)">👍</button>
+        <button class="vb" onclick="v(this,'ch',0)">👎</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function v(btn, cardId, like) {
+  const card = document.getElementById(cardId);
+  const row = btn.closest('.vote');
+  const btns = row.querySelectorAll('.vb');
+  btns.forEach(b => b.classList.remove('lk', 'nk'));
+  card.classList.remove('liked', 'noped');
+  card.style.opacity = '';
+  if (like) { btn.classList.add('lk'); card.classList.add('liked'); }
+  else { btn.classList.add('nk'); card.classList.add('noped'); }
+}
+</script>
+</body>
+</html>

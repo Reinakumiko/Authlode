@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 + 动态告警 - 更多方案</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .glass {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 快捷入口 D: 横向按钮行 ===== */
+  .qd-row { display: flex; gap: 8px; max-width: 700px; flex-wrap: wrap; }
+  .qd-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: 10px; cursor: pointer;
+    border: none; font-family: inherit;
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(16px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: all 0.15s; font-size: 12px; font-weight: 600; color: #48484a;
+  }
+  .qd-btn:hover { background: rgba(255,255,255,0.75); box-shadow: 0 3px 12px rgba(0,0,0,0.06); transform: translateY(-1px); }
+  .qd-icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+  /* ===== 快捷入口 E: 2x3 网格 + 图标上方文字下方 ===== */
+  .qe-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 700px; }
+  .qe-item {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 8px; cursor: pointer; border-radius: 12px;
+    transition: background 0.15s;
+  }
+  .qe-item:hover { background: rgba(255,255,255,0.5); }
+  .qe-icon {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .qe-name { font-size: 11px; font-weight: 600; color: #636366; }
+
+  /* ===== 快捷入口 F: 两行紧凑 ===== */
+  .qf-card { padding: 16px 18px; max-width: 700px; }
+  .qf-title { font-size: 13px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px; }
+  .qf-row { display: flex; gap: 0; }
+  .qf-item {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; cursor: pointer; border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .qf-item:hover { background: rgba(255,255,255,0.6); }
+  .qf-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .qf-name { font-size: 12px; font-weight: 600; color: #48484a; }
+
+  /* ===== 快捷入口 G: 色块横排 ===== */
+  .qg-row { display: flex; gap: 8px; max-width: 700px; }
+  .qg-item {
+    flex: 1; padding: 14px; cursor: pointer; border-radius: 12px;
+    text-align: center; transition: all 0.15s;
+    border: 0.5px solid rgba(0,0,0,0.04);
+  }
+  .qg-item:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .qg-icon { font-size: 20px; margin-bottom: 6px; }
+  .qg-name { font-size: 11px; font-weight: 600; }
+
+  /* ===== 动态告警 C: 顶部彩条 ===== */
+  .ac-card { max-width: 700px; overflow: hidden; }
+  .ac-bar { height: 3px; }
+  .ac-body { padding: 14px 18px; display: flex; align-items: center; gap: 10px; }
+  .ac-icon { font-size: 15px; flex-shrink: 0; }
+  .ac-text { flex: 1; font-size: 13px; font-weight: 500; color: #48484a; }
+  .ac-text strong { font-weight: 600; color: #1d1d1f; }
+  .ac-time { font-size: 11px; color: #aeaeb2; font-weight: 500; flex-shrink: 0; }
+
+  /* ===== 动态告警 D: 底色渐变 ===== */
+  .ad-card { padding: 14px 18px; max-width: 700px; display: flex; align-items: flex-start; gap: 12px; }
+  .ad-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .ad-body { flex: 1; }
+  .ad-title { font-size: 13px; font-weight: 600; color: #1d1d1f; }
+  .ad-desc { font-size: 12px; color: #86868b; font-weight: 500; margin-top: 2px; }
+  .ad-time { font-size: 11px; color: #aeaeb2; font-weight: 500; flex-shrink: 0; }
+
+  /* ===== 动态告警 E: 简约内嵌 ===== */
+  .ae-card { padding: 12px 16px; max-width: 700px; }
+  .ae-row { display: flex; align-items: center; gap: 10px; }
+  .ae-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ae-text { flex: 1; font-size: 13px; font-weight: 500; color: #48484a; }
+  .ae-text strong { font-weight: 600; color: #1d1d1f; }
+  .ae-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 6px; flex-shrink: 0; }
+  .ae-time { font-size: 11px; color: #aeaeb2; font-weight: 500; flex-shrink: 0; }
+  .ae-desc { font-size: 11px; color: #aeaeb2; margin-top: 4px; margin-left: 18px; }
+
+  /* ===== 动态告警 F: 全宽 Banner ===== */
+  .af-banner {
+    padding: 12px 20px; max-width: 700px; display: flex; align-items: center; gap: 12px;
+    border-radius: 12px;
+  }
+  .af-icon { font-size: 16px; flex-shrink: 0; }
+  .af-text { flex: 1; }
+  .af-title { font-size: 13px; font-weight: 600; }
+  .af-desc { font-size: 11px; font-weight: 500; opacity: 0.8; margin-top: 1px; }
+  .af-action { font-size: 11px; font-weight: 600; cursor: pointer; flex-shrink: 0; opacity: 0.9; }
+  .af-action:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ===== 快捷入口 D: 横向按钮 ===== -->
+<div class="section">
+  <div class="section-label">快捷入口 · D</div>
+  <div class="section-title">横向按钮行</div>
+  <div class="section-desc">小图标 + 文字的圆角按钮，紧凑排列可换行</div>
+  <div class="qd-row">
+    <div class="qd-btn"><div class="qd-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">👤</div>用户管理</div>
+    <div class="qd-btn"><div class="qd-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6">✉️</div>邀请用户</div>
+    <div class="qd-btn"><div class="qd-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6">🏢</div>组织管理</div>
+    <div class="qd-btn"><div class="qd-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6">🔑</div>角色权限</div>
+    <div class="qd-btn"><div class="qd-icon" style="background:rgba(236,72,153,0.1);color:#ec4899">📱</div>应用管理</div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 快捷入口 E: 图标上文字下 ===== -->
+<div class="section">
+  <div class="section-label">快捷入口 · E</div>
+  <div class="section-title">图标上文字下（无卡片）</div>
+  <div class="section-desc">只有图标和文字，hover 才出现背景，极简</div>
+  <div class="qe-grid">
+    <div class="qe-item">
+      <div class="qe-icon" style="background:rgba(99,102,241,0.08);color:#6366f1">👤</div>
+      <span class="qe-name">用户管理</span>
+    </div>
+    <div class="qe-item">
+      <div class="qe-icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6">✉️</div>
+      <span class="qe-name">邀请用户</span>
+    </div>
+    <div class="qe-item">
+      <div class="qe-icon" style="background:rgba(59,130,246,0.08);color:#3b82f6">🏢</div>
+      <span class="qe-name">组织管理</span>
+    </div>
+    <div class="qe-item">
+      <div class="qe-icon" style="background:rgba(20,184,166,0.08);color:#14b8a6">🔑</div>
+      <span class="qe-name">角色权限</span>
+    </div>
+    <div class="qe-item">
+      <div class="qe-icon" style="background:rgba(236,72,153,0.08);color:#ec4899">📱</div>
+      <span class="qe-name">应用管理</span>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 快捷入口 F: 列表无框 ===== -->
+<div class="section">
+  <div class="section-label">快捷入口 · F</div>
+  <div class="section-title">卡片内色点列表</div>
+  <div class="section-desc">一个玻璃卡片内，色点+文字，两行紧凑排列</div>
+  <div class="glass qf-card">
+    <div class="qf-title">快捷操作</div>
+    <div class="qf-row">
+      <div class="qf-item"><div class="qf-dot" style="background:#6366f1"></div><span class="qf-name">用户管理</span></div>
+      <div class="qf-item"><div class="qf-dot" style="background:#8b5cf6"></div><span class="qf-name">邀请用户</span></div>
+      <div class="qf-item"><div class="qf-dot" style="background:#3b82f6"></div><span class="qf-name">组织管理</span></div>
+    </div>
+    <div class="qf-row">
+      <div class="qf-item"><div class="qf-dot" style="background:#14b8a6"></div><span class="qf-name">角色权限</span></div>
+      <div class="qf-item"><div class="qf-dot" style="background:#ec4899"></div><span class="qf-name">应用管理</span></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 快捷入口 G: 彩色底块 ===== -->
+<div class="section">
+  <div class="section-label">快捷入口 · G</div>
+  <div class="section-title">彩色淡底块</div>
+  <div class="section-desc">每个入口用对应颜色的极淡底色区分，无图标框</div>
+  <div class="qg-row">
+    <div class="qg-item" style="background:rgba(99,102,241,0.06)">
+      <div class="qg-icon">👤</div>
+      <div class="qg-name" style="color:#6366f1">用户管理</div>
+    </div>
+    <div class="qg-item" style="background:rgba(139,92,246,0.06)">
+      <div class="qg-icon">✉️</div>
+      <div class="qg-name" style="color:#8b5cf6">邀请用户</div>
+    </div>
+    <div class="qg-item" style="background:rgba(59,130,246,0.06)">
+      <div class="qg-icon">🏢</div>
+      <div class="qg-name" style="color:#3b82f6">组织管理</div>
+    </div>
+    <div class="qg-item" style="background:rgba(20,184,166,0.06)">
+      <div class="qg-icon">🔑</div>
+      <div class="qg-name" style="color:#14b8a6">角色权限</div>
+    </div>
+    <div class="qg-item" style="background:rgba(236,72,153,0.06)">
+      <div class="qg-icon">📱</div>
+      <div class="qg-name" style="color:#ec4899">应用管理</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 动态告警 C: 顶部彩条 ===== -->
+<div class="section">
+  <div class="section-label">动态告警 · C</div>
+  <div class="section-title">顶部彩色条</div>
+  <div class="section-desc">玻璃卡片顶部 3px 彩色条，内容简洁一行</div>
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:700px">
+    <div class="glass ac-card">
+      <div class="ac-bar" style="background:linear-gradient(90deg,#34C759,#22c55e)"></div>
+      <div class="ac-body">
+        <div class="ac-icon">✅</div>
+        <div class="ac-text"><strong>系统正常</strong> — 所有服务运行中</div>
+        <div class="ac-time">刚刚</div>
+      </div>
+    </div>
+    <div class="glass ac-card">
+      <div class="ac-bar" style="background:linear-gradient(90deg,#FF9500,#f59e0b)"></div>
+      <div class="ac-body">
+        <div class="ac-icon">⚠️</div>
+        <div class="ac-text"><strong>CPU 使用率偏高</strong> — 15 分钟平均超过 80%</div>
+        <div class="ac-time">5 分钟前</div>
+      </div>
+    </div>
+    <div class="glass ac-card">
+      <div class="ac-bar" style="background:linear-gradient(90deg,#FF3B30,#ef4444)"></div>
+      <div class="ac-body">
+        <div class="ac-icon">🚨</div>
+        <div class="ac-text"><strong>异常登录</strong> — 来自新 IP 的管理员登录</div>
+        <div class="ac-time">12 分钟前</div>
+      </div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 动态告警 D: 圆形图标 + 底色 ===== -->
+<div class="section">
+  <div class="section-label">动态告警 · D</div>
+  <div class="section-title">圆形图标底色</div>
+  <div class="section-desc">图标用圆形彩色底色，与硬件监控风格统一</div>
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:700px">
+    <div class="glass ad-card">
+      <div class="ad-icon" style="background:rgba(52,199,89,0.1);color:#34C759">✓</div>
+      <div class="ad-body">
+        <div class="ad-title">系统运行正常</div>
+        <div class="ad-desc">所有服务均正常，无异常告警</div>
+      </div>
+      <div class="ad-time">刚刚检查</div>
+    </div>
+    <div class="glass ad-card">
+      <div class="ad-icon" style="background:rgba(255,149,0,0.1);color:#FF9500">!</div>
+      <div class="ad-body">
+        <div class="ad-title">CPU 使用率偏高</div>
+        <div class="ad-desc">过去 15 分钟平均使用率超过 80%</div>
+      </div>
+      <div class="ad-time">5 分钟前</div>
+    </div>
+    <div class="glass ad-card">
+      <div class="ad-icon" style="background:rgba(255,59,48,0.1);color:#FF3B30">✕</div>
+      <div class="ad-body">
+        <div class="ad-title">异常登录检测</div>
+        <div class="ad-desc">检测到来自新 IP 地址的管理员登录</div>
+      </div>
+      <div class="ad-time">12 分钟前</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 动态告警 E: 极简色点 ===== -->
+<div class="section">
+  <div class="section-label">动态告警 · E</div>
+  <div class="section-title">极简色点</div>
+  <div class="section-desc">与活动流风格统一，色点 + 文字 + 级别标签</div>
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:700px">
+    <div class="glass ae-card">
+      <div class="ae-row">
+        <div class="ae-dot" style="background:#34C759"></div>
+        <div class="ae-text"><strong>系统正常</strong> — 所有服务运行中</div>
+        <div class="ae-badge" style="background:rgba(52,199,89,0.08);color:#34C759">正常</div>
+        <div class="ae-time">刚刚</div>
+      </div>
+    </div>
+    <div class="glass ae-card">
+      <div class="ae-row">
+        <div class="ae-dot" style="background:#FF9500"></div>
+        <div class="ae-text"><strong>CPU 偏高</strong> — 15 分钟平均超过 80%</div>
+        <div class="ae-badge" style="background:rgba(255,149,0,0.08);color:#FF9500">警告</div>
+        <div class="ae-time">5 分钟前</div>
+      </div>
+      <div class="ae-desc">建议检查后台进程或扩展计算资源</div>
+    </div>
+    <div class="glass ae-card">
+      <div class="ae-row">
+        <div class="ae-dot" style="background:#FF3B30"></div>
+        <div class="ae-text"><strong>异常登录</strong> — 来自新 IP 的管理员登录</div>
+        <div class="ae-badge" style="background:rgba(255,59,48,0.08);color:#FF3B30">严重</div>
+        <div class="ae-time">12 分钟前</div>
+      </div>
+      <div class="ae-desc">IP: 203.0.113.42 · 位置: 未知 · 用户: admin</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- ===== 动态告警 F: 彩色 Banner ===== -->
+<div class="section">
+  <div class="section-label">动态告警 · F</div>
+  <div class="section-title">彩色底色 Banner</div>
+  <div class="section-desc">整个条带淡色底色，不用玻璃卡片，直接用颜色区分</div>
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:700px">
+    <div class="af-banner" style="background:rgba(52,199,89,0.08)">
+      <div class="af-icon">✅</div>
+      <div class="af-text">
+        <div class="af-title" style="color:#1d1d1f">系统运行正常</div>
+        <div class="af-desc" style="color:#34C759">所有服务均正常</div>
+      </div>
+    </div>
+    <div class="af-banner" style="background:rgba(255,149,0,0.08)">
+      <div class="af-icon">⚠️</div>
+      <div class="af-text">
+        <div class="af-title" style="color:#1d1d1f">CPU 使用率偏高</div>
+        <div class="af-desc" style="color:#FF9500">15 分钟平均超过 80%</div>
+      </div>
+      <div class="af-action" style="color:#FF9500">查看详情 ›</div>
+    </div>
+    <div class="af-banner" style="background:rgba(255,59,48,0.08)">
+      <div class="af-icon">🚨</div>
+      <div class="af-text">
+        <div class="af-title" style="color:#1d1d1f">异常登录检测</div>
+        <div class="af-desc" style="color:#FF3B30">来自新 IP 的管理员登录</div>
+      </div>
+      <div class="af-action" style="color:#FF3B30">立即处理 ›</div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

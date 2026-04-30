@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>指标卡片展示效果</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    color: #1d1d1f;
+    padding: 40px;
+  }
+
+  .section { margin-bottom: 48px; }
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 600; color: #007AFF; margin-bottom: 4px;
+  }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .grid5-wide { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; justify-content: center; }
+  .vb {
+    padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff;
+    transition: all 0.15s;
+  }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* ===== 方案 A: 圆点 + 大数字 ===== */
+  .card-a {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.2s ease; cursor: pointer;
+  }
+  .card-a:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card-a .dot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 16px; }
+  .card-a .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+  .card-a .lbl { font-size: 13px; color: #86868b; font-weight: 500; }
+  .card-a .change { font-size: 11px; color: #34C759; font-weight: 600; margin-top: 8px; }
+
+  /* ===== 方案 B: 色彩底色 ===== */
+  .card-b {
+    border-radius: 14px; padding: 20px; transition: all 0.2s ease;
+    cursor: pointer; border: 0.5px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .card-b:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card-b .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+  .card-b .lbl { font-size: 13px; font-weight: 500; }
+  .card-b .change { font-size: 11px; font-weight: 600; margin-top: 8px; }
+
+  .card-b.blue { background: linear-gradient(135deg, rgba(238,242,255,0.8), rgba(219,234,254,0.6)); border-color: rgba(147,197,253,0.2); }
+  .card-b.blue .val { color: #1e3a5f; }
+  .card-b.blue .lbl { color: #3b82f6; }
+  .card-b.blue .change { color: #34C759; }
+
+  .card-b.purple { background: linear-gradient(135deg, rgba(245,243,255,0.8), rgba(237,233,254,0.6)); border-color: rgba(196,181,253,0.2); }
+  .card-b.purple .val { color: #2e1065; }
+  .card-b.purple .lbl { color: #8b5cf6; }
+  .card-b.purple .change { color: #34C759; }
+
+  .card-b.green { background: linear-gradient(135deg, rgba(236,253,245,0.8), rgba(209,250,229,0.6)); border-color: rgba(110,231,183,0.2); }
+  .card-b.green .val { color: #064e3b; }
+  .card-b.green .lbl { color: #10b981; }
+  .card-b.green .change { color: #34C759; }
+
+  .card-b.orange { background: linear-gradient(135deg, rgba(255,247,237,0.8), rgba(254,243,199,0.6)); border-color: rgba(252,211,77,0.2); }
+  .card-b.orange .val { color: #78350f; }
+  .card-b.orange .lbl { color: #f59e0b; }
+  .card-b.orange .change { color: #34C759; }
+
+  .card-b.teal { background: linear-gradient(135deg, rgba(240,253,250,0.8), rgba(204,251,241,0.6)); border-color: rgba(94,234,212,0.2); }
+  .card-b.teal .val { color: #134e4a; }
+  .card-b.teal .lbl { color: #14b8a6; }
+  .card-b.teal .change { color: #34C759; }
+
+  /* ===== 方案 C: 圆形图标 + 数字 ===== */
+  .card-c {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    text-align: center; transition: all 0.2s ease; cursor: pointer;
+  }
+  .card-c:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card-c .icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px; font-size: 20px;
+  }
+  .card-c .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+  .card-c .lbl { font-size: 13px; color: #86868b; font-weight: 500; }
+  .card-c .change { font-size: 11px; color: #34C759; font-weight: 600; margin-top: 8px; }
+
+  /* ===== 方案 D: 大数字 + 细节在右 ===== */
+  .card-d {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.2s ease; cursor: pointer;
+  }
+  .card-d:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card-d .top { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; }
+  .card-d .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .card-d .right-info { text-align: right; }
+  .card-d .lbl { font-size: 13px; color: #86868b; font-weight: 500; margin-bottom: 2px; }
+  .card-d .change { font-size: 11px; color: #34C759; font-weight: 600; }
+  .card-d .bar { height: 4px; border-radius: 2px; background: rgba(0,0,0,0.04); overflow: hidden; }
+  .card-d .bar-fill { height: 100%; border-radius: 2px; }
+
+  /* ===== 方案 E: 横向色带 ===== */
+  .card-e {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden; transition: all 0.2s ease; cursor: pointer;
+  }
+  .card-e:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .card-e .stripe { height: 4px; }
+  .card-e .body { padding: 18px 20px; }
+  .card-e .val { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px; }
+  .card-e .lbl { font-size: 13px; color: #86868b; font-weight: 500; }
+  .card-e .change { font-size: 11px; color: #34C759; font-weight: 600; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 方案 A -->
+<div class="section">
+  <div class="section-label">方案 A</div>
+  <div class="section-title">圆点 + 大数字</div>
+  <div class="section-desc">极简，彩色小圆点标识 + 大数字 + 变化趋势</div>
+  <div class="grid5">
+    <div class="card-a">
+      <div class="dot" style="background:#6366f1;box-shadow:0 0 8px rgba(99,102,241,0.35)"></div>
+      <div class="val">12,847</div>
+      <div class="lbl">总用户</div>
+      <div class="change">↑ 23 今日</div>
+    </div>
+    <div class="card-a">
+      <div class="dot" style="background:#8b5cf6;box-shadow:0 0 8px rgba(139,92,246,0.35)"></div>
+      <div class="val">156</div>
+      <div class="lbl">组织</div>
+      <div class="change">↑ 3 新增</div>
+    </div>
+    <div class="card-a">
+      <div class="dot" style="background:#14b8a6;box-shadow:0 0 8px rgba(20,184,166,0.35)"></div>
+      <div class="val">89</div>
+      <div class="lbl">应用</div>
+      <div class="change">↑ 2 新增</div>
+    </div>
+    <div class="card-a">
+      <div class="dot" style="background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,0.35)"></div>
+      <div class="val">892</div>
+      <div class="lbl">活跃会话</div>
+      <div class="change">↑ 8.3%</div>
+    </div>
+    <div class="card-a">
+      <div class="dot" style="background:#ec4899;box-shadow:0 0 8px rgba(236,72,153,0.35)"></div>
+      <div class="val">12</div>
+      <div class="lbl">待处理邀请</div>
+      <div class="change" style="color:#f59e0b">需跟进</div>
+    </div>
+  </div>
+  <div class="vote">
+    <button class="vb" onclick="vote(this)">👍 喜欢</button>
+    <button class="vb" onclick="novote(this)">👎 不要</button>
+  </div>
+</div>
+
+<!-- 方案 B -->
+<div class="section">
+  <div class="section-label">方案 B</div>
+  <div class="section-title">色彩底色卡片</div>
+  <div class="section-desc">每张卡片带对应色调的淡色底，视觉区分度高</div>
+  <div class="grid5">
+    <div class="card-b blue">
+      <div class="val">12,847</div>
+      <div class="lbl">总用户</div>
+      <div class="change">↑ 23 今日</div>
+    </div>
+    <div class="card-b purple">
+      <div class="val">156</div>
+      <div class="lbl">组织</div>
+      <div class="change">↑ 3 新增</div>
+    </div>
+    <div class="card-b green">
+      <div class="val">89</div>
+      <div class="lbl">应用</div>
+      <div class="change">↑ 2 新增</div>
+    </div>
+    <div class="card-b orange">
+      <div class="val">892</div>
+      <div class="lbl">活跃会话</div>
+      <div class="change">↑ 8.3%</div>
+    </div>
+    <div class="card-b teal">
+      <div class="val">12</div>
+      <div class="lbl">待处理邀请</div>
+      <div class="change" style="color:#f59e0b">需跟进</div>
+    </div>
+  </div>
+  <div class="vote">
+    <button class="vb" onclick="vote(this)">👍 喜欢</button>
+    <button class="vb" onclick="novote(this)">👎 不要</button>
+  </div>
+</div>
+
+<!-- 方案 C -->
+<div class="section">
+  <div class="section-label">方案 C</div>
+  <div class="section-title">圆形图标 + 数字</div>
+  <div class="section-desc">顶部圆形彩色图标，居中排列，视觉焦点明确</div>
+  <div class="grid5">
+    <div class="card-c">
+      <div class="icon" style="background:rgba(99,102,241,0.08);color:#6366f1">👤</div>
+      <div class="val">12,847</div>
+      <div class="lbl">总用户</div>
+      <div class="change">↑ 23 今日</div>
+    </div>
+    <div class="card-c">
+      <div class="icon" style="background:rgba(139,92,246,0.08);color:#8b5cf6">🏢</div>
+      <div class="val">156</div>
+      <div class="lbl">组织</div>
+      <div class="change">↑ 3 新增</div>
+    </div>
+    <div class="card-c">
+      <div class="icon" style="background:rgba(20,184,166,0.08);color:#14b8a6">📱</div>
+      <div class="val">89</div>
+      <div class="lbl">应用</div>
+      <div class="change">↑ 2 新增</div>
+    </div>
+    <div class="card-c">
+      <div class="icon" style="background:rgba(245,158,11,0.08);color:#f59e0b">⚡</div>
+      <div class="val">892</div>
+      <div class="lbl">活跃会话</div>
+      <div class="change">↑ 8.3%</div>
+    </div>
+    <div class="card-c">
+      <div class="icon" style="background:rgba(236,72,153,0.08);color:#ec4899">✉</div>
+      <div class="val">12</div>
+      <div class="lbl">待处理邀请</div>
+      <div class="change" style="color:#f59e0b">需跟进</div>
+    </div>
+  </div>
+  <div class="vote">
+    <button class="vb" onclick="vote(this)">👍 喜欢</button>
+    <button class="vb" onclick="novote(this)">👎 不要</button>
+  </div>
+</div>
+
+<!-- 方案 D -->
+<div class="section">
+  <div class="section-label">方案 D</div>
+  <div class="section-title">大数字 + 细节 + 进度条</div>
+  <div class="section-desc">信息密度高，左边大数字，右边标签和变化，底部进度条</div>
+  <div class="grid5">
+    <div class="card-d">
+      <div class="top">
+        <div class="val">12,847</div>
+        <div class="right-info">
+          <div class="lbl">总用户</div>
+          <div class="change">↑ 23 今日</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:65%;background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
+    </div>
+    <div class="card-d">
+      <div class="top">
+        <div class="val">156</div>
+        <div class="right-info">
+          <div class="lbl">组织</div>
+          <div class="change">↑ 3 新增</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:30%;background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div></div>
+    </div>
+    <div class="card-d">
+      <div class="top">
+        <div class="val">89</div>
+        <div class="right-info">
+          <div class="lbl">应用</div>
+          <div class="change">↑ 2 新增</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:45%;background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div></div>
+    </div>
+    <div class="card-d">
+      <div class="top">
+        <div class="val">892</div>
+        <div class="right-info">
+          <div class="lbl">活跃会话</div>
+          <div class="change">↑ 8.3%</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:55%;background:linear-gradient(90deg,#f59e0b,#f97316)"></div></div>
+    </div>
+    <div class="card-d">
+      <div class="top">
+        <div class="val">12</div>
+        <div class="right-info">
+          <div class="lbl">待处理邀请</div>
+          <div class="change" style="color:#f59e0b">需跟进</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar-fill" style="width:20%;background:linear-gradient(90deg,#ec4899,#f43f5e)"></div></div>
+    </div>
+  </div>
+  <div class="vote">
+    <button class="vb" onclick="vote(this)">👍 喜欢</button>
+    <button class="vb" onclick="novote(this)">👎 不要</button>
+  </div>
+</div>
+
+<!-- 方案 E -->
+<div class="section">
+  <div class="section-label">方案 E</div>
+  <div class="section-title">顶部色带卡片</div>
+  <div class="section-desc">卡片顶部有彩色细条标识，其余部分统一白色毛玻璃</div>
+  <div class="grid5">
+    <div class="card-e">
+      <div class="stripe" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+      <div class="body">
+        <div class="val">12,847</div>
+        <div class="lbl">总用户</div>
+        <div class="change">↑ 23 今日</div>
+      </div>
+    </div>
+    <div class="card-e">
+      <div class="stripe" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+      <div class="body">
+        <div class="val">156</div>
+        <div class="lbl">组织</div>
+        <div class="change">↑ 3 新增</div>
+      </div>
+    </div>
+    <div class="card-e">
+      <div class="stripe" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+      <div class="body">
+        <div class="val">89</div>
+        <div class="lbl">应用</div>
+        <div class="change">↑ 2 新增</div>
+      </div>
+    </div>
+    <div class="card-e">
+      <div class="stripe" style="background:linear-gradient(90deg,#f59e0b,#f97316)"></div>
+      <div class="body">
+        <div class="val">892</div>
+        <div class="lbl">活跃会话</div>
+        <div class="change">↑ 8.3%</div>
+      </div>
+    </div>
+    <div class="card-e">
+      <div class="stripe" style="background:linear-gradient(90deg,#ec4899,#f43f5e)"></div>
+      <div class="body">
+        <div class="val">12</div>
+        <div class="lbl">待处理邀请</div>
+        <div class="change" style="color:#f59e0b">需跟进</div>
+      </div>
+    </div>
+  </div>
+  <div class="vote">
+    <button class="vb" onclick="vote(this)">👍 喜欢</button>
+    <button class="vb" onclick="novote(this)">👎 不要</button>
+  </div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>

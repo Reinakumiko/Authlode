@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>侧边栏选择 v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .step { font-size: 12px; color: #007AFF; font-weight: 600; margin-bottom: 8px; }
+  .confirmed { font-size: 12px; color: #34C759; font-weight: 500; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .option {
+    border-radius: 14px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;
+  }
+  .option:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .option.selected { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.15); }
+
+  .preview { height: 380px; display: flex; }
+
+  .main-area {
+    flex: 1; background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%);
+    display: flex; flex-direction: column;
+  }
+  .main-header {
+    height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  }
+  .main-search { background: rgba(0,0,0,0.03); border-radius: 5px; padding: 4px 8px; font-size: 10px; color: #86868b; width: 120px; }
+  .main-content { padding: 14px; }
+  .main-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .main-card {
+    padding: 10px; border-radius: 8px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.75); backdrop-filter: blur(10px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    font-size: 11px; color: #48484a;
+  }
+
+  .option-label {
+    padding: 12px 16px; border-top: 0.5px solid rgba(0,0,0,0.06); background: #fafafa;
+  }
+  .option-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .option-desc { font-size: 11px; color: #86868b; line-height: 1.4; }
+
+  /* ===== A. 浮动毛玻璃 ===== */
+  .sb-float {
+    width: 184px; padding: 8px;
+    background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%);
+  }
+  .sb-float-inner {
+    width: 100%; height: 100%; border-radius: 14px;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(40px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sb-float .sb-logo { padding: 14px 12px 10px; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #1d1d1f; }
+  .sb-float .sb-logo-icon { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .sb-float .sb-nav { flex: 1; padding: 4px 6px; }
+  .sb-float .sb-group-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #86868b; padding: 8px 8px 3px; }
+  .sb-float .sb-item {
+    display: flex; align-items: center; gap: 7px; padding: 6px 8px;
+    border-radius: 8px; font-size: 10px; font-weight: 500; color: #48484a; margin-bottom: 1px;
+    transition: all 0.15s ease;
+  }
+  .sb-float .sb-item:hover { background: rgba(255,255,255,0.5); }
+  .sb-float .sb-item.active {
+    background: rgba(0,122,255,0.1); color: #007AFF; font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0,122,255,0.1);
+  }
+  .sb-float .sb-icon { width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .sb-float .sb-footer { padding: 8px 10px 10px; border-top: 0.5px solid rgba(0,0,0,0.04); }
+  .sb-float .sb-user { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 7px; }
+  .sb-float .sb-avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
+  .sb-float .sb-uname { font-size: 10px; font-weight: 600; color: #1d1d1f; }
+  .sb-float .sb-uemail { font-size: 8px; color: #86868b; }
+
+  /* ===== B. 渐变暗色 ===== */
+  .sb-dark {
+    width: 180px; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-right: none;
+  }
+  .sb-dark .sb-logo { padding: 14px 12px 10px; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #fff; border-bottom: 0.5px solid rgba(255,255,255,0.06); margin-bottom: 2px; padding-bottom: 10px; }
+  .sb-dark .sb-logo-icon { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .sb-dark .sb-nav { flex: 1; padding: 4px 6px; }
+  .sb-dark .sb-group-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: rgba(255,255,255,0.3); padding: 8px 8px 3px; }
+  .sb-dark .sb-item {
+    display: flex; align-items: center; gap: 7px; padding: 6px 8px;
+    border-radius: 7px; font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.55); margin-bottom: 1px;
+    transition: all 0.15s ease;
+  }
+  .sb-dark .sb-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+  .sb-dark .sb-item.active {
+    background: rgba(102,126,234,0.2); color: #a5b4fc;
+    box-shadow: 0 0 12px rgba(102,126,234,0.15);
+  }
+  .sb-dark .sb-icon { width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .sb-dark .sb-footer { padding: 8px 10px 10px; border-top: 0.5px solid rgba(255,255,255,0.06); }
+  .sb-dark .sb-user { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 7px; }
+  .sb-dark .sb-avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
+  .sb-dark .sb-uname { font-size: 10px; font-weight: 600; color: #fff; }
+  .sb-dark .sb-uemail { font-size: 8px; color: rgba(255,255,255,0.4); }
+
+  /* ===== C. 色彩底色毛玻璃 ===== */
+  .sb-tint {
+    width: 180px; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, rgba(238,242,255,0.8) 0%, rgba(245,243,255,0.8) 50%, rgba(236,253,245,0.6) 100%);
+    backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(147,197,253,0.2);
+  }
+  .sb-tint .sb-logo { padding: 14px 12px 10px; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #1a1a2e; border-bottom: 0.5px solid rgba(0,0,0,0.04); margin-bottom: 2px; padding-bottom: 10px; }
+  .sb-tint .sb-logo-icon { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; box-shadow: 0 2px 8px rgba(102,126,234,0.25); }
+  .sb-tint .sb-nav { flex: 1; padding: 4px 6px; }
+  .sb-tint .sb-group-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #7c3aed; padding: 8px 8px 3px; }
+  .sb-tint .sb-item {
+    display: flex; align-items: center; gap: 7px; padding: 6px 8px;
+    border-radius: 8px; font-size: 10px; font-weight: 500; color: #374151; margin-bottom: 1px;
+    transition: all 0.15s ease;
+  }
+  .sb-tint .sb-item:hover { background: rgba(255,255,255,0.5); }
+  .sb-tint .sb-item.active {
+    background: rgba(255,255,255,0.6); color: #7c3aed; font-weight: 600;
+    box-shadow: 0 1px 4px rgba(124,58,237,0.1);
+    border: 0.5px solid rgba(124,58,237,0.15);
+  }
+  .sb-tint .sb-icon { width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .sb-tint .sb-footer { padding: 8px 10px 10px; border-top: 0.5px solid rgba(0,0,0,0.04); }
+  .sb-tint .sb-user { display: flex; align-items: center; gap: 7px; padding: 6px 6px; border-radius: 8px; background: rgba(255,255,255,0.4); }
+  .sb-tint .sb-avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
+  .sb-tint .sb-uname { font-size: 10px; font-weight: 600; color: #1a1a2e; }
+  .sb-tint .sb-uemail { font-size: 8px; color: #7c3aed; }
+</style>
+</head>
+<body>
+
+<div class="step">步骤 2 / 6</div>
+<h1>侧边栏 (v2)</h1>
+<p class="desc">更有设计感的侧边栏方案</p>
+<div class="confirmed">✓ 已确定：页面背景 = 柔和渐变</div>
+
+<div class="grid">
+  <!-- A. 浮动毛玻璃 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-float-glass">
+    <div class="preview">
+      <div class="sb-float">
+        <div class="sb-float-inner">
+          <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+          <nav class="sb-nav">
+            <div class="sb-group-title">主要</div>
+            <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+            <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+            <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+            <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+            <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+            <div class="sb-group-title" style="margin-top:6px">管理</div>
+            <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+            <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+            <div class="sb-group-title" style="margin-top:6px">系统</div>
+            <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+          </nav>
+          <div class="sb-footer">
+            <div class="sb-user">
+              <div class="sb-avatar">A</div>
+              <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">A. 浮动毛玻璃</div>
+      <div class="option-desc">侧边栏是浮动的圆角玻璃面板，不贴边，有投影。像 macOS Dock 的感觉。</div>
+    </div>
+  </div>
+
+  <!-- B. 渐变暗色 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-dark-gradient">
+    <div class="preview">
+      <aside class="sb-dark">
+        <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+        <nav class="sb-nav">
+          <div class="sb-group-title">主要</div>
+          <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+          <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+          <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+          <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+          <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+          <div class="sb-group-title" style="margin-top:6px">管理</div>
+          <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+          <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+          <div class="sb-group-title" style="margin-top:6px">系统</div>
+          <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+        </nav>
+        <div class="sb-footer">
+          <div class="sb-user">
+            <div class="sb-avatar">A</div>
+            <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">B. 渐变暗色</div>
+      <div class="option-desc">深蓝→深紫渐变底，和浅色内容区形成强对比。像 Linear/Notion 的暗色侧栏。</div>
+    </div>
+  </div>
+
+  <!-- C. 色彩底色毛玻璃 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-tint-glass">
+    <div class="preview">
+      <aside class="sb-tint">
+        <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+        <nav class="sb-nav">
+          <div class="sb-group-title">主要</div>
+          <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+          <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+          <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+          <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+          <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+          <div class="sb-group-title" style="margin-top:6px">管理</div>
+          <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+          <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+          <div class="sb-group-title" style="margin-top:6px">系统</div>
+          <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+        </nav>
+        <div class="sb-footer">
+          <div class="sb-user">
+            <div class="sb-avatar">A</div>
+            <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">C. 色彩底色毛玻璃</div>
+      <div class="option-desc">蓝→紫→绿淡色渐变底 + 毛玻璃，和页面背景呼应但有区分。分组标题带紫色。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  const parent = el.closest('.grid');
+  parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

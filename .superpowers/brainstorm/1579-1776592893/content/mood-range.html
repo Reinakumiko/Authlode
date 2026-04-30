@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设计氛围范围</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 8px; }
+  .hint { font-size: 12px; color: #007AFF; font-weight: 500; margin-bottom: 24px; }
+
+  .mood {
+    margin-bottom: 32px; padding: 24px; border-radius: 16px;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    cursor: pointer; transition: all 0.2s ease;
+    border: 2px solid transparent;
+  }
+  .mood:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .mood.selected { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.12); }
+  .mood.rejected { opacity: 0.4; border-color: #FF3B30; }
+
+  .mood-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .mood-name { font-size: 16px; font-weight: 700; }
+  .mood-ref { font-size: 11px; color: #86868b; }
+  .mood-desc-text { font-size: 12px; color: #48484a; margin-bottom: 16px; line-height: 1.5; }
+
+  .mood-preview {
+    display: grid; grid-template-columns: 180px 1fr; gap: 0;
+    height: 220px; border-radius: 10px; overflow: hidden;
+    border: 0.5px solid rgba(0,0,0,0.06);
+  }
+
+  .mood-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .mood-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+  }
+
+  /* 氛围 1: Apple 清透 */
+  .v1-sb {
+    background: rgba(255,255,255,0.6); backdrop-filter: blur(30px);
+    border-right: 0.5px solid rgba(0,0,0,0.06);
+    padding: 10px 8px;
+  }
+  .v1-sb .item { padding: 4px 6px; border-radius: 5px; font-size: 9px; color: #48484a; margin-bottom: 2px; }
+  .v1-sb .item.active { background: rgba(0,122,255,0.08); color: #007AFF; }
+  .v1-main { background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%); padding: 12px; }
+  .v1-card {
+    background: rgba(255,255,255,0.7); backdrop-filter: blur(12px);
+    border-radius: 8px; padding: 10px; border: 0.5px solid rgba(255,255,255,0.6);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04); margin-bottom: 6px;
+  }
+
+  /* 氛围 2: Linear 暗色科技 */
+  .v2-sb {
+    background: linear-gradient(180deg, #1a1a2e, #16213e);
+    padding: 10px 8px;
+  }
+  .v2-sb .item { padding: 4px 6px; border-radius: 5px; font-size: 9px; color: rgba(255,255,255,0.5); margin-bottom: 2px; }
+  .v2-sb .item.active { background: rgba(102,126,234,0.2); color: #a5b4fc; }
+  .v2-main { background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f172a 100%); padding: 12px; }
+  .v2-card {
+    background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px; color: rgba(255,255,255,0.7); margin-bottom: 6px;
+  }
+
+  /* 氛围 3: Vercel 极简黑白 */
+  .v3-sb {
+    background: #000; padding: 10px 8px;
+  }
+  .v3-sb .item { padding: 4px 6px; border-radius: 5px; font-size: 9px; color: #888; margin-bottom: 2px; }
+  .v3-sb .item.active { background: #222; color: #fff; }
+  .v3-main { background: #fafafa; padding: 12px; }
+  .v3-card {
+    background: #fff; border: 1px solid #eaeaea;
+    border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  }
+
+  /* 氛围 4: Stripe 彩色渐变 */
+  .v4-sb {
+    background: linear-gradient(180deg, #6366f1, #8b5cf6, #a855f7);
+    padding: 10px 8px;
+  }
+  .v4-sb .item { padding: 4px 6px; border-radius: 5px; font-size: 9px; color: rgba(255,255,255,0.6); margin-bottom: 2px; }
+  .v4-sb .item.active { background: rgba(255,255,255,0.2); color: #fff; }
+  .v4-main { background: #f8f9fa; padding: 12px; }
+  .v4-card {
+    background: #fff; border-radius: 8px; padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 6px;
+  }
+
+  /* 氛围 5: Notion 温暖柔和 */
+  .v5-sb {
+    background: #f7f6f3; padding: 10px 8px;
+  }
+  .v5-sb .item { padding: 4px 6px; border-radius: 5px; font-size: 9px; color: #787774; margin-bottom: 2px; }
+  .v5-sb .item.active { background: rgba(55,53,47,0.08); color: #37352f; }
+  .v5-main { background: #ffffff; padding: 12px; }
+  .v5-card {
+    background: #f7f6f3; border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  }
+
+  /* 氛围 6: Arc/Raycast 毛玻璃彩色 */
+  .v6-sb {
+    background: linear-gradient(180deg, rgba(238,242,255,0.8) 0%, rgba(245,243,255,0.8) 50%, rgba(236,253,245,0.6) 100%);
+    backdrop-filter: blur(40px); padding: 10px 8px;
+    border-right: 0.5px solid rgba(147,197,253,0.2);
+  }
+  .v6-sb .item { padding: 4px 6px; border-radius: 6px; font-size: 9px; color: #48484a; margin-bottom: 2px; }
+  .v6-sb .item.active { background: rgba(255,255,255,0.6); color: #7c3aed; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .v6-main { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%); padding: 12px; }
+  .v6-card {
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    border-radius: 10px; padding: 10px; margin-bottom: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .actions {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 12px; z-index: 100;
+  }
+  .act-btn {
+    padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.15s ease;
+  }
+  .act-like { background: #007AFF; color: white; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
+  .act-like:hover { background: #0066d6; }
+  .act-nope { background: rgba(0,0,0,0.05); color: #48484a; }
+  .act-nope:hover { background: rgba(0,0,0,0.08); }
+
+  .mood-vote {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .vote-btn {
+    padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff;
+    transition: all 0.15s ease;
+  }
+  .vote-btn:hover { background: #f5f5f7; }
+  .vote-btn.voted-like { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vote-btn.voted-nope { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+</style>
+</head>
+<body>
+
+<h1>设计氛围探索</h1>
+<p class="desc">先不急着选具体样式，看看这些不同的"感觉"哪些你能接受</p>
+<p class="hint">每个点 👍 喜欢 或 👎 排除 — 不确定就先不点</p>
+
+<!-- 1 -->
+<div class="mood" id="mood-1">
+  <div class="mood-header">
+    <div class="mood-name">Apple 清透</div>
+    <div class="mood-ref">参考：macOS 系统设置 / iOS 偏好设置</div>
+  </div>
+  <div class="mood-desc-text">浅色系、柔和渐变背景、毛玻璃卡片、圆角大、阴影很轻。色彩克制，只在必要处点缀。整体温润、干净、不张扬。</div>
+  <div class="mood-preview">
+    <div class="v1-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v1-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v1-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#007AFF;box-shadow:0 0 6px rgba(0,122,255,0.3);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">12,847</div>
+          <div style="font-size:9px;color:#86868b">总用户</div>
+        </div>
+        <div class="v1-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#5856D6;box-shadow:0 0 6px rgba(88,86,214,0.3);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">156</div>
+          <div style="font-size:9px;color:#86868b">组织</div>
+        </div>
+      </div>
+      <div class="v1-card" style="margin-top:6px;font-size:9px;color:#86868b">
+        <div style="font-weight:600;color:#1d1d1f;margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:rgba(0,122,255,0.08);color:#007AFF">浅色系</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">毛玻璃</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">柔和渐变</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">克制配色</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-1','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-1','nope')">👎 排除</button>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="mood" id="mood-2">
+  <div class="mood-header">
+    <div class="mood-name">Linear 暗色科技</div>
+    <div class="mood-ref">参考：Linear / Discord / GitHub Dark</div>
+  </div>
+  <div class="mood-desc-text">深色背景、微弱的紫色/蓝色光效、半透明元素。科技感强，适合长时间使用不伤眼。侧边栏和内容区有明显的深浅对比。</div>
+  <div class="mood-preview">
+    <div class="v2-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v2-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:rgba(255,255,255,0.9)">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v2-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#a5b4fc;box-shadow:0 0 8px rgba(165,180,252,0.4);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">12,847</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4)">总用户</div>
+        </div>
+        <div class="v2-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#c4b5fd;box-shadow:0 0 8px rgba(196,181,253,0.4);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">156</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4)">组织</div>
+        </div>
+      </div>
+      <div class="v2-card" style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.3)">
+        <div style="font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:rgba(102,126,234,0.15);color:#667eea">深色系</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">科技感</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">微光效</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">高对比</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-2','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-2','nope')">👎 排除</button>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="mood" id="mood-3">
+  <div class="mood-header">
+    <div class="mood-name">Vercel 极简黑白</div>
+    <div class="mood-ref">参考：Vercel Dashboard / Next.js 文档</div>
+  </div>
+  <div class="mood-desc-text">黑白为主，几乎零彩色。几何感强、直线为主、紧凑排版。极致克制、专业、开发者的审美。侧边栏纯黑，内容区纯白。</div>
+  <div class="mood-preview">
+    <div class="v3-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v3-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v3-card">
+          <div style="font-size:16px;font-weight:700">12,847</div>
+          <div style="font-size:9px;color:#888">总用户</div>
+        </div>
+        <div class="v3-card">
+          <div style="font-size:16px;font-weight:700">156</div>
+          <div style="font-size:9px;color:#888">组织</div>
+        </div>
+      </div>
+      <div class="v3-card" style="margin-top:6px;font-size:9px;color:#888">
+        <div style="font-weight:600;color:#000;margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:#000;color:#fff">黑白</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">零色彩</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">紧凑</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">开发者审美</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-3','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-3','nope')">👎 排除</button>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="mood" id="mood-4">
+  <div class="mood-header">
+    <div class="mood-name">Stripe 彩色专业</div>
+    <div class="mood-ref">参考：Stripe Dashboard / Figma</div>
+  </div>
+  <div class="mood-desc-text">彩色渐变侧边栏 + 白色内容区。专业但不无聊，色彩大胆但克制使用。卡片有清晰的边框和阴影，层次分明。适合 SaaS 产品。</div>
+  <div class="mood-preview">
+    <div class="v4-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v4-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v4-card">
+          <div style="font-size:16px;font-weight:700">12,847</div>
+          <div style="font-size:9px;color:#888">总用户</div>
+        </div>
+        <div class="v4-card">
+          <div style="font-size:16px;font-weight:700">156</div>
+          <div style="font-size:9px;color:#888">组织</div>
+        </div>
+      </div>
+      <div class="v4-card" style="margin-top:6px;font-size:9px;color:#888">
+        <div style="font-weight:600;color:#000;margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.15));color:#6366f1">彩色渐变</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">专业</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">层次分明</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">SaaS 风格</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-4','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-4','nope')">👎 排除</button>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="mood" id="mood-5">
+  <div class="mood-header">
+    <div class="mood-name">Notion 温暖柔和</div>
+    <div class="mood-ref">参考：Notion / Craft / Bear</div>
+  </div>
+  <div class="mood-desc-text">暖白色调（偏黄/米白），没有明显边框和阴影。像纸和笔的感觉，亲切、舒适。排版松散有呼吸感。完全没有"科技感"。</div>
+  <div class="mood-preview">
+    <div class="v5-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v5-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:#37352f">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v5-card">
+          <div style="font-size:16px;font-weight:700;color:#37352f">12,847</div>
+          <div style="font-size:9px;color:#9b9a97">总用户</div>
+        </div>
+        <div class="v5-card">
+          <div style="font-size:16px;font-weight:700;color:#37352f">156</div>
+          <div style="font-size:9px;color:#9b9a97">组织</div>
+        </div>
+      </div>
+      <div class="v5-card" style="margin-top:6px;font-size:9px;color:#9b9a97">
+        <div style="font-weight:600;color:#37352f;margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:#f7f6f3;color:#787774">暖白色</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">纸质感</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">松散排版</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">亲切</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-5','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-5','nope')">👎 排除</button>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="mood" id="mood-6">
+  <div class="mood-header">
+    <div class="mood-name">Arc/Raycast 彩色毛玻璃</div>
+    <div class="mood-ref">参考：Arc Browser / Raycast / macOS Widget</div>
+  </div>
+  <div class="mood-desc-text">浅色渐变底色 + 多层毛玻璃效果 + 柔和的彩色点缀。活泼但不杂乱，现代感强。侧边栏带彩色底色渐变，卡片有磨砂质感。有"精致玩具"的感觉。</div>
+  <div class="mood-preview">
+    <div class="v6-sb">
+      <div class="item active">⊞ 仪表板</div>
+      <div class="item">👤 用户</div>
+      <div class="item">🏢 组织</div>
+      <div class="item">🛡 角色</div>
+      <div class="item">📱 应用</div>
+    </div>
+    <div class="v6-main">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px">欢迎回来</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div class="v6-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#7c3aed;box-shadow:0 0 6px rgba(124,58,237,0.3);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">12,847</div>
+          <div style="font-size:9px;color:#86868b">总用户</div>
+        </div>
+        <div class="v6-card">
+          <div style="width:6px;height:6px;border-radius:50%;background:#3b82f6;box-shadow:0 0 6px rgba(59,130,246,0.3);margin-bottom:6px"></div>
+          <div style="font-size:16px;font-weight:700">156</div>
+          <div style="font-size:9px;color:#86868b">组织</div>
+        </div>
+      </div>
+      <div class="v6-card" style="margin-top:6px;font-size:9px;color:#86868b">
+        <div style="font-weight:600;color:#1d1d1f;margin-bottom:4px">系统监控</div>
+        CPU 45% · 内存 62% · 硬盘 38%
+      </div>
+    </div>
+  </div>
+  <div class="mood-tags">
+    <span class="mood-tag" style="background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(59,130,246,0.1));color:#7c3aed">彩色毛玻璃</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">多层渐变</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">活泼精致</span>
+    <span class="mood-tag" style="background:rgba(0,0,0,0.04);color:#48484a">现代感</span>
+  </div>
+  <div class="mood-vote" style="margin-top:12px">
+    <button class="vote-btn" onclick="vote(this,'mood-6','like')">👍 喜欢这个感觉</button>
+    <button class="vote-btn" onclick="vote(this,'mood-6','nope')">👎 排除</button>
+  </div>
+</div>
+
+<script>
+function vote(btn, moodId, type) {
+  const mood = document.getElementById(moodId);
+  const voteDiv = btn.closest('.mood-vote');
+  const btns = voteDiv.querySelectorAll('.vote-btn');
+
+  // Reset all buttons in this mood
+  btns.forEach(b => { b.classList.remove('voted-like', 'voted-nope'); b.textContent = b.textContent.includes('喜欢') ? '👍 喜欢这个感觉' : '👎 排除'; });
+  mood.classList.remove('selected', 'rejected');
+
+  if (type === 'like') {
+    btn.classList.add('voted-like');
+    mood.classList.add('selected');
+  } else {
+    btn.classList.add('voted-nope');
+    mood.classList.add('rejected');
+  }
+}
+</script>
+</body>
+</html>

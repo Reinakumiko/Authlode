@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>侧边栏选择</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f5f5f7; color: #1d1d1f; -webkit-font-smoothing: antialiased;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .desc { font-size: 13px; color: #86868b; margin-bottom: 24px; }
+  .step { font-size: 12px; color: #007AFF; font-weight: 600; margin-bottom: 8px; }
+  .confirmed { font-size: 12px; color: #34C759; font-weight: 500; margin-bottom: 16px; display: flex; align-items: center; gap: 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .option {
+    border-radius: 14px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;
+  }
+  .option:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .option.selected { border-color: #007AFF; box-shadow: 0 0 0 1px #007AFF, 0 4px 16px rgba(0,122,255,0.15); }
+
+  .preview { height: 340px; display: flex; }
+
+  /* 右侧内容区统一（柔和渐变底） */
+  .main-area {
+    flex: 1; background: linear-gradient(160deg, #f8faff 0%, #faf8ff 40%, #f8fffb 100%);
+    display: flex; flex-direction: column;
+  }
+  .main-header {
+    height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid rgba(0,0,0,0.05);
+  }
+  .main-search { background: rgba(0,0,0,0.03); border-radius: 5px; padding: 4px 8px; font-size: 10px; color: #86868b; width: 120px; }
+  .main-content { padding: 14px; }
+  .main-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .main-card {
+    padding: 10px; border-radius: 8px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.75); backdrop-filter: blur(10px);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    font-size: 11px; color: #48484a;
+  }
+
+  /* 侧边栏通用结构 */
+  .sidebar {
+    width: 180px; display: flex; flex-direction: column;
+  }
+  .sb-logo {
+    padding: 12px 12px 10px; display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700;
+  }
+  .sb-logo-icon {
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .sb-nav { flex: 1; padding: 8px; }
+  .sb-group-title {
+    font-size: 8px; text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 600; padding: 4px 6px 3px; margin-bottom: 2px;
+  }
+  .sb-item {
+    display: flex; align-items: center; gap: 6px; padding: 5px 6px;
+    border-radius: 5px; font-size: 10px; font-weight: 500; margin-bottom: 1px;
+    transition: all 0.15s ease;
+  }
+  .sb-icon { width: 13px; height: 13px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .sb-footer { padding: 8px; }
+  .sb-user {
+    display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 5px;
+  }
+  .sb-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 600;
+  }
+  .sb-uname { font-size: 10px; font-weight: 600; }
+  .sb-uemail { font-size: 8px; }
+
+  /* ===== A. 毛玻璃 ===== */
+  .sb-glass {
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(40px);
+    border-right: 0.5px solid rgba(255,255,255,0.5);
+  }
+  .sb-glass .sb-logo-icon { background: #1d1d1f; color: white; }
+  .sb-glass .sb-logo { color: #1d1d1f; border-bottom: 0.5px solid rgba(0,0,0,0.06); margin-bottom: 2px; padding-bottom: 8px; }
+  .sb-glass .sb-group-title { color: #86868b; }
+  .sb-glass .sb-item { color: #48484a; }
+  .sb-glass .sb-item:hover { background: rgba(255,255,255,0.5); }
+  .sb-glass .sb-item.active { background: rgba(0,122,255,0.1); color: #007AFF; }
+  .sb-glass .sb-footer { border-top: 0.5px solid rgba(0,0,0,0.06); }
+  .sb-glass .sb-avatar { background: linear-gradient(135deg, #007AFF, #5856D6); color: white; }
+  .sb-glass .sb-uname { color: #1d1d1f; }
+  .sb-glass .sb-uemail { color: #86868b; }
+
+  /* ===== B. 纯白 ===== */
+  .sb-white {
+    background: #ffffff;
+    border-right: 0.5px solid rgba(0,0,0,0.06);
+  }
+  .sb-white .sb-logo-icon { background: #1d1d1f; color: white; }
+  .sb-white .sb-logo { color: #1d1d1f; border-bottom: 0.5px solid rgba(0,0,0,0.06); margin-bottom: 2px; padding-bottom: 8px; }
+  .sb-white .sb-group-title { color: #86868b; }
+  .sb-white .sb-item { color: #48484a; }
+  .sb-white .sb-item:hover { background: rgba(0,0,0,0.03); }
+  .sb-white .sb-item.active { background: rgba(0,0,0,0.04); color: #1d1d1f; font-weight: 600; }
+  .sb-white .sb-footer { border-top: 0.5px solid rgba(0,0,0,0.06); }
+  .sb-white .sb-avatar { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+  .sb-white .sb-uname { color: #1d1d1f; }
+  .sb-white .sb-uemail { color: #86868b; }
+
+  /* ===== C. 微透明白 ===== */
+  .sb-translucent {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    border-right: 0.5px solid rgba(0,0,0,0.04);
+  }
+  .sb-translucent .sb-logo-icon { background: linear-gradient(135deg, #007AFF, #5856D6); color: white; }
+  .sb-translucent .sb-logo { color: #1d1d1f; border-bottom: 0.5px solid rgba(0,0,0,0.05); margin-bottom: 2px; padding-bottom: 8px; }
+  .sb-translucent .sb-group-title { color: #86868b; }
+  .sb-translucent .sb-item { color: #48484a; }
+  .sb-translucent .sb-item:hover { background: rgba(0,0,0,0.03); }
+  .sb-translucent .sb-item.active { background: rgba(0,122,255,0.08); color: #007AFF; }
+  .sb-translucent .sb-footer { border-top: 0.5px solid rgba(0,0,0,0.05); }
+  .sb-translucent .sb-avatar { background: linear-gradient(135deg, #007AFF, #5856D6); color: white; }
+  .sb-translucent .sb-uname { color: #1d1d1f; }
+  .sb-translucent .sb-uemail { color: #86868b; }
+
+  .option-label {
+    padding: 12px 16px; border-top: 0.5px solid rgba(0,0,0,0.06); background: #fafafa;
+  }
+  .option-name { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .option-desc { font-size: 11px; color: #86868b; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="step">步骤 2 / 6</div>
+<h1>侧边栏</h1>
+<p class="desc">左侧导航栏的外观 — 配合柔和渐变背景</p>
+<div class="confirmed">✓ 已确定：页面背景 = 柔和渐变</div>
+
+<div class="grid">
+  <!-- A. 毛玻璃 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-glass">
+    <div class="preview">
+      <aside class="sidebar sb-glass">
+        <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+        <nav class="sb-nav">
+          <div class="sb-group-title">主要</div>
+          <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+          <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+          <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+          <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+          <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+          <div class="sb-group-title" style="margin-top:8px">管理</div>
+          <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+          <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+          <div class="sb-group-title" style="margin-top:8px">系统</div>
+          <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+        </nav>
+        <div class="sb-footer">
+          <div class="sb-user">
+            <div class="sb-avatar">A</div>
+            <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">A. 毛玻璃</div>
+      <div class="option-desc">半透明模糊效果，能隐约看到背景渐变透过来</div>
+    </div>
+  </div>
+
+  <!-- B. 纯白 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-white">
+    <div class="preview">
+      <aside class="sidebar sb-white">
+        <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+        <nav class="sb-nav">
+          <div class="sb-group-title">主要</div>
+          <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+          <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+          <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+          <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+          <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+          <div class="sb-group-title" style="margin-top:8px">管理</div>
+          <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+          <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+          <div class="sb-group-title" style="margin-top:8px">系统</div>
+          <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+        </nav>
+        <div class="sb-footer">
+          <div class="sb-user">
+            <div class="sb-avatar">A</div>
+            <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">B. 纯白</div>
+      <div class="option-desc">实心白色，和右侧内容区有明确分界线</div>
+    </div>
+  </div>
+
+  <!-- C. 微透明 -->
+  <div class="option" onclick="toggleSelect(this)" data-choice="sidebar-translucent">
+    <div class="preview">
+      <aside class="sidebar sb-translucent">
+        <div class="sb-logo"><div class="sb-logo-icon">L</div> Logto Manager</div>
+        <nav class="sb-nav">
+          <div class="sb-group-title">主要</div>
+          <a class="sb-item active"><span class="sb-icon">⊞</span> 仪表板</a>
+          <a class="sb-item"><span class="sb-icon">👤</span> 用户管理</a>
+          <a class="sb-item"><span class="sb-icon">🏢</span> 组织管理</a>
+          <a class="sb-item"><span class="sb-icon">🛡</span> 角色权限</a>
+          <a class="sb-item"><span class="sb-icon">📱</span> 应用管理</a>
+          <div class="sb-group-title" style="margin-top:8px">管理</div>
+          <a class="sb-item"><span class="sb-icon">✉</span> 邀请管理</a>
+          <a class="sb-item"><span class="sb-icon">📋</span> 审计日志</a>
+          <div class="sb-group-title" style="margin-top:8px">系统</div>
+          <a class="sb-item"><span class="sb-icon">⚙</span> 设置</a>
+        </nav>
+        <div class="sb-footer">
+          <div class="sb-user">
+            <div class="sb-avatar">A</div>
+            <div><div class="sb-uname">管理员</div><div class="sb-uemail">admin@ex…</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main-area">
+        <div class="main-header"><div class="main-search">🔍 搜索…</div><span style="font-size:11px">🔔</span></div>
+        <div class="main-content">
+          <div class="main-title">欢迎回来</div>
+          <div class="main-card">总用户 12,847</div>
+          <div class="main-card">组织 156 · 应用 89</div>
+          <div class="main-card">系统监控正常</div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <div class="option-name">C. 微透明</div>
+      <div class="option-desc">比毛玻璃更实的白色，但比纯白多一丝透感。折中方案。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSelect(el) {
+  const parent = el.closest('.grid');
+  parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

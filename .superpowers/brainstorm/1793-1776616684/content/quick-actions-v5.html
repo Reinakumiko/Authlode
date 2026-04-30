@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快捷入口 - 无图标版</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+    min-height: 100vh; -webkit-font-smoothing: antialiased;
+    color: #1d1d1f; padding: 32px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: #007AFF; margin-bottom: 4px; }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .section-desc { font-size: 13px; color: #86868b; margin-bottom: 20px; }
+
+  .glass {
+    background: rgba(255,255,255,0.5); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.6); border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .vote { display: flex; gap: 6px; margin-top: 16px; }
+  .vb { padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(0,0,0,0.08); background: #fff; transition: all 0.15s; }
+  .vb:hover { background: #f5f5f7; }
+  .vb.lk { background: rgba(0,122,255,0.08); color: #007AFF; border-color: rgba(0,122,255,0.2); }
+  .vb.nk { background: rgba(255,59,48,0.06); color: #FF3B30; border-color: rgba(255,59,48,0.15); }
+
+  /* 通用卡片基础 */
+  .card-base {
+    cursor: pointer;
+    background: rgba(255,255,255,0.55); backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255,255,255,0.7); border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    transition: all 0.15s;
+  }
+  .card-base:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+
+  /* ===== K2b: 数字版无图标 ===== */
+  .k2b-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k2b-item { padding: 14px; }
+  .k2b-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .k2b-name { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .k2b-arrow { font-size: 11px; color: #c7c7cc; }
+  .k2b-num { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; }
+  .k2b-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; margin-left: 2px; }
+  .k2b-bar { height: 3px; border-radius: 2px; margin-top: 10px; }
+
+  /* ===== K6b: 粗条版无图标 ===== */
+  .k6b-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .k6b-item { padding: 14px; position: relative; overflow: hidden; }
+  .k6b-name { font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
+  .k6b-desc { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+  .k6b-bar { height: 4px; border-radius: 2px; margin-top: 12px; opacity: 0.7; transition: opacity 0.15s; }
+  .k6b-item:hover .k6b-bar { opacity: 1; }
+
+  /* ===== M: 彩色首字母 ===== */
+  .m-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .m-item { padding: 14px; }
+  .m-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .m-letter {
+    font-size: 12px; font-weight: 800; width: 22px; height: 22px;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+  .m-name { font-size: 12px; font-weight: 600; color: #1d1d1f; flex: 1; }
+  .m-count { font-size: 10px; color: #aeaeb2; font-weight: 500; }
+  .m-bar { height: 3px; border-radius: 2px; }
+
+  /* ===== N: 数字+色点 ===== */
+  .n-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .n-item { padding: 14px; }
+  .n-dot { width: 5px; height: 5px; border-radius: 50%; margin-bottom: 8px; }
+  .n-name { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .n-count { font-size: 16px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; margin-top: 2px; }
+  .n-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+  .n-bar { height: 3px; border-radius: 2px; margin-top: 8px; }
+
+  /* ===== O: 渐变底色 + 数字 ===== */
+  .o-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .o-item {
+    padding: 14px; cursor: pointer; border-radius: 12px;
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .o-item:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+  .o-name { font-size: 12px; font-weight: 700; color: #1d1d1f; margin-bottom: 2px; }
+  .o-count { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; }
+  .o-unit { font-size: 10px; font-weight: 500; color: #86868b; margin-left: 2px; }
+
+  /* ===== P: 混合 K6+K2 数字+描述+粗条 ===== */
+  .p-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-width: 700px; }
+  .p-item { padding: 14px; position: relative; overflow: hidden; }
+  .p-name { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+  .p-num-row { display: flex; align-items: baseline; gap: 4px; margin-top: 4px; }
+  .p-count { font-size: 18px; font-weight: 800; letter-spacing: -0.03em; color: #1d1d1f; }
+  .p-unit { font-size: 10px; font-weight: 500; color: #aeaeb2; }
+  .p-bar { height: 4px; border-radius: 2px; margin-top: 10px; opacity: 0.7; transition: opacity 0.15s; }
+  .p-item:hover .p-bar { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- K2b: 数字版去图标 -->
+<div class="section">
+  <div class="section-label">方案 K2b</div>
+  <div class="section-title">K2 去掉图标</div>
+  <div class="section-desc">只保留名称 + 数字 + 底部渐变条</div>
+
+  <div class="k2b-row">
+    <div class="card-base k2b-item">
+      <div class="k2b-head"><span class="k2b-name">用户管理</span><span class="k2b-arrow">→</span></div>
+      <div><span class="k2b-num">128</span><span class="k2b-unit">位用户</span></div>
+      <div class="k2b-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="card-base k2b-item">
+      <div class="k2b-head"><span class="k2b-name">邀请用户</span><span class="k2b-arrow">→</span></div>
+      <div><span class="k2b-num">5</span><span class="k2b-unit">待处理</span></div>
+      <div class="k2b-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="card-base k2b-item">
+      <div class="k2b-head"><span class="k2b-name">组织管理</span><span class="k2b-arrow">→</span></div>
+      <div><span class="k2b-num">12</span><span class="k2b-unit">个组织</span></div>
+      <div class="k2b-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="card-base k2b-item">
+      <div class="k2b-head"><span class="k2b-name">角色权限</span><span class="k2b-arrow">→</span></div>
+      <div><span class="k2b-num">8</span><span class="k2b-unit">个角色</span></div>
+      <div class="k2b-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="card-base k2b-item">
+      <div class="k2b-head"><span class="k2b-name">应用管理</span><span class="k2b-arrow">→</span></div>
+      <div><span class="k2b-num">6</span><span class="k2b-unit">个应用</span></div>
+      <div class="k2b-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- K6b: 粗条版去图标 -->
+<div class="section">
+  <div class="section-label">方案 K6b</div>
+  <div class="section-title">K6 去掉图标</div>
+  <div class="section-desc">名称 + 描述 + 粗渐变条，hover 亮起</div>
+
+  <div class="k6b-row">
+    <div class="card-base k6b-item">
+      <div class="k6b-name">用户管理</div>
+      <div class="k6b-desc">查看和管理所有用户</div>
+      <div class="k6b-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="card-base k6b-item">
+      <div class="k6b-name">邀请用户</div>
+      <div class="k6b-desc">发送邀请链接</div>
+      <div class="k6b-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="card-base k6b-item">
+      <div class="k6b-name">组织管理</div>
+      <div class="k6b-desc">部门和团队架构</div>
+      <div class="k6b-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="card-base k6b-item">
+      <div class="k6b-name">角色权限</div>
+      <div class="k6b-desc">自定义角色权限</div>
+      <div class="k6b-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="card-base k6b-item">
+      <div class="k6b-name">应用管理</div>
+      <div class="k6b-desc">配置接入的应用</div>
+      <div class="k6b-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- M: 彩色首字母 -->
+<div class="section">
+  <div class="section-label">方案 M</div>
+  <div class="section-title">彩色首字母方块</div>
+  <div class="section-desc">用对应色首字母代替 emoji 图标 + 数量</div>
+
+  <div class="m-row">
+    <div class="card-base m-item">
+      <div class="m-top">
+        <div class="m-letter" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">用</div>
+        <span class="m-name">用户管理</span>
+      </div>
+      <div class="m-count">128 位</div>
+      <div class="m-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="card-base m-item">
+      <div class="m-top">
+        <div class="m-letter" style="background:linear-gradient(135deg,#8b5cf6,#a855f7)">邀</div>
+        <span class="m-name">邀请用户</span>
+      </div>
+      <div class="m-count">5 待处理</div>
+      <div class="m-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="card-base m-item">
+      <div class="m-top">
+        <div class="m-letter" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">组</div>
+        <span class="m-name">组织管理</span>
+      </div>
+      <div class="m-count">12 个</div>
+      <div class="m-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="card-base m-item">
+      <div class="m-top">
+        <div class="m-letter" style="background:linear-gradient(135deg,#14b8a6,#06b6d4)">角</div>
+        <span class="m-name">角色权限</span>
+      </div>
+      <div class="m-count">8 个</div>
+      <div class="m-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="card-base m-item">
+      <div class="m-top">
+        <div class="m-letter" style="background:linear-gradient(135deg,#ec4899,#db2777)">应</div>
+        <span class="m-name">应用管理</span>
+      </div>
+      <div class="m-count">6 个</div>
+      <div class="m-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- N: 色点+数字 -->
+<div class="section">
+  <div class="section-label">方案 N</div>
+  <div class="section-title">色点 + 大数字</div>
+  <div class="section-desc">顶部小色点 + 名称 + 大数字，最简洁</div>
+
+  <div class="n-row">
+    <div class="card-base n-item">
+      <div class="n-dot" style="background:#6366f1"></div>
+      <div class="n-name">用户管理</div>
+      <div><span class="n-count">128</span><span class="n-unit"> 位</span></div>
+      <div class="n-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="card-base n-item">
+      <div class="n-dot" style="background:#8b5cf6"></div>
+      <div class="n-name">邀请用户</div>
+      <div><span class="n-count">5</span><span class="n-unit"> 待处理</span></div>
+      <div class="n-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="card-base n-item">
+      <div class="n-dot" style="background:#3b82f6"></div>
+      <div class="n-name">组织管理</div>
+      <div><span class="n-count">12</span><span class="n-unit"> 个</span></div>
+      <div class="n-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="card-base n-item">
+      <div class="n-dot" style="background:#14b8a6"></div>
+      <div class="n-name">角色权限</div>
+      <div><span class="n-count">8</span><span class="n-unit"> 个</span></div>
+      <div class="n-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="card-base n-item">
+      <div class="n-dot" style="background:#ec4899"></div>
+      <div class="n-name">应用管理</div>
+      <div><span class="n-count">6</span><span class="n-unit"> 个</span></div>
+      <div class="n-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- O: 淡色底 + 数字 -->
+<div class="section">
+  <div class="section-label">方案 O</div>
+  <div class="section-title">淡色底块 + 数字</div>
+  <div class="section-desc">不用玻璃卡片，直接对应色的极淡底色 + 数字</div>
+
+  <div class="o-row">
+    <div class="o-item" style="background:rgba(99,102,241,0.06)">
+      <div class="o-name">用户管理</div>
+      <div><span class="o-count">128</span><span class="o-unit">位</span></div>
+    </div>
+    <div class="o-item" style="background:rgba(139,92,246,0.06)">
+      <div class="o-name">邀请用户</div>
+      <div><span class="o-count">5</span><span class="o-unit">待处理</span></div>
+    </div>
+    <div class="o-item" style="background:rgba(59,130,246,0.06)">
+      <div class="o-name">组织管理</div>
+      <div><span class="o-count">12</span><span class="o-unit">个</span></div>
+    </div>
+    <div class="o-item" style="background:rgba(20,184,166,0.06)">
+      <div class="o-name">角色权限</div>
+      <div><span class="o-count">8</span><span class="o-unit">个</span></div>
+    </div>
+    <div class="o-item" style="background:rgba(236,72,153,0.06)">
+      <div class="o-name">应用管理</div>
+      <div><span class="o-count">6</span><span class="o-unit">个</span></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<!-- P: K2+K6 合体 -->
+<div class="section">
+  <div class="section-label">方案 P</div>
+  <div class="section-title">K2 数字 + K6 粗条</div>
+  <div class="section-desc">数字统计 + 粗渐变条，hover 亮起</div>
+
+  <div class="p-row">
+    <div class="card-base p-item">
+      <div class="p-name">用户管理</div>
+      <div class="p-num-row"><span class="p-count">128</span><span class="p-unit">位用户</span></div>
+      <div class="p-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div>
+    </div>
+    <div class="card-base p-item">
+      <div class="p-name">邀请用户</div>
+      <div class="p-num-row"><span class="p-count">5</span><span class="p-unit">待处理</span></div>
+      <div class="p-bar" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></div>
+    </div>
+    <div class="card-base p-item">
+      <div class="p-name">组织管理</div>
+      <div class="p-num-row"><span class="p-count">12</span><span class="p-unit">个组织</span></div>
+      <div class="p-bar" style="background:linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+    </div>
+    <div class="card-base p-item">
+      <div class="p-name">角色权限</div>
+      <div class="p-num-row"><span class="p-count">8</span><span class="p-unit">个角色</span></div>
+      <div class="p-bar" style="background:linear-gradient(90deg,#14b8a6,#06b6d4)"></div>
+    </div>
+    <div class="card-base p-item">
+      <div class="p-name">应用管理</div>
+      <div class="p-num-row"><span class="p-count">6</span><span class="p-unit">个应用</span></div>
+      <div class="p-bar" style="background:linear-gradient(90deg,#ec4899,#db2777)"></div>
+    </div>
+  </div>
+  <div class="vote"><button class="vb" onclick="vote(this)">👍</button><button class="vb" onclick="novote(this)">👎</button></div>
+</div>
+
+<script>
+function vote(b) { b.classList.add('lk'); b.nextElementSibling.classList.remove('nk'); }
+function novote(b) { b.classList.add('nk'); b.previousElementSibling.classList.remove('lk'); }
+</script>
+</body>
+</html>
