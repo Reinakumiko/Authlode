@@ -17,6 +17,9 @@
 - ✅ SQLite 扩展数据库 (开发环境)
 - ✅ Repository 数据访问层
 - ✅ 配置管理系统
+- ✅ Soft Glass UI 设计系统 (DESIGN-SYSTEM.md)
+- ✅ Dashboard 仪表板完成 (Soft Glass 风格)
+- ✅ UI 预览页面 (docs/previews/)
 
 **进行中**:
 - 🔄 前端页面开发
@@ -58,6 +61,21 @@
 - **生产环境**: MySQL 8.0+ / PostgreSQL 15+
 - **缓存**: Redis 7+ (可选)
 
+
+### 设计系统
+
+项目采用 **Soft Glass UI** 设计语言,详见 [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)。
+
+**设计风格**: 毛玻璃 (Glassmorphism) + 渐变光球 + 大圆角
+
+设计系统涵盖以下方面:
+- 🎨 **颜色体系** - 语义化颜色令牌与渐变方案
+- ✏️ **字体排版** - 字体族、字号层级与行高
+- 📐 **间距系统** - 统一的间距与圆角规范
+- 🪟 **毛玻璃效果** - 透明度、模糊、边框与光球渐变
+- 📱 **布局规范** - 响应式网格与容器尺寸
+- 🧩 **组件库** - 按钮、卡片、表单等基础组件样式
+
 ### 数据架构
 
 ```
@@ -93,7 +111,9 @@ logto-manager/
 ├── backend/              # 后端项目 (NestJS)
 ├── frontend/             # 前端项目 (Nuxt 3)
 ├── docs/                 # 项目文档
+│   └── previews/         # UI 预览页面
 ├── deployment/           # 部署配置
+├── DESIGN-SYSTEM.md      # Soft Glass UI 设计系统
 ├── README.md             # 项目说明
 ├── 总体技术方案.md        # 技术架构文档
 ├── 项目文件结构.md        # 文件结构说明
@@ -171,6 +191,6 @@ MIT
 欢迎提交 Issue 和 Pull Request!
 
 ---
+**项目开始时间**: 2026-03-01
+**当前版本**: v0.2.0 (UI 设计完成)
 
-**项目开始时间**: 2025-01-28
-**当前版本**: v0.1.0 (开发中)
