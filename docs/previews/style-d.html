@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1400, initial-scale=1">
+<title>Authlode — 仪表板 | Warm Clay</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--terracotta:#c67b5c;--sand:#d4c4a8;--olive:#6b7b3c;--amber:#d97706;--text:#3d2e1f;--text2:#7a6b5d;--text3:#a89b8c}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#fef7ed,#fdf2f8 50%,#f0fdf4);min-height:100vh;color:var(--text);overflow:hidden;position:relative}
+body::before,body::after{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(217,119,6,0.08),transparent 70%);top:-150px;left:-100px}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(198,123,92,0.08),transparent 70%);bottom:-100px;right:50px}
+.orb3{width:350px;height:350px;background:radial-gradient(circle,rgba(107,123,60,0.08),transparent 70%);top:40%;left:45%}
+.layout{display:flex;height:100vh;position:relative;z-index:1}
+/* Sidebar */
+.sidebar{width:220px;min-width:220px;background:rgba(255,255,255,0.65);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(180,140,100,0.15);display:flex;flex-direction:column;padding:24px 16px}
+.logo{display:flex;align-items:center;gap:10px;padding:0 8px 28px;border-bottom:1px solid rgba(180,140,100,0.12);margin-bottom:20px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--terracotta),var(--amber));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--text)}
+.nav{flex:1;display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;color:var(--text2);cursor:pointer;transition:all .2s;text-decoration:none;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,0.6);color:var(--text)}
+.nav-item.active{background:rgba(198,123,92,0.08);color:var(--terracotta);font-weight:600;border-left-color:var(--terracotta)}
+.nav-item svg{width:20px;height:20px;flex-shrink:0}
+.user-section{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.5);border:1px solid rgba(180,140,100,0.15)}
+.avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--terracotta),var(--olive));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:11px;color:var(--text3)}
+/* Main */
+.main{flex:1;overflow-y:auto;padding:32px 40px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.header h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-0.02em;color:var(--text)}
+.header p{font-size:14px;color:var(--text2);margin-top:4px}
+.btn{padding:10px 20px;border-radius:14px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--terracotta),var(--amber));color:#fff;box-shadow:0 4px 12px rgba(198,123,92,0.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(198,123,92,0.4)}
+.btn svg{width:18px;height:18px}
+/* Metric cards */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.metric-card{background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(180,140,100,0.2);border-radius:24px;padding:22px;transition:all .3s;box-shadow:0 2px 12px rgba(180,140,100,0.06)}
+.metric-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(180,140,100,0.1)}
+.metric-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.metric-left{flex:1}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500}
+.metric-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.metric-icon-circle{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.metric-icon-circle svg{width:18px;height:18px}
+.metric-value{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-0.02em;color:var(--text);line-height:1}
+.metric-change{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;margin-top:8px;padding:3px 8px;border-radius:8px}
+.metric-change.up{color:var(--olive);background:rgba(107,123,60,0.08)}
+.metric-change.down{color:#c2410c;background:rgba(194,65,12,0.08)}
+.metric-bar{height:6px;border-radius:3px;background:rgba(180,140,100,0.1);margin-top:12px;overflow:hidden}
+.metric-bar-fill{height:100%;border-radius:3px}
+.bar-1{background:linear-gradient(90deg,var(--amber),var(--terracotta))}
+.bar-2{background:linear-gradient(90deg,var(--terracotta),var(--olive))}
+.bar-3{background:linear-gradient(90deg,var(--sand),var(--terracotta))}
+.bar-4{background:linear-gradient(90deg,var(--olive),var(--terracotta))}
+.bar-5{background:linear-gradient(90deg,var(--amber),var(--olive))}
+/* Monitoring */
+.monitoring{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px}
+.mon-card{background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(180,140,100,0.2);border-radius:24px;padding:22px;transition:all .3s;box-shadow:0 2px 12px rgba(180,140,100,0.06)}
+.mon-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(180,140,100,0.1)}
+.mon-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.mon-title svg{width:18px;height:18px;color:var(--terracotta)}
+.service-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(180,140,100,0.08)}
+.service-item:last-child{border-bottom:none}
+.service-name{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#65a30d;box-shadow:0 0 6px rgba(101,163,13,0.4)}
+.status-text{font-size:12px;font-weight:600;color:#65a30d}
+.uptime{font-size:12px;color:var(--text3);margin-top:8px}
+.mon-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mon-val{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;letter-spacing:-0.02em;color:var(--text)}
+/* Quick actions */
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px}
+.quick-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.qa-card{background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(180,140,100,0.2);border-radius:20px;padding:18px;text-align:center;cursor:pointer;transition:all .3s}
+.qa-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(180,140,100,0.1)}
+.qa-icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.qa-icon svg{width:22px;height:22px}
+.qa-card-title{font-size:13px;font-weight:600;color:var(--text)}
+.qa-card-count{font-size:12px;color:var(--text3);margin-top:2px}
+/* Activity */
+.activity{background:rgba(255,255,255,0.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(180,140,100,0.2);border-radius:24px;padding:22px;margin-bottom:32px;box-shadow:0 2px 12px rgba(180,140,100,0.06)}
+.activity-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(180,140,100,0.08)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.activity-text{flex:1;font-size:13px;color:var(--text2)}
+.activity-text strong{color:var(--text);font-weight:600}
+.activity-time{font-size:12px;color:var(--text3);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="orb1" style="position:fixed;border-radius:50%;pointer-events:none;z-index:0"></div>
+<div class="orb2" style="position:fixed;border-radius:50%;pointer-events:none;z-index:0"></div>
+<div class="orb3" style="position:fixed;border-radius:50%;pointer-events:none;z-index:0"></div>
+<div class="layout">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <div class="logo-text">Authlode</div>
+  </div>
+  <nav class="nav">
+    <a class="nav-item active" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>仪表板</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>用户管理</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>组织管理</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>角色权限</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>应用管理</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>邀请管理</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>审计日志</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>数据统计</a>
+    <a class="nav-item" href="#"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>系统设置</a>
+  </nav>
+  <div class="user-section">
+    <div class="avatar">管</div>
+    <div>
+      <div class="user-name">管理员</div>
+      <div class="user-role">超级管理员</div>
+    </div>
+  </div>
+</aside>
+<main class="main">
+  <div class="header">
+    <div>
+      <h1>欢迎回来, 管理员</h1>
+      <p>今天是 2026年5月1日 星期五</p>
+    </div>
+    <button class="btn btn-primary"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>创建用户</button>
+  </div>
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-left">
+          <div class="metric-label">总用户</div>
+          <div class="metric-value">2,847</div>
+        </div>
+        <div class="metric-right">
+          <div class="metric-icon-circle" style="background:rgba(198,123,92,0.1)"><svg fill="none" stroke="#c67b5c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
+          <div class="metric-change up">↑ 12.5%</div>
+        </div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill bar-1" style="width:75%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-left">
+          <div class="metric-label">组织数量</div>
+          <div class="metric-value">156</div>
+        </div>
+        <div class="metric-right">
+          <div class="metric-icon-circle" style="background:rgba(107,123,60,0.1)"><svg fill="none" stroke="#6b7b3c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+          <div class="metric-change up">↑ 3.2%</div>
+        </div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill bar-2" style="width:62%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-left">
+          <div class="metric-label">应用数量</div>
+          <div class="metric-value">42</div>
+        </div>
+        <div class="metric-right">
+          <div class="metric-icon-circle" style="background:rgba(217,119,6,0.1)"><svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+          <div class="metric-change up">↑ 8.1%</div>
+        </div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill bar-3" style="width:42%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-left">
+          <div class="metric-label">活跃会话</div>
+          <div class="metric-value">1,203</div>
+        </div>
+        <div class="metric-right">
+          <div class="metric-icon-circle" style="background:rgba(198,123,92,0.08)"><svg fill="none" stroke="#c67b5c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/></svg></div>
+          <div class="metric-change up">↑ 5.7%</div>
+        </div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill bar-4" style="width:88%"></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-left">
+          <div class="metric-label">待处理邀请</div>
+          <div class="metric-value">23</div>
+        </div>
+        <div class="metric-right">
+          <div class="metric-icon-circle" style="background:rgba(217,119,6,0.08)"><svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+          <div class="metric-change down">↓ 4.2%</div>
+        </div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill bar-5" style="width:30%"></div></div>
+    </div>
+  </div>
+  <div class="monitoring">
+    <div class="mon-card">
+      <div class="mon-title"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"/></svg>服务状态</div>
+      <div class="service-item"><span class="service-name"><span class="status-dot"></span>Logto</span><span class="status-text">运行中</span></div>
+      <div class="service-item"><span class="service-name"><span class="status-dot"></span>PostgreSQL</span><span class="status-text">运行中</span></div>
+      <div class="service-item"><span class="service-name"><span class="status-dot"></span>Redis</span><span class="status-text">运行中</span></div>
+      <div class="uptime">运行时间: 14天 7小时 32分钟</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="mon-card" style="flex:1">
+        <div class="mon-row">
+          <div class="mon-title"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>CPU 使用率</div>
+          <div class="mon-val">34.2%</div>
+        </div>
+        <svg width="100%" height="40" viewBox="0 0 200 40" style="margin-top:8px"><path d="M0 30 Q10 28 20 25 T40 20 T60 22 T80 18 T100 15 T120 17 T140 12 T160 14 T180 10 T200 8" fill="none" stroke="var(--terracotta)" stroke-width="2.5" stroke-linecap="round"/><path d="M0 30 Q10 28 20 25 T40 20 T60 22 T80 18 T100 15 T120 17 T140 12 T160 14 T180 10 T200 8 V40 H0Z" fill="url(#gd1)" opacity="0.12"/><defs><linearGradient id="gd1"><stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#c67b5c"/></linearGradient></defs></svg>
+      </div>
+      <div class="mon-card" style="flex:1">
+        <div class="mon-row">
+          <div class="mon-title"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>内存使用率</div>
+          <div class="mon-val">67.8%</div>
+        </div>
+        <svg width="100%" height="40" viewBox="0 0 200 40" style="margin-top:8px"><path d="M0 35 Q15 30 30 28 T60 25 T90 22 T120 20 T150 18 T180 16 T200 12" fill="none" stroke="var(--olive)" stroke-width="2.5" stroke-linecap="round"/><path d="M0 35 Q15 30 30 28 T60 25 T90 22 T120 20 T150 18 T180 16 T200 12 V40 H0Z" fill="url(#gd2)" opacity="0.12"/><defs><linearGradient id="gd2"><stop offset="0%" stop-color="#6b7b3c"/><stop offset="100%" stop-color="#c67b5c"/></linearGradient></defs></svg>
+      </div>
+    </div>
+    <div class="mon-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div class="mon-title" style="align-self:flex-start"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>磁盘使用率</div>
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(180,140,100,0.1)" stroke-width="12"/>
+        <circle cx="60" cy="60" r="48" fill="none" stroke="url(#diskD)" stroke-width="12" stroke-linecap="round" stroke-dasharray="211.1 301.6" transform="rotate(-90 60 60)"/>
+        <text x="60" y="56" text-anchor="middle" font-family="Space Grotesk" font-size="20" font-weight="800" fill="#3d2e1f">70%</text>
+        <text x="60" y="72" text-anchor="middle" font-size="10" fill="#a89b8c">磁盘空间</text>
+        <defs><linearGradient id="diskD"><stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#c67b5c"/></linearGradient></defs>
+      </svg>
+      <div style="font-size:12px;color:#a89b8c;margin-top:8px">已用 350 GB / 500 GB</div>
+    </div>
+  </div>
+  <div class="section-title">快捷操作</div>
+  <div class="quick-actions">
+    <div class="qa-card">
+      <div class="qa-icon" style="background:rgba(198,123,92,0.1)"><svg fill="none" stroke="#c67b5c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg></div>
+      <div class="qa-card-title">用户管理</div>
+      <div class="qa-card-count">2,847 用户</div>
+    </div>
+    <div class="qa-card">
+      <div class="qa-icon" style="background:rgba(217,119,6,0.1)"><svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+      <div class="qa-card-title">邀请用户</div>
+      <div class="qa-card-count">23 待处理</div>
+    </div>
+    <div class="qa-card">
+      <div class="qa-icon" style="background:rgba(107,123,60,0.1)"><svg fill="none" stroke="#6b7b3c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+      <div class="qa-card-title">组织管理</div>
+      <div class="qa-card-count">156 组织</div>
+    </div>
+    <div class="qa-card">
+      <div class="qa-icon" style="background:rgba(198,123,92,0.1)"><svg fill="none" stroke="#c67b5c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+      <div class="qa-card-title">角色权限</div>
+      <div class="qa-card-count">12 角色</div>
+    </div>
+    <div class="qa-card">
+      <div class="qa-icon" style="background:rgba(212,196,168,0.3)"><svg fill="none" stroke="#d4c4a8" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+      <div class="qa-card-title">应用管理</div>
+      <div class="qa-card-count">42 应用</div>
+    </div>
+  </div>
+  <div class="section-title">最近活动</div>
+  <div class="activity">
+    <div class="activity-item"><div class="activity-dot" style="background:#c67b5c"></div><div class="activity-text"><strong>张伟</strong> 创建了新用户 <strong>李明</strong></div><div class="activity-time">3 分钟前</div></div>
+    <div class="activity-item"><div class="activity-dot" style="background:#65a30d"></div><div class="activity-text"><strong>王芳</strong> 更新了组织 <strong>技术团队</strong> 的角色</div><div class="activity-time">15 分钟前</div></div>
+    <div class="activity-item"><div class="activity-dot" style="background:#d97706"></div><div class="activity-text"><strong>管理员</strong> 发送了邀请给 <strong>zhang@company.com</strong></div><div class="activity-time">1 小时前</div></div>
+    <div class="activity-item"><div class="activity-dot" style="background:#6b7b3c"></div><div class="activity-text"><strong>李娜</strong> 删除了应用 <strong>测试应用</strong></div><div class="activity-time">2 小时前</div></div>
+    <div class="activity-item"><div class="activity-dot" style="background:#d4c4a8"></div><div class="activity-text"><strong>赵强</strong> 登录了系统，来源: Chrome / macOS</div><div class="activity-time">3 小时前</div></div>
+  </div>
+</main>
+</div>
+</body>
+</html>

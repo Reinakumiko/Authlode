@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authlode UI 风格方案选择</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem; }
+.container { text-align: center; max-width: 900px; }
+h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+p { color: #64748b; font-size: 1.1rem; margin-bottom: 3rem; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+.card { background: white; border-radius: 20px; padding: 2.5rem 2rem; text-decoration: none; color: inherit; border: 2px solid transparent; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); border-color: var(--accent); }
+.card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+.card .tag { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem; }
+.card p { font-size: 0.9rem; margin-bottom: 0; color: #64748b; }
+.card:nth-child(1) { --accent: #6366f1; }
+.card:nth-child(1) .tag { background: #eef2ff; color: #6366f1; }
+.card:nth-child(2) { --accent: #0ea5e9; }
+.card:nth-child(2) .tag { background: #f0f9ff; color: #0ea5e9; }
+.card:nth-child(3) { --accent: #f59e0b; }
+.card:nth-child(3) .tag { background: #fffbeb; color: #d97706; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🎨 Authlode UI 风格方案</h1>
+  <p>3 个不同方向的 Dashboard 设计预览，选择你喜欢的风格</p>
+  <div class="grid">
+    <a class="card" href="style-a.html">
+      <h2>方案 A — Soft Glass</h2>
+      <span class="tag">推荐 · 毛玻璃 + 渐变光球</span>
+      <p>半透明卡片 + backdrop-blur + 柔和渐变光斑背景 + 大圆角 + 渐变进度条。精致、现代、有层次感。</p>
+    </a>
+    <a class="card" href="style-c.html">
+      <h2>方案 C — Bento Clean</h2>
+      <span class="tag">克制 · Apple 风格 + 干净留白</span>
+      <p>浅灰底 + 白色圆角卡片 + 极简阴影 + 大量留白 + 精致排版。最清爽、最专业。</p>
+    </a>
+    <a class="card" href="style-d.html">
+      <h2>方案 D — Warm Clay</h2>
+      <span class="tag">温暖 · 陶土色 + 有机质感</span>
+      <p>暖色系配色 + 圆润造型 + 柔和阴影 + 自然渐变。亲切、舒适、不冰冷。</p>
+    </a>
+  </div>
+</div>
+</body>
+</html>

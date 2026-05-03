@@ -1,8 +1,144 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-/* 测试样式 */
-.test-style {
-  background-color: red;
-  color: white;
+/* ============================================
+   Authlode Soft Glass Design System
+   ============================================ */
+
+:root {
+  --indigo: #6366f1;
+  --purple: #8b5cf6;
+  --teal: #14b8a6;
+  --text: #1e293b;
+  --text2: #64748b;
+  --text3: #94a3b8;
+}
+
+/* Global Base */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: linear-gradient(135deg, #f0f4ff, #f5f0ff 50%, #f0faf5);
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* Gradient Orbs - fixed background decorations */
+body::before,
+body::after {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.12), transparent 70%);
+  top: -200px;
+  left: -100px;
+}
+
+.orb2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1), transparent 70%);
+  bottom: -100px;
+  right: -50px;
+}
+
+.orb3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.1), transparent 70%);
+  top: 50%;
+  left: 40%;
+}
+
+/* Typography */
+h1, h2, h3, .font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Glass Card Base */
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--indigo), var(--purple));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+/* Section Title */
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+/* Status Dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.8);
 }
