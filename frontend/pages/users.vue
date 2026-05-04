@@ -1,32 +1,37 @@
 <template>
-  <div class="users-page">
-    <AppHeader />
-
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          class="search-input"
-          placeholder="搜索用户名、邮箱..."
-        >
-      </div>
-      <div class="filter-select-wrapper">
-        <select v-model="roleFilter" class="filter-select">
-          <option value="">全部角色</option>
-          <option value="admin">管理员</option>
-          <option value="editor">编辑者</option>
-          <option value="viewer">观察者</option>
-        </select>
-        <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-      </div>
-      <button class="btn-primary" @click="openCreateModal">
-        <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/></svg>
-        创建用户
-      </button>
-    </div>
+  <div class="page-container">
+    <PageHeader title="用户管理" description="管理系统用户和权限">
+      <template #actions>
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="search-input"
+            placeholder="搜索用户名、邮箱..."
+          >
+        </div>
+        <div class="filter-select-wrapper">
+          <select v-model="roleFilter" class="filter-select">
+            <option value="">全部角色</option>
+            <option value="admin">管理员</option>
+            <option value="editor">编辑者</option>
+            <option value="viewer">观察者</option>
+          </select>
+          <svg class="select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+        <button class="btn-primary" @click="openCreateModal">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          创建用户
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- Data Table Card -->
     <div class="table-card">
@@ -157,6 +162,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import PageHeader from '~/components/PageHeader.vue'
 
 defineOptions({ name: 'users' })
 
@@ -273,122 +279,9 @@ function deleteUser(id) {
 </script>
 
 <style scoped>
-.users-page {
+.page-container {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-/* ===== Top Bar ===== */
-.top-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 220px;
-  position: relative;
-}
-
-.search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px 0 38px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  font-size: 13px;
-  color: #1e293b;
-  outline: none;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  font-family: 'DM Sans', sans-serif;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.search-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-}
-
-.filter-select-wrapper {
-  position: relative;
-}
-
-.filter-select {
-  appearance: none;
-  height: 42px;
-  padding: 0 36px 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  font-size: 13px;
-  color: #1e293b;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  font-family: 'DM Sans', sans-serif;
-}
-
-.select-arrow {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 42px;
-  padding: 0 20px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s;
-  white-space: nowrap;
-  font-family: 'DM Sans', sans-serif;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-}
-
-.btn-icon {
-  width: 16px;
-  height: 16px;
 }
 
 /* ===== Table Card ===== */
@@ -821,12 +714,6 @@ function deleteUser(id) {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 1400px) {
-  .top-bar {
-    gap: 10px;
-  }
-}
-
 @media (max-width: 1024px) {
   .data-table {
     min-width: 800px;
@@ -842,28 +729,6 @@ function deleteUser(id) {
 }
 
 @media (max-width: 768px) {
-  .top-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    min-width: unset;
-  }
-
-  .filter-select-wrapper {
-    width: 100%;
-  }
-
-  .filter-select {
-    width: 100%;
-  }
-
-  .btn-primary {
-    width: 100%;
-    justify-content: center;
-  }
-
   .table-header {
     padding: 16px 16px 0;
   }
