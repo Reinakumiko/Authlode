@@ -2,20 +2,20 @@
   <div class="page-container">
     <!-- 页面标题 -->
     <div class="page-header">
-      <div>
-        <h1 class="page-title">应用管理</h1>
-        <p class="page-subtitle">管理已注册的应用程序</p>
+      <div class="header-left">
+        <h2 class="page-title">应用管理</h2>
+        <p class="page-desc">管理已注册的应用程序</p>
       </div>
       <div class="header-actions">
         <div class="search-box">
-          <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
-          <input v-model="searchQuery" type="text" placeholder="搜索应用名称或 ID..." class="search-input" />
+          <input v-model="searchQuery" type="text" class="search-input" placeholder="搜索应用名称或 ID..." />
         </div>
         <button class="btn-primary" @click="openCreateModal">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
           </svg>
           创建应用
         </button>
@@ -298,20 +298,22 @@ function deleteApp(app) {
 /* ===== Header ===== */
 .page-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .page-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.02em;
   color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
-.page-subtitle {
+.page-desc {
   font-size: 14px;
   color: #64748b;
   margin-top: 4px;
@@ -324,63 +326,76 @@ function deleteApp(app) {
 }
 
 .search-box {
-  position: relative;
   display: flex;
   align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.search-input {
+  gap: 8px;
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 12px;
-  padding: 10px 14px 10px 36px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: #1e293b;
-  width: 260px;
+  padding: 0 14px;
+  height: 42px;
+  min-width: 240px;
+  transition: all 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
   outline: none;
-  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #1e293b;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
 }
 
 .search-input::placeholder {
   color: #94a3b8;
 }
 
-.search-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 42px;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  padding: 10px 20px;
-  border-radius: 12px;
   border: none;
-  font-family: 'DM Sans', sans-serif;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
   white-space: nowrap;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
 }
 
 /* ===== App Grid ===== */
@@ -832,9 +847,9 @@ function deleteApp(app) {
     width: 100%;
   }
 
-  .search-input {
+  .search-box {
     flex: 1;
-    width: auto;
+    min-width: 0;
   }
 }
 
@@ -847,7 +862,8 @@ function deleteApp(app) {
     flex-direction: column;
   }
 
-  .search-input {
+  .search-box {
+    min-width: 0;
     width: 100%;
   }
 

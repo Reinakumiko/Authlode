@@ -2,9 +2,9 @@
   <div class="page-container">
     <!-- 页面标题 -->
     <div class="page-header">
-      <div>
-        <h1 class="page-title">审计日志</h1>
-        <p class="page-subtitle">查看系统操作审计记录</p>
+      <div class="header-left">
+        <h2 class="page-title">审计日志</h2>
+        <p class="page-desc">查看系统操作审计记录</p>
       </div>
       <button class="btn-export" @click="exportLogs">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
@@ -212,15 +212,17 @@ function exportLogs() {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .page-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.02em;
   color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {

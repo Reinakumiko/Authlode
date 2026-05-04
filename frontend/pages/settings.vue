@@ -1,9 +1,9 @@
 <template>
   <div class="settings-page">
     <div class="page-header">
-      <div>
-        <h1 class="page-title">系统设置</h1>
-        <p class="page-subtitle">管理系统配置和参数</p>
+      <div class="header-left">
+        <h2 class="page-title">系统设置</h2>
+        <p class="page-desc">管理系统配置和参数</p>
       </div>
     </div>
 
@@ -353,14 +353,13 @@ function saveSettings() {
 
 .page-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.02em;
   color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
-.page-subtitle {
-  font-family: 'DM Sans', sans-serif;
+.page-desc {
   font-size: 14px;
   color: #64748b;
   margin-top: 4px;
@@ -387,7 +386,9 @@ function saveSettings() {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .card-icon {

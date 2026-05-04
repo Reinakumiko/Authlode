@@ -2,9 +2,9 @@
   <div class="page-container">
     <!-- 页面标题 -->
     <div class="page-header">
-      <div>
-        <h1 class="page-title">邀请管理</h1>
-        <p class="page-subtitle">管理用户邀请和审批流程</p>
+      <div class="header-left">
+        <h2 class="page-title">邀请管理</h2>
+        <p class="page-desc">管理用户邀请和审批流程</p>
       </div>
       <div class="header-actions">
         <div class="search-box">
@@ -316,10 +316,10 @@ function revokeInvitation(inv) {
 
 .page-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.02em;
   color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {

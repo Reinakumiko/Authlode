@@ -1,9 +1,9 @@
 <template>
   <div class="stats-page">
     <div class="page-header">
-      <div>
-        <h1 class="page-title">数据统计</h1>
-        <p class="page-subtitle">查看系统数据统计和分析</p>
+      <div class="header-left">
+        <h2 class="page-title">数据统计</h2>
+        <p class="page-desc">查看系统数据统计和分析</p>
       </div>
       <div class="header-period">
         <button
@@ -324,8 +324,7 @@ const recentActivities = [
   color: #1e293b;
 }
 
-.page-subtitle {
-  font-family: 'DM Sans', sans-serif;
+.page-desc {
   font-size: 14px;
   color: #64748b;
   margin-top: 4px;
