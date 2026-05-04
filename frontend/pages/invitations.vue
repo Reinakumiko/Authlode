@@ -1,17 +1,12 @@
 <template>
   <div class="page-container">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-left">
-        <h2 class="page-title">邀请管理</h2>
-        <p class="page-desc">管理用户邀请和审批流程</p>
-      </div>
-      <div class="header-actions">
+    <PageHeader title="邀请管理" description="管理用户邀请和审批流程">
+      <template #actions>
         <div class="search-box">
-          <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
-          <input v-model="searchQuery" type="text" placeholder="搜索邮箱..." class="search-input" />
+          <input v-model="searchQuery" type="text" class="search-input" placeholder="搜索邮箱..." />
         </div>
         <div class="filter-tabs">
           <button
@@ -26,13 +21,13 @@
           </button>
         </div>
         <button class="btn-primary" @click="openSendModal">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
           </svg>
           发送邀请
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- 邀请表格 -->
     <div class="glass-table-card">
@@ -304,74 +299,6 @@ function revokeInvitation(inv) {
   margin: 0 auto;
 }
 
-/* ===== Header ===== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.page-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: #94a3b8;
-  pointer-events: none;
-}
-
-.search-input {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  padding: 10px 14px 10px 36px;
-  font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
-  color: #1e293b;
-  width: 220px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.search-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-}
-
 .filter-tabs {
   display: flex;
   background: rgba(255, 255, 255, 0.55);
@@ -420,29 +347,6 @@ function revokeInvitation(inv) {
 
 .filter-tab.active .tab-count {
   background: rgba(255, 255, 255, 0.25);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
 }
 
 /* ===== Table Card ===== */

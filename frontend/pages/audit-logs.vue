@@ -1,18 +1,15 @@
 <template>
   <div class="page-container">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-left">
-        <h2 class="page-title">审计日志</h2>
-        <p class="page-desc">查看系统操作审计记录</p>
-      </div>
-      <button class="btn-export" @click="exportLogs">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-        导出日志
-      </button>
-    </div>
+    <PageHeader title="审计日志" description="查看系统操作审计记录">
+      <template #actions>
+        <button class="btn-primary" style="background: linear-gradient(135deg, #14b8a6, #10b981)" @click="exportLogs">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          导出日志
+        </button>
+      </template>
+    </PageHeader>
 
     <!-- 筛选栏 -->
     <div class="filter-bar">
@@ -205,55 +202,6 @@ function exportLogs() {
 .page-container {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-/* ===== Header ===== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
-}
-
-.btn-export {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-export:hover {
-  background: rgba(255, 255, 255, 0.8);
-  color: #1e293b;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* ===== Filter Bar ===== */

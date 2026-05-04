@@ -1,11 +1,7 @@
 <template>
   <div class="page-container">
-    <div class="page-header">
-      <div class="header-left">
-        <h2 class="page-title">组织管理</h2>
-        <p class="page-desc">管理组织架构和组织成员</p>
-      </div>
-      <div class="header-actions">
+    <PageHeader title="组织管理" description="管理组织架构和组织成员">
+      <template #actions>
         <div class="search-box">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -18,8 +14,8 @@
           </svg>
           创建组织
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <div class="org-grid">
       <div v-for="org in filteredOrgs" :key="org.id" class="org-card">
@@ -230,111 +226,6 @@ function doDelete() {
 .page-container {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-/* ===== Header ===== */
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.02em;
-}
-
-.page-desc {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ===== Search ===== */
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  padding: 0 14px;
-  height: 42px;
-  min-width: 240px;
-  transition: all 0.2s;
-}
-
-.search-box:focus-within {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-}
-
-.search-icon {
-  width: 18px;
-  height: 18px;
-  color: #94a3b8;
-  flex-shrink: 0;
-}
-
-.search-input {
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 14px;
-  color: #1e293b;
-  width: 100%;
-  font-family: 'DM Sans', sans-serif;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-/* ===== Buttons ===== */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 20px;
-  height: 42px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'DM Sans', sans-serif;
-  white-space: nowrap;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-icon {
-  width: 18px;
-  height: 18px;
 }
 
 /* ===== Grid ===== */

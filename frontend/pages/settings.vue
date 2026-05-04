@@ -1,11 +1,6 @@
 <template>
   <div class="settings-page">
-    <div class="page-header">
-      <div class="header-left">
-        <h2 class="page-title">系统设置</h2>
-        <p class="page-desc">管理系统配置和参数</p>
-      </div>
-    </div>
+    <PageHeader title="系统设置" description="管理系统配置和参数" />
 
     <!-- General Settings -->
     <div class="glass-card">
@@ -345,24 +340,6 @@ function saveSettings() {
 .settings-page {
   max-width: 900px;
   margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 28px;
-}
-
-.page-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 24px;
-  font-weight: 800;
-  color: #1e293b;
-  letter-spacing: -0.02em;
-}
-
-.page-desc {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
 }
 
 /* ===== Glass Card ===== */

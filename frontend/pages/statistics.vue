@@ -1,22 +1,20 @@
 <template>
   <div class="stats-page">
-    <div class="page-header">
-      <div class="header-left">
-        <h2 class="page-title">数据统计</h2>
-        <p class="page-desc">查看系统数据统计和分析</p>
-      </div>
-      <div class="header-period">
-        <button
-          v-for="p in periods"
-          :key="p.value"
-          class="period-btn"
-          :class="{ active: activePeriod === p.value }"
-          @click="activePeriod = p.value"
-        >
-          {{ p.label }}
-        </button>
-      </div>
-    </div>
+    <PageHeader title="数据统计" description="查看系统数据统计和分析">
+      <template #actions>
+        <div class="header-period">
+          <button
+            v-for="p in periods"
+            :key="p.value"
+            class="period-btn"
+            :class="{ active: activePeriod === p.value }"
+            @click="activePeriod = p.value"
+          >
+            {{ p.label }}
+          </button>
+        </div>
+      </template>
+    </PageHeader>
 
     <!-- Metric Cards -->
     <div class="metrics-grid">
@@ -306,28 +304,6 @@ const recentActivities = [
 .stats-page {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-/* ===== Header ===== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-}
-
-.page-title {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #1e293b;
-}
-
-.page-desc {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
 }
 
 .header-period {
