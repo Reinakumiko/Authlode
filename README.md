@@ -8,27 +8,34 @@
 
 ### 当前状态
 
-✅ **开发中** - 阶段 0-3 已完成 (约 25% 整体进度)
+✅ **v1 完整功能已实现** — 前端 8 页面 + 后端 5 Controllers + 55 个单元测试
 
 **已实现**:
-- ✅ NestJS 后端基础架构
-- ✅ Nuxt 3 前端基础架构
+- ✅ NestJS 后端基础架构 + Prisma ORM
+- ✅ Nuxt 4 前端基础架构 + Vue 3
 - ✅ Logto Management API 集成模块
 - ✅ SQLite 扩展数据库 (开发环境)
 - ✅ Repository 数据访问层
 - ✅ 配置管理系统
-- ✅ Soft Glass UI 设计系统 (DESIGN-SYSTEM.md)
-- ✅ Dashboard 仪表板完成 (Soft Glass 风格)
-- ✅ UI 预览页面 (docs/previews/)
+- ✅ **Soft Glass UI 设计系统** (DESIGN-SYSTEM.md)
+- ✅ **通用 PageHeader 组件** — 所有管理页面统一标题区
+- ✅ **8 个完整前端页面**:
+  - `users.vue` — 用户管理 (CRUD + 搜索 + 分页 + 角色筛选)
+  - `organizations.vue` — 组织管理 (卡片网格 + 成员统计)
+  - `roles.vue` — 角色权限 (权限标签 + 用户数)
+  - `applications.vue` — 应用管理 (卡片布局 + 密钥管理)
+  - `invitations.vue` — 邀请管理 (状态筛选 + 发送邀请)
+  - `audit-logs.vue` — 审计日志 (日期筛选 + 操作类型 + 导出)
+  - `settings.vue` — 系统设置 (通用配置 + 安全设置)
+  - `statistics.vue` — 数据统计 (指标卡片 + 图表)
+- ✅ **5 个后端 Controllers** (users, organizations, roles, applications, settings)
+- ✅ **55 个 Jest 单元测试** — 全部通过
+- ✅ Dashboard 仪表板 (Soft Glass 风格)
 
-**进行中**:
-- 🔄 前端页面开发
-- ⏳ API 路由和控制器
-- ⏳ 用户认证与授权
-
-**已知问题**:
-- ⚠️ Windows 环境下 Prisma Client 生成问题 (已实现临时方案)
-- ⚠️ Logto API 配置缺失 (需要配置真实凭据或修改验证逻辑)
+**待接入**:
+- ⏳ Logto 真实 API 凭据 (当前使用 mock 数据)
+- ⏳ 用户认证与授权流程
+- ⏳ 生产环境数据库切换
 
 详细进度请查看 [开发日志](docs/development-log.md) 和 [AI实现步骤方案](AI实现步骤方案.md)。
 
@@ -52,9 +59,10 @@
 
 #### 前端
 - **框架**: Nuxt 4.2.2 + Vue 3.5.13 + TypeScript
-- **UI**: Nuxt UI 4.3.0 + Tailwind CSS 4.0.0
+- **UI**: Soft Glass UI (自定义设计系统) + Tailwind CSS 4.0.0
+- **通用组件**: `PageHeader`, `AppSidebar`, `AppHeader`
 - **状态**: Pinia
-- **图标**: Heroicons (@iconify-json/heroicons)
+- **图标**: 内联 SVG (Lucide 风格)
 
 #### 数据库
 - **开发环境**: SQLite (零配置)
@@ -192,5 +200,5 @@ MIT
 
 ---
 **项目开始时间**: 2026-03-01
-**当前版本**: v0.2.0 (UI 设计完成)
+**当前版本**: v1.0.0 (完整功能实现)
 

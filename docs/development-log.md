@@ -810,4 +810,94 @@ docs/
 
 ---
 
-**最后更新**: 2026-05-02
+**最后更新**: 2026-05-04
+
+---
+
+## 2026-05-03 — v1 完整功能实现
+
+### 📅 日期
+2026年5月3日
+
+### ✅ 完成内容
+
+#### 1. 前端 8 个管理页面
+**方式**: 5 个 Claude Code 并行任务
+
+| 页面 | 行数 | 功能 |
+|------|------|------|
+| users.vue | 890→755 | 用户 CRUD、搜索、分页、角色筛选 |
+| organizations.vue | 726 | 组织卡片网格、成员/角色统计 |
+| roles.vue | 906 | 角色权限管理、权限标签 |
+| applications.vue | 868 | 应用卡片、密钥管理、类型筛选 |
+| invitations.vue | 950 | 邀请管理、状态 Tab、发送邀请 |
+| audit-logs.vue | 693 | 审计日志、日期筛选、操作类型、导出 |
+| settings.vue | 745 | 通用设置、安全配置 |
+| statistics.vue | 663 | 数据统计、指标卡片、图表 |
+
+**总代码量**: 6,441 行前端 + 18,988 行总计
+
+#### 2. 后端 5 个 Controllers + 单元测试
+
+| Controller | 测试数 | 功能 |
+|-----------|--------|------|
+| users.controller.ts | 11 | GET/POST/PATCH/DELETE + 搜索/分页 |
+| organizations.controller.ts | 11 | GET/POST/PATCH/DELETE |
+| roles.controller.ts | 11 | GET/POST/PATCH/DELETE + 搜索/分页 |
+| applications.controller.ts | 10 | GET/POST/PATCH + 搜索/分页 |
+| settings.controller.ts | 12 | GET/PATCH (脱敏配置) |
+
+**单元测试**: 55 个用例全部通过
+
+#### 3. 统一页面标题区样式
+**问题**: 8 个页面的 header 使用了不同的 HTML 标签和 CSS 类名
+
+**修复**:
+- `<h1>` → `<h2 class="page-title">` (统一 24px)
+- `page-subtitle` → `page-desc` (统一 DM Sans 14px)
+- 加 `header-left` 包装 div
+- 统一 `page-header` 的 gap/flex-wrap
+
+#### 4. 抽取通用 PageHeader 组件
+**问题**: 8 个页面各自内联 50~80 行重复的 header HTML + CSS
+
+**解决方案**: 创建 `components/PageHeader.vue`
+
+```vue
+<!-- 使用方式 -->
+<PageHeader title="角色权限" description="管理用户角色和权限配置">
+  <template #actions>
+    <!-- 搜索框、按钮等 -->
+  </template>
+</PageHeader>
+```
+
+**效果**:
+- 新增 `PageHeader.vue` (58行) + `main.css` 公共样式 (74行)
+- 删除 7 个页面重复 header CSS (567行)
+- 净减少 389 行代码
+
+#### 5. filter-select 样式修复
+**问题**: users.vue 重构时误删了 `.filter-select-wrapper` / `.filter-select` / `.select-arrow` 的 CSS
+
+**修复**: 在 users.vue scoped CSS 中补回 38 行下拉框样式
+
+---
+
+### 📝 Commit 记录
+
+```
+e4b0065  feat: v1 完整功能实现 — 前端8页面 + 后端5 controllers + 单元测试
+9280595  fix: 统一所有页面标题区域样式 — h2 + page-desc + header-left wrapper
+a137330  refactor: 抽取通用 PageHeader 组件，消除重复 header 样式
+6c01edc  refactor: users.vue 使用通用 PageHeader 组件，统一所有页面标题风格
+4c8bef9  fix: 补回 users.vue 被误删的 filter-select 下拉框样式
+```
+
+### 💡 经验总结
+
+1. **组件复用**: 同质化 UI 应该抽取通用组件，禁止内联 CSS 样式
+2. **并行派遣**: 5 个 Claude Code 任务并行执行，总耗时约 15 分钟
+3. **渐进式重构**: 先统一标签，再抽取组件，最后清理重复 CSS
+4. **验证优先**: 每次重构后检查所有页面是否一致
+5. **Mock 数据**: 前端使用 mock 数据开发，后端接入 Logto 需要真实凭据
