@@ -284,6 +284,44 @@ function deleteUser(id) {
   margin: 0 auto;
 }
 
+/* ===== Filter Select ===== */
+.filter-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select {
+  height: 42px;
+  padding: 0 32px 0 14px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #1e293b;
+  font-family: 'DM Sans', sans-serif;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
 /* ===== Table Card ===== */
 .table-card {
   background: rgba(255, 255, 255, 0.55);
