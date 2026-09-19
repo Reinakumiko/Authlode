@@ -901,3 +901,79 @@ a137330  refactor: 抽取通用 PageHeader 组件，消除重复 header 样式
 3. **渐进式重构**: 先统一标签，再抽取组件，最后清理重复 CSS
 4. **验证优先**: 每次重构后检查所有页面是否一致
 5. **Mock 数据**: 前端使用 mock 数据开发，后端接入 Logto 需要真实凭据
+
+---
+
+## 2026-09-18 — 定位变更与双线深度调研
+
+### 📅 日期
+2026年9月18日
+
+### ✅ 完成内容
+
+1. **定位变更**: 从 "Logto 专用用户中心管理系统" 重新定位为 **"多租户 IAM 用户管理系统"**
+   - 新增 IAM Provider 抽象层设计（Logto 为第一实现平台）
+   - 确立多租户模型：软隔离（单 Logto 实例，Organization = 租户）、运营方预置租户、租户管理员 = org role、Tenant 记录 JIT 创建
+   - 确立管理界面分工：系统级管理 = Logto Admin Console，Authlode 只做租户后台
+
+2. **代码库审计**: 确认多租户支持全链路缺失
+   - Prisma 6 模型无 Tenant/tenantId；无认证模块；invitations service 为空壳；前端 8 页面 100% mock
+   - 重要发现：后端 controller 是真实 Logto API 调用（配好凭据即通），前端未连后端
+
+3. **Logto 能力调研**（官方文档 + OpenAPI）: 10 项结论
+   - 多组织归属/org 角色差异化/建号带密码/JIT/customData 均原生支持
+   - 交互式 OIDC 应用为实例级全局（不能按组织隔离）→ 应用接入配置必须自建
+   - SCIM 不支持；OSS 含组织全家桶
+
+4. **文档群建立**: 总纲 + 模块规划（15 模块集成/实现拆分 + 扩展机会 T1/T2/T3）
+
+### 📝 Commit
+`f96bd6d` docs: 重新定位为 SSO 用户管理平台 — 新增总纲与模块规划，全套定位文档更新
+
+---
+
+## 2026-09-19 — SSO 用户管理平台定位收敛 + 批次 0 执行
+
+### 📅 日期
+2026年9月19日
+
+### ✅ 完成内容
+
+1. **定位最终收敛**: 多租户 IAM 用户管理系统 → **"SSO 用户管理平台"**
+   - 术语校准: 租户 = 接入的系统（多租户 = 多系统：账号统一、系统隔离）
+   - 一套账号体系原则: 账号池唯一全局，两级门禁（没账号无法认证 / 非成员拿不到系统令牌）
+   - 访问控制已决: 组织 Token 强制约定（执行点 C 为主）
+   - 接入拓扑: 客户应用只接 Logto OIDC，核心认证链路平台零依赖
+
+2. **落地实施方案**（SSO平台实施方案.md）: 批次 0-4 全案
+   - IamProviderInterface 草案、Tenant schema、OIDC 认证时序、各批次验收标准
+
+3. **批次 0 执行完毕 — Logto 实际运行 + V1-V5 全部通过（33 断言 0 失败）**:
+   - Logto Docker 环境（core :3003 / admin :3002）跑通；POC 脚本可复跑
+   - **V2 载荷假设实证**: 非成员 refresh+organization_id → 403 "user is not a member of the organization"
+   - V4 SSO 会话共享实证: 已有会话新授权直接 303 回调拿 code
+
+4. **九项实测发现**（F1-F9，已回填方案）:
+   - F1 静态 API key 假设错误（需 M2M token 交换）
+   - F2 offline_access 需 prompt=consent（否则被静默丢弃）
+   - F3 refresh token 每次轮换
+   - F4 组织 Token 正确路径 = refresh 授权 + organization_id
+   - F5 m-default 在 admin 租户（token 交换走 :3002）
+   - F7 Traditional 应用 tokenEndpointAuthMethod:"none" 被静默丢弃
+   - F8 Docker 需 seed entrypoint（--dapc）
+   - F9 本机 Node 18 < 20（批次 1 前需升级）
+
+5. **文档整理**: 策略文档迁入 docs/，历史文档归档 docs/archive/，重写项目文件结构与环境配置说明，建立文档地图
+
+### 📝 Commit
+`6cfbd97` feat: Logto Docker 运行环境
+`e05114b` test: 批次 0 验证 V1+V5
+`8e97e8d` test: 批次 0 验证 V2-V4
+`5731ac7` docs: SSO 平台实施方案（落地版 v1.1）
+
+### 💡 经验总结
+
+1. **文档级调研不够**: V2 载荷假设必须实测 — 实测还发现了 F2/F3/F4 三个文档没写的坑
+2. **POC 即环境**: 批次 0 的验证环境直接复用为批次 1 开发环境，零浪费
+3. **先查后建是必需模式**: Logto 重复建号返回 422，幂等要靠设计不靠运气
+4. **文档要随定位走**: 定位三次演进，每次都同步全套文档，最后统一整理归档

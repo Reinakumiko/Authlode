@@ -26,7 +26,7 @@
 
 ### 0.1 Logto Docker 环境
 
-`deployment/logto/docker-compose.yml`：
+仓库根目录 `deployment/logto/docker-compose.yml`：
 
 ```yaml
 services:
@@ -328,6 +328,112 @@ model TenantApplication {
 
 ---
 
+## 任务级执行计划（前端 / 后端分工）
+
+> 2026-09-19 补齐。任务编号规则：`B`=后端、`F`=前端；编号即建议执行顺序（同批次内）。依赖关系见末尾并行策略。
+
+### 后端部分（Backend）
+
+#### B0 前置（0.5 天，阻塞全部）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| B0.1 | Node ≥ 20 升级 | 环境就绪 | `node -v` ≥ 20；backend `npm install` + 测试可跑 |
+| B0.2 | Prisma Client 重新生成 | 移除 `prisma-types.ts` 存根方案 | `prisma generate` 成功；类型来自真实 client |
+| B0.3 | `.env` 更新 | M2M 凭据（m-default）+ `IAM_PROVIDER=logto` | POC 脚本思路的后端版冒烟通过 |
+
+#### B1 地基（3-5 天）— Provider + 认证 + Tenant
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| B1.1 | IAM 接口定稿 | `src/iam/interfaces/`（interface + models + capabilities） | 编译通过 + 单测 |
+| B1.2 | LogtoAdapter + TokenManager | `src/iam/logto-adapter/`（LogtoService 平移 + M2M token 交换/缓存/刷新，F1/F5） | 对真实 Logto 冒烟：建组织/建号/查组织列表 |
+| B1.3 | 业务模块切换注入 | users/orgs/roles/applications controllers 改注入 `IAM_PROVIDER` | 既有 API 行为不变 |
+| B1.4 | Tenant 模型 + tenantId 迁移 | schema（Tenant + 6 模型加 tenantId）+ 迁移 + BaseRepository 租户过滤钩子 | 迁移成功；Repository 查询强制带 tenantId |
+| B1.5 | OIDC 认证模块 | `src/auth/`：login（302 授权码+PKCE+**prompt=consent**）/callback（JWKS 验证+会话）/logout/me | 浏览器完整登录闭环；未登录 API → 401 |
+| B1.6 | TenantContext + 守卫 | 中间件（组织列表→当前租户→**JIT Tenant**）+ SessionGuard + TenantAdminGuard | `/api/auth/me` 返回身份+组织+角色；跨租户访问 → 403 |
+| B1.7 | 测试补齐 | auth/tenant 单测 + 全量回归 | 新增测试通过；既有 55+ 不回归 |
+
+#### B2 核心（3-4 天）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| B2.1 | 用户管理租户化 | users API 走 `getOrganizationUsers(tenantId)`；详情合并 UserExtend | A 租户看不到 B 租户用户 |
+| B2.2 | 应用接入 API | TenantApplication 模型 + 接入/列表/启停 + client 配置下发（规避 F7：SPA 类型或正确 secret 处理） | 经平台建应用 → 拿到 client_id/端点 |
+| B2.3 | 组织树 API | TenantOrganization（parentId）+ 树查询 | 层级正确 |
+| B2.4 | 审计接认证上下文 | 真实 userId/tenantId 落库 | 操作后审计可查 |
+
+#### B3 自管理闭环（2-3 天）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| B3.1 | 邀请双语义 API | 创建邀请（token）+ 公开验证 + accept（先查后建幂等） | 新 email 建号入组；已有 email 直接入组；重放无脏数据 |
+| B3.2 | 邮件服务 | SMTP 发送 + 邀请模板（mail.config DTO 已有） | 邀请邮件可达（MailHog 开发验证） |
+| B3.3 | 设置租户化 | 租户级设置存取 | 隔离验证 |
+
+#### B4 增值（3 天）
+
+| # | 任务 | 交付物 |
+|---|------|--------|
+| B4.1 | 批量操作 | CSV 导入（复用 B3.1 幂等逻辑） |
+| B4.2 | 通知 API | UserNotification 激活 |
+| B4.3 | 统计租户化 | 按租户过滤 + 会话数据 |
+
+### 前端部分（Frontend）
+
+#### F0 前置设计（1-2 天，可与 B0/B1 并行）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| F0.1 | UI 规格补齐：公开注册页布局 | 独立无侧边栏布局 spec（DESIGN-SYSTEM 增补章节） | 过设计系统检查清单 |
+| F0.2 | UI 规格补齐：租户切换器 | AppHeader 内组件 spec | 同上 |
+| F0.3 | 组件化策略 | 从 8 页面抽取共享组件清单（表格/卡片/表单/按钮/弹窗）+ 命名 | 清单评审通过 |
+| F0.4 | 清理实验文件 | 删除 design-*.vue / test.vue / *.bak | pages/ 只剩业务页面 |
+
+#### F1 认证接入（1-2 天，依赖 B1.5）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| F1.1 | 登录流程 | 登录跳转 + 回调处理 + 401 全局拦截 | 未登录访问 → 跳登录；登录后回原页 |
+| F1.2 | auth store | Pinia：/api/auth/me → 用户/组织列表/当前租户 | 多租户用户数据正确 |
+
+#### F2 接真 + 核心界面（4-5 天，依赖 B1 全部 + B2.1/B2.2）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| F2.1 | API 客户端基建 | $fetch 封装（错误/loading/类型） | — |
+| F2.2 | 共享组件库 | F0.3 清单落地（按设计系统） | 组件复用，页面瘦身 |
+| F2.3 | 8 页面去 mock | users/orgs/roles/apps/invitations/audit-logs/settings/statistics 全接真 | 端到端演示主线：登录→管用户→接应用 |
+| F2.4 | 租户切换器 | AppHeader 集成 | 切换租户数据视图随变 |
+| F2.5 | 应用接入页 | 接入向导 + client 配置展示 + 组织 Token 接入指引 | 新页面交付 |
+
+#### F3 公开页（1-2 天，依赖 B3）
+
+| # | 任务 | 交付物 | 验收 |
+|---|------|--------|------|
+| F3.1 | 公开注册页 | 独立布局 + token 验证 + 双语义表单 | 免登录完成注册/入组 |
+
+#### F4 增值（2-3 天，依赖 B4）
+
+| # | 任务 | 交付物 |
+|---|------|--------|
+| F4.1 | 自助中心 /me | 改密/资料/我的系统/我的应用 |
+| F4.2 | 组织树 UI | 树形组件 |
+| F4.3 | 批量/通知/统计接真 | 对应页面 |
+
+### 并行策略与总工期
+
+```
+后端线:  B0(0.5d) → B1(4d) → B2(3.5d) → B3(2.5d) → B4(3d)          ≈ 13.5 天
+前端线:     F0(1.5d, 与B1并行) → [等B1.5] → F1(1.5d) → F2(4.5d) → F3(1.5d) → F4(2.5d)  ≈ 11.5 天
+                                    ↑ F2 还需 B2.1/B2.2
+双线并行总工期 ≈ 3 周（单人串行 ≈ 4-5 周）
+```
+
+**关键依赖**：F1 等 B1.5（auth API）；F2 等 B1 全部 + B2.1/B2.2；F3 等 B3；F4 等 B4。F0 无依赖可立即开始。
+
+---
+
 ## 风险与回退
 
 | 风险 | 缓解 |
@@ -338,6 +444,6 @@ model TenantApplication {
 
 ---
 
-**文档版本**: v1.1
-**最后更新**: 2026-09-19（批次 0 执行完毕，V1-V5 全部通过）
-**状态**: 批次 0 ✅ 完成 → 批次 1 待启动（前置：Node ≥ 20 升级）
+**文档版本**: v1.2
+**最后更新**: 2026-09-19（补齐任务级执行计划——前端/后端分工，双线并行总工期约 3 周）
+**状态**: 批次 0 ✅ 完成 → 实施就绪（前置：Node ≥ 20 升级，即任务 B0.1）
