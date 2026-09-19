@@ -1,0 +1,25 @@
+services:
+  logto-db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: logto
+      POSTGRES_PASSWORD: logto
+      POSTGRES_DB: logto
+    volumes:
+      - logto_db_data:/var/lib/postgresql/data
+
+  logto:
+    image: svhd/logto:latest
+    depends_on: [logto-db]
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --dapc && npm start"]
+    environment:
+      TRUST_PROXY: "1"
+      DB_URL: postgres://logto:logto@logto-db:5432/logto
+      ENDPOINT: http://localhost:3003
+      ADMIN_ENDPOINT: http://localhost:3002
+    ports:
+      - "3003:3001"
+      - "3002:3002"
+
+volumes:
+  logto_db_data:
