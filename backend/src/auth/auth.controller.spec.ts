@@ -21,7 +21,7 @@ describe('AuthController', () => {
     signSession: jest.Mock;
     verifySession: jest.Mock;
   };
-  let iamProvider: { getUserById: jest.Mock };
+  let iamProvider: { getUserById: jest.Mock; getUserOrganizations: jest.Mock };
 
   const mockRes = () => ({
     cookie: jest.fn().mockReturnThis(),
@@ -52,7 +52,7 @@ describe('AuthController', () => {
       signSession: jest.fn(),
       verifySession: jest.fn(),
     };
-    iamProvider = { getUserById: jest.fn() };
+    iamProvider = { getUserById: jest.fn(), getUserOrganizations: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -169,7 +169,7 @@ describe('AuthController', () => {
       await expect(controller.me(req as never)).rejects.toThrow(UnauthorizedException);
     });
 
-    it('有效会话返回用户信息（经 IAM Provider）', async () => {
+    it('有效会话返回用户信息 + 所属组织与角色（验收 B1-2）', async () => {
       sessionService.verifySession.mockReturnValue({ sub: 'user-1', rt: 'rt' });
       iamProvider.getUserById.mockResolvedValue({
         id: 'user-1',
@@ -177,6 +177,16 @@ describe('AuthController', () => {
         primaryEmail: 'alice@authlode.dev',
         name: 'Alice',
       });
+      iamProvider.getUserOrganizations.mockResolvedValue([
+        {
+          organization: { id: 'org-acme', name: 'Acme' },
+          organizationRoles: [{ id: 'role-1', name: 'tenant-admin' }],
+        },
+        {
+          organization: { id: 'org-beta', name: 'Beta' },
+          organizationRoles: [],
+        },
+      ]);
 
       const req = mockReq({ auth_session: 'session-jwt' });
       const result = await controller.me(req as never);
@@ -186,6 +196,10 @@ describe('AuthController', () => {
         username: 'alice',
         primaryEmail: 'alice@authlode.dev',
         name: 'Alice',
+        organizations: [
+          { id: 'org-acme', name: 'Acme', roles: ['tenant-admin'] },
+          { id: 'org-beta', name: 'Beta', roles: [] },
+        ],
       });
     });
 

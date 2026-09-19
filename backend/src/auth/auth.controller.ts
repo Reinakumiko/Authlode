@@ -88,17 +88,25 @@ export class AuthController {
     return res.redirect(this.frontendUrl());
   }
 
-  /** 当前身份（B1.6 将补充所属组织与各组织角色） */
+  /** 当前身份 + 所属组织与各组织角色（验收 B1-2） */
   @Get('me')
   async me(@Req() req: Request) {
     const session = this.requireSession(req);
     try {
-      const user = await this.iamProvider.getUserById(session.sub);
+      const [user, userOrganizations] = await Promise.all([
+        this.iamProvider.getUserById(session.sub),
+        this.iamProvider.getUserOrganizations(session.sub),
+      ]);
       return {
         id: user.id,
         username: user.username,
         primaryEmail: user.primaryEmail,
         name: user.name,
+        organizations: userOrganizations.map((org) => ({
+          id: org.organization.id,
+          name: org.organization.name,
+          roles: org.organizationRoles.map((role) => role.name),
+        })),
       };
     } catch {
       return { id: session.sub };

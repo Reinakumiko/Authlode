@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { IamModule } from './iam/iam.module';
 import { TenantModule } from './tenant/tenant.module';
+import { TenantContextMiddleware } from './tenant/tenant-context.middleware';
 import { AuthModule } from './auth/auth.module';
+import { SessionGuard } from './auth/session.guard';
 import { PrismaModule } from './prisma/prisma.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
@@ -34,6 +37,14 @@ import { SettingsModule } from './settings/settings.module';
     SettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    TenantContextMiddleware, // B1.6：会话→组织→租户→JIT→ALS 上下文
+    { provide: APP_GUARD, useClass: SessionGuard }, // B1.6：全局会话守卫（白名单外一律 401）
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TenantContextMiddleware).forRoutes('*');
+  }
+}

@@ -6,6 +6,8 @@ export interface TenantContextData {
   tenantId: string;
   /** 当前用户（IAM User ID，认证后可用） */
   userId?: string;
+  /** 用户在当前租户的组织角色名（TenantAdminGuard 消费，B1.6 中间件填充） */
+  organizationRoles?: string[];
 }
 
 /**
@@ -19,8 +21,8 @@ export interface TenantContextData {
 export class TenantContextService {
   private readonly als = new AsyncLocalStorage<TenantContextData>();
 
-  /** 在指定租户上下文中执行（中间件调用） */
-  run<T>(data: TenantContextData, fn: () => Promise<T>): Promise<T> {
+  /** 在指定租户上下文中执行（中间件调用；回调可为同步或异步） */
+  run<T>(data: TenantContextData, fn: () => T): T {
     return this.als.run(data, fn);
   }
 
