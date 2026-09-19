@@ -47,7 +47,7 @@ coverage/
 .cache/
 
 # Prisma
-prisma/migrations/**/*_*/migration.sql
+# 注: 迁移文件应提交（B1.4 起取消忽略，保证环境可重建）
 
 # Docker
 docker-compose.override.yml

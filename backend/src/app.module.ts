@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { IamModule } from './iam/iam.module';
+import { TenantModule } from './tenant/tenant.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
@@ -17,6 +18,7 @@ import { SettingsModule } from './settings/settings.module';
 @Module({
   imports: [
     IamModule, // IAM Provider 抽象层（B1.2）— 业务模块注入 IAM_PROVIDER
+    TenantModule, // 租户上下文 + 租户注册表（B1.4）— 全局
     PrismaModule,
     InvitationsModule,
     AuditLogsModule,

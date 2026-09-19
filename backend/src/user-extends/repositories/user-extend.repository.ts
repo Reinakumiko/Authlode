@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TenantContextService } from '../../tenant/tenant-context.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserExtend,
@@ -15,8 +16,8 @@ export class UserExtendRepository extends BaseRepository<
   CreateUserExtendInput,
   UpdateUserExtendInput
 > {
-  constructor(prisma: PrismaService) {
-    super(prisma, 'userExtend');
+  constructor(prisma: PrismaService, tenantContext: TenantContextService) {
+    super(prisma, 'userExtend', tenantContext);
   }
 
   /**

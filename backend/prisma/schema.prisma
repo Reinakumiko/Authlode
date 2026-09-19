@@ -1,6 +1,6 @@
-// Prisma Schema for Logto User Center Extension Database
-// 注意: 此数据库仅存储扩展功能数据,不存储 Logto 核心数据
-// Logto 核心数据(用户、组织、角色等)通过 Management API 访问
+// Prisma Schema for Authlode Extension Database
+// 注意: 此数据库仅存储扩展功能数据,不存储 IAM 核心数据
+// IAM 核心数据(用户、组织、角色等)通过 Provider 接口访问
 
 generator client {
   provider = "prisma-client-js"
@@ -12,24 +12,41 @@ datasource db {
 }
 
 // ============================================
+// 租户（= 接入的系统，映射 IAM Organization）
+// ============================================
+
+model Tenant {
+  id        String   @id // = IAM Organization ID（JIT 创建：租户管理员首登时自动补记录）
+  name      String
+  status    String   @default("ACTIVE") // ACTIVE / SUSPENDED
+  settings  String? // JSON：租户级配置
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tenants")
+}
+
+// ============================================
 // 邀请系统
 // ============================================
 
 model UserInvitation {
-  id              String              @id @default(cuid())
+  id              String    @id @default(cuid())
+  tenantId        String? // 租户隔离（B1.4；B1.6 TenantContext 强制过滤）
   email           String
-  token           String              @unique
-  organizationId  String?             // Logto Organization ID
-  roleIds         String              // JSON: Logto Role IDs
-  status          String              @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
-  invitedBy       String              // Logto User ID
+  token           String    @unique
+  organizationId  String? // IAM Organization ID
+  roleIds         String // JSON: IAM Role IDs
+  status          String    @default("PENDING") // PENDING, ACCEPTED, EXPIRED, CANCELLED
+  invitedBy       String // IAM User ID
   message         String?
-  acceptedBy      String?             // Logto User ID
+  acceptedBy      String? // IAM User ID
   expiresAt       DateTime
   acceptedAt      DateTime?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
+  @@index([tenantId])
   @@index([email])
   @@index([token])
   @@index([status])
@@ -41,21 +58,23 @@ model UserInvitation {
 // ============================================
 
 model AuditLog {
-  id              String    @id @default(cuid())
-  userId          String?   // Logto User ID
-  userName        String?   // 冗余字段,方便查询
-  action          String    // user.create, org.update, etc.
-  resource        String    // user, organization, role, etc.
-  resourceId      String?   // Logto Resource ID
-  resourceName    String?   // 冗余字段
-  details         String?   // JSON: 操作详情
+  id              String   @id @default(cuid())
+  tenantId        String? // 租户隔离（B1.4）
+  userId          String? // IAM User ID
+  userName        String? // 冗余字段,方便查询
+  action          String // user.create, org.update, etc.
+  resource        String // user, organization, role, etc.
+  resourceId      String? // IAM Resource ID
+  resourceName    String? // 冗余字段
+  details         String? // JSON: 操作详情
   ipAddress       String?
   userAgent       String?
-  success         Boolean   @default(true)
+  success         Boolean  @default(true)
   errorMessage    String?
-  executionTime   Int?      // 毫秒
-  createdAt       DateTime  @default(now())
+  executionTime   Int? // 毫秒
+  createdAt       DateTime @default(now())
 
+  @@index([tenantId])
   @@index([userId])
   @@index([action])
   @@index([resource])
@@ -68,25 +87,27 @@ model AuditLog {
 // ============================================
 
 model UserExtend {
-  userId                  String    @id // Logto User ID
-  employeeId              String?   @unique
+  userId                  String   @id // IAM User ID
+  tenantId                String? // 租户隔离（B1.4）
+  employeeId              String?  @unique
   department              String?
   position                String?
-  managerId               String?   // Logto User ID
+  managerId               String? // IAM User ID
   workPhone               String?
   address                 String?
   bio                     String?
-  customFields            String?   // JSON
-  preferences            String?   // JSON
+  customFields            String? // JSON
+  preferences             String? // JSON
   lastLoginIp             String?
   lastLoginLocation       String?
-  profileCompleted        Boolean   @default(false)
+  profileCompleted        Boolean  @default(false)
   notes                   String?
-  internalTags            String?   // JSON
-  riskLevel               String    @default("low")
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  internalTags            String? // JSON
+  riskLevel              String   @default("low")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
+  @@index([tenantId])
   @@index([department])
   @@index([managerId])
   @@map("user_extends")
@@ -97,22 +118,24 @@ model UserExtend {
 // ============================================
 
 model BatchOperation {
-  id              String           @id @default(cuid())
-  type            String           // USER_IMPORT, USER_EXPORT, USER_BULK_UPDATE, ORGANIZATION_IMPORT, ROLE_IMPORT
-  status          String           @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
-  total           Int              @default(0)
-  processed       Int              @default(0)
-  success         Int              @default(0)
-  failed          Int              @default(0)
+  id              String    @id @default(cuid())
+  tenantId        String? // 租户隔离（B1.4）
+  type            String // USER_IMPORT, USER_EXPORT, USER_BULK_UPDATE, ORGANIZATION_IMPORT, ROLE_IMPORT
+  status          String    @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED, CANCELLED
+  total           Int       @default(0)
+  processed       Int       @default(0)
+  success         Int       @default(0)
+  failed          Int       @default(0)
   fileUrl         String?
   errorFileUrl    String?
-  resultSummary   String?          // JSON
-  createdBy       String           // Logto User ID
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  startedAt       DateTime?
-  completedAt     DateTime?
+  resultSummary   String? // JSON
+  createdBy        String // IAM User ID
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  startedAt        DateTime?
+  completedAt      DateTime?
 
+  @@index([tenantId])
   @@index([status])
   @@index([createdBy])
   @@map("batch_operations")
@@ -123,17 +146,19 @@ model BatchOperation {
 // ============================================
 
 model UserNotification {
-  id              String              @id @default(cuid())
-  userId          String              // Logto User ID
-  type            String              // INFO, SUCCESS, WARNING, ERROR, INVITE, SYSTEM
+  id              String    @id @default(cuid())
+  tenantId        String? // 租户隔离（B1.4）
+  userId          String // IAM User ID
+  type            String // INFO, SUCCESS, WARNING, ERROR, INVITE, SYSTEM
   title           String
   message         String
   link            String?
-  read            Boolean             @default(false)
+  read            Boolean   @default(false)
   readAt          DateTime?
-  metadata        String?             // JSON
-  createdAt       DateTime            @default(now())
+  metadata        String? // JSON
+  createdAt        DateTime  @default(now())
 
+  @@index([tenantId])
   @@index([userId])
   @@index([read])
   @@map("user_notifications")
@@ -144,13 +169,15 @@ model UserNotification {
 // ============================================
 
 model StatisticsCache {
-  id              String    @id @default(cuid())
-  key             String    @unique
-  value           String    // JSON
-  expiresAt       DateTime
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  tenantId  String? // 租户隔离（B1.4）
+  key       String   @unique
+  value     String // JSON
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@index([tenantId])
   @@index([key])
   @@index([expiresAt])
   @@map("statistics_cache")

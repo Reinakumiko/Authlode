@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TenantContextService } from '../../tenant/tenant-context.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserInvitation,
@@ -25,12 +26,13 @@ export class InvitationRepository extends BaseRepository<
   CreateInvitationInput,
   UpdateInvitationInput
 > {
-  constructor(prisma: PrismaService) {
-    super(prisma, 'userInvitation');
+  constructor(prisma: PrismaService, tenantContext: TenantContextService) {
+    super(prisma, 'userInvitation', tenantContext);
   }
 
   /**
    * 根据 token 查找邀请
+   * 注意：不按租户过滤 — 公开注册流程（免登录，token 即凭证）
    */
   async findByToken(token: string): Promise<UserInvitation | null> {
     try {
@@ -52,7 +54,7 @@ export class InvitationRepository extends BaseRepository<
   async findByEmail(email: string): Promise<UserInvitation[]> {
     try {
       const result = await this.prisma.userInvitation.findMany({
-        where: { email },
+        where: this.scopeWhere({ email }),
         orderBy: { createdAt: 'desc' },
       });
       return result;
@@ -87,10 +89,10 @@ export class InvitationRepository extends BaseRepository<
   async findPendingInvitations(): Promise<UserInvitation[]> {
     try {
       const result = await this.prisma.userInvitation.findMany({
-        where: {
+        where: this.scopeWhere({
           status: InvitationStatus.PENDING,
           expiresAt: { gt: new Date() },
-        },
+        }),
         orderBy: { createdAt: 'desc' },
       });
       return result;
@@ -108,10 +110,10 @@ export class InvitationRepository extends BaseRepository<
   async findExpiredInvitations(): Promise<UserInvitation[]> {
     try {
       const result = await this.prisma.userInvitation.findMany({
-        where: {
+        where: this.scopeWhere({
           status: InvitationStatus.PENDING,
           expiresAt: { lte: new Date() },
-        },
+        }),
       });
       return result;
     } catch (error) {

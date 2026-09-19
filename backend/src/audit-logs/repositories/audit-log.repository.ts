@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TenantContextService } from '../../tenant/tenant-context.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   AuditLog,
@@ -15,8 +16,8 @@ export class AuditLogRepository extends BaseRepository<
   CreateAuditLogInput,
   UpdateAuditLogInput
 > {
-  constructor(prisma: PrismaService) {
-    super(prisma, 'auditLog');
+  constructor(prisma: PrismaService, tenantContext: TenantContextService) {
+    super(prisma, 'auditLog', tenantContext);
   }
 
   /**
@@ -177,13 +178,14 @@ export class AuditLogRepository extends BaseRepository<
     };
 
     try {
+      const scopedWhere = this.scopeWhere(where);
       const [total, successCount, failureCount] = await Promise.all([
-        this.prisma.auditLog.count({ where }),
+        this.prisma.auditLog.count({ where: scopedWhere }),
         this.prisma.auditLog.count({
-          where: { ...where, success: true },
+          where: { ...scopedWhere, success: true },
         }),
         this.prisma.auditLog.count({
-          where: { ...where, success: false },
+          where: { ...scopedWhere, success: false },
         }),
       ]);
 
@@ -220,7 +222,7 @@ export class AuditLogRepository extends BaseRepository<
 
     try {
       const logs = await this.prisma.auditLog.findMany({
-        where,
+        where: this.scopeWhere(where),
         select: { action: true },
       });
 
@@ -248,11 +250,11 @@ export class AuditLogRepository extends BaseRepository<
       cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
 
       const result = await this.prisma.auditLog.deleteMany({
-        where: {
+        where: this.scopeWhere({
           createdAt: {
             lt: cutoffDate,
           },
-        },
+        }),
       });
 
       this.logger.log(`Cleaned up ${result.count} old audit logs`);
