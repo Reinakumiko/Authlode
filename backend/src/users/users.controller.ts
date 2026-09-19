@@ -7,19 +7,23 @@ import {
   Param,
   Query,
   Body,
+  Inject,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 import type {
-  CreateUserDto,
-  UpdateUserDto,
-  UserQueryParams,
-} from '../logto/interfaces';
+  IamProviderInterface,
+  IamCreateUser,
+  IamUpdateUser,
+  IamUserQuery,
+} from '../iam/interfaces';
 
 @Controller('api/users')
 export class UsersController {
-  constructor(private readonly logtoService: LogtoService) {}
+  constructor(
+    @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
+  ) {}
 
   /**
    * 获取用户列表
@@ -31,18 +35,23 @@ export class UsersController {
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('emailVerified') emailVerified?: string,
-    @Query('phoneVerified') phoneVerified?: string,
     @Query('isSuspended') isSuspended?: string,
   ) {
-    const params: UserQueryParams = {
-      search,
-      page,
-      pageSize,
-      emailVerified: emailVerified === 'true' ? true : emailVerified === 'false' ? false : undefined,
-      phoneVerified: phoneVerified === 'true' ? true : phoneVerified === 'false' ? false : undefined,
-      isSuspended: isSuspended === 'true' ? true : isSuspended === 'false' ? false : undefined,
-    };
-    return this.logtoService.getUsers(params);
+    try {
+      const query: IamUserQuery = {
+        search,
+        page,
+        pageSize,
+        emailVerified:
+          emailVerified === 'true' ? true : emailVerified === 'false' ? false : undefined,
+        isSuspended:
+          isSuspended === 'true' ? true : isSuspended === 'false' ? false : undefined,
+      };
+      return await this.iamProvider.getUsers(query);
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('获取用户列表失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -51,7 +60,7 @@ export class UsersController {
   @Get(':id')
   async getUserById(@Param('id') id: string) {
     try {
-      return await this.logtoService.getUserById(id);
+      return await this.iamProvider.getUserById(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -65,15 +74,12 @@ export class UsersController {
    * 创建用户
    */
   @Post()
-  async createUser(@Body() data: CreateUserDto) {
+  async createUser(@Body() data: IamCreateUser) {
     try {
-      return await this.logtoService.createUser(data);
+      return await this.iamProvider.createUser(data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        '创建用户失败',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('创建用户失败', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -81,9 +87,9 @@ export class UsersController {
    * 更新用户
    */
   @Patch(':id')
-  async updateUser(@Param('id') id: string, @Body() data: UpdateUserDto) {
+  async updateUser(@Param('id') id: string, @Body() data: IamUpdateUser) {
     try {
-      return await this.logtoService.updateUser(id, data);
+      return await this.iamProvider.updateUser(id, data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -99,7 +105,7 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     try {
-      await this.logtoService.deleteUser(id);
+      await this.iamProvider.deleteUser(id);
       return { success: true };
     } catch (error) {
       if (error instanceof HttpException) throw error;

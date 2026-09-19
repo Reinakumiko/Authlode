@@ -3,6 +3,7 @@ import type {
   IamCreateApplication,
   IamCreateOrganization,
   IamCreateOrgRole,
+  IamCreateRole,
   IamCreateUser,
   IamOidcEndpoints,
   IamOrganization,
@@ -10,8 +11,10 @@ import type {
   IamOrgRole,
   IamPageQuery,
   IamPagedResult,
+  IamRole,
   IamUpdateApplication,
   IamUpdateOrganization,
+  IamUpdateRole,
   IamUpdateUser,
   IamUser,
   IamUserOrganization,
@@ -52,6 +55,8 @@ export interface IamProviderInterface {
 
   // ── 租户（Organization）────────────────────────────────────────
 
+  /** 组织列表（运营/统计视角；租户端界面用 TenantContext 作用域查询） */
+  getOrganizations(query?: IamPageQuery): Promise<IamPagedResult<IamOrganization>>;
   createOrganization(data: IamCreateOrganization): Promise<IamOrganization>;
   getOrganizationById(orgId: string): Promise<IamOrganization>;
   updateOrganization(orgId: string, data: IamUpdateOrganization): Promise<IamOrganization>;
@@ -71,6 +76,16 @@ export interface IamProviderInterface {
   getUserOrganizationRoles(orgId: string, userId: string): Promise<IamOrgRole[]>;
   assignUserOrganizationRoles(orgId: string, userId: string, roleIds: string[]): Promise<void>;
   removeUserOrganizationRole(orgId: string, userId: string, roleId: string): Promise<void>;
+
+  // ── 实例级角色（全局角色，非组织作用域）────────────────────────
+
+  getRoles(query?: IamPageQuery): Promise<IamPagedResult<IamRole>>;
+  getRoleById(roleId: string): Promise<IamRole>;
+  createRole(data: IamCreateRole): Promise<IamRole>;
+  updateRole(roleId: string, data: IamUpdateRole): Promise<IamRole>;
+  deleteRole(roleId: string): Promise<void>;
+  assignRoleToUser(roleId: string, userId: string): Promise<void>;
+  removeRoleFromUser(roleId: string, userId: string): Promise<void>;
 
   // ── 应用（系统接入的 OIDC 客户端）───────────────────────────────
 

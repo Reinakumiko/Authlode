@@ -1,27 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { RolesController } from './roles.controller';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 
 describe('RolesController', () => {
   let controller: RolesController;
-  let logtoService: jest.Mocked<LogtoService>;
+  let iamProvider: {
+    getRoles: jest.Mock;
+    getRoleById: jest.Mock;
+    createRole: jest.Mock;
+    updateRole: jest.Mock;
+    deleteRole: jest.Mock;
+  };
 
   const mockRole = {
     id: 'role-1',
     name: 'admin',
-    description: '管理员角色',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
+    description: 'Administrator',
+    type: 'User',
   };
 
-  const mockRoleList = {
-    totalCount: 1,
-    data: [mockRole],
-  };
+  const mockRoleList = { data: [mockRole], totalCount: 1 };
 
   beforeEach(async () => {
-    const mockLogtoService = {
+    iamProvider = {
       getRoles: jest.fn(),
       getRoleById: jest.fn(),
       createRole: jest.fn(),
@@ -31,13 +33,10 @@ describe('RolesController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RolesController],
-      providers: [
-        { provide: LogtoService, useValue: mockLogtoService },
-      ],
+      providers: [{ provide: IAM_PROVIDER, useValue: iamProvider }],
     }).compile();
 
     controller = module.get<RolesController>(RolesController);
-    logtoService = module.get(LogtoService);
   });
 
   it('should be defined', () => {
@@ -46,12 +45,12 @@ describe('RolesController', () => {
 
   describe('getRoles', () => {
     it('应返回角色列表', async () => {
-      logtoService.getRoles.mockResolvedValue(mockRoleList as any);
+      iamProvider.getRoles.mockResolvedValue(mockRoleList);
 
       const result = await controller.getRoles();
 
       expect(result).toEqual(mockRoleList);
-      expect(logtoService.getRoles).toHaveBeenCalledWith({
+      expect(iamProvider.getRoles).toHaveBeenCalledWith({
         search: undefined,
         page: undefined,
         pageSize: undefined,
@@ -59,11 +58,11 @@ describe('RolesController', () => {
     });
 
     it('应正确传递搜索和分页参数', async () => {
-      logtoService.getRoles.mockResolvedValue(mockRoleList as any);
+      iamProvider.getRoles.mockResolvedValue(mockRoleList);
 
       await controller.getRoles('admin', 1, 10);
 
-      expect(logtoService.getRoles).toHaveBeenCalledWith({
+      expect(iamProvider.getRoles).toHaveBeenCalledWith({
         search: 'admin',
         page: 1,
         pageSize: 10,
@@ -73,16 +72,16 @@ describe('RolesController', () => {
 
   describe('getRoleById', () => {
     it('应返回指定角色详情', async () => {
-      logtoService.getRoleById.mockResolvedValue(mockRole as any);
+      iamProvider.getRoleById.mockResolvedValue(mockRole);
 
       const result = await controller.getRoleById('role-1');
 
       expect(result).toEqual(mockRole);
-      expect(logtoService.getRoleById).toHaveBeenCalledWith('role-1');
+      expect(iamProvider.getRoleById).toHaveBeenCalledWith('role-1');
     });
 
     it('服务抛出 HttpException 时应原样抛出', async () => {
-      logtoService.getRoleById.mockRejectedValue(
+      iamProvider.getRoleById.mockRejectedValue(
         new HttpException('Not found', HttpStatus.NOT_FOUND),
       );
 
@@ -90,7 +89,7 @@ describe('RolesController', () => {
     });
 
     it('服务抛出未知异常时应返回 500', async () => {
-      logtoService.getRoleById.mockRejectedValue(new Error('unknown'));
+      iamProvider.getRoleById.mockRejectedValue(new Error('unknown'));
 
       await expect(controller.getRoleById('role-1')).rejects.toThrow(HttpException);
     });
@@ -99,36 +98,34 @@ describe('RolesController', () => {
   describe('createRole', () => {
     it('应创建并返回新角色', async () => {
       const createDto = { name: 'editor', description: '编辑者' };
-      logtoService.createRole.mockResolvedValue(mockRole as any);
+      iamProvider.createRole.mockResolvedValue(mockRole);
 
       const result = await controller.createRole(createDto);
 
       expect(result).toEqual(mockRole);
-      expect(logtoService.createRole).toHaveBeenCalledWith(createDto);
+      expect(iamProvider.createRole).toHaveBeenCalledWith(createDto);
     });
 
     it('服务抛出异常时应正确处理', async () => {
-      logtoService.createRole.mockRejectedValue(new Error('创建失败'));
+      iamProvider.createRole.mockRejectedValue(new Error('创建失败'));
 
-      await expect(
-        controller.createRole({ name: 'fail' }),
-      ).rejects.toThrow(HttpException);
+      await expect(controller.createRole({ name: 'fail' })).rejects.toThrow(HttpException);
     });
   });
 
   describe('updateRole', () => {
     it('应更新并返回角色', async () => {
-      const updateDto = { name: 'super-admin' };
-      logtoService.updateRole.mockResolvedValue({ ...mockRole, name: 'super-admin' } as any);
+      const updateDto = { name: 'Updated Role' };
+      iamProvider.updateRole.mockResolvedValue({ ...mockRole, name: 'Updated Role' });
 
       const result = await controller.updateRole('role-1', updateDto);
 
-      expect(result.name).toBe('super-admin');
-      expect(logtoService.updateRole).toHaveBeenCalledWith('role-1', updateDto);
+      expect(result.name).toBe('Updated Role');
+      expect(iamProvider.updateRole).toHaveBeenCalledWith('role-1', updateDto);
     });
 
     it('服务抛出 HttpException 时应原样抛出', async () => {
-      logtoService.updateRole.mockRejectedValue(
+      iamProvider.updateRole.mockRejectedValue(
         new HttpException('Not found', HttpStatus.NOT_FOUND),
       );
 
@@ -138,16 +135,16 @@ describe('RolesController', () => {
 
   describe('deleteRole', () => {
     it('应删除角色并返回成功', async () => {
-      logtoService.deleteRole.mockResolvedValue(undefined);
+      iamProvider.deleteRole.mockResolvedValue(undefined);
 
       const result = await controller.deleteRole('role-1');
 
       expect(result).toEqual({ success: true });
-      expect(logtoService.deleteRole).toHaveBeenCalledWith('role-1');
+      expect(iamProvider.deleteRole).toHaveBeenCalledWith('role-1');
     });
 
     it('服务抛出 HttpException 时应原样抛出', async () => {
-      logtoService.deleteRole.mockRejectedValue(
+      iamProvider.deleteRole.mockRejectedValue(
         new HttpException('Not found', HttpStatus.NOT_FOUND),
       );
 
@@ -155,7 +152,7 @@ describe('RolesController', () => {
     });
 
     it('服务抛出未知异常时应返回 500', async () => {
-      logtoService.deleteRole.mockRejectedValue(new Error('unknown'));
+      iamProvider.deleteRole.mockRejectedValue(new Error('unknown'));
 
       await expect(controller.deleteRole('role-1')).rejects.toThrow(HttpException);
     });

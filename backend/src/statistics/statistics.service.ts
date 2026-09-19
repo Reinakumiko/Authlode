@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { LogtoService } from '../logto/logto.service';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { IAM_PROVIDER } from '../iam/interfaces';
+import type { IamProviderInterface } from '../iam/interfaces';
 import { AuditLogRepository } from '../audit-logs/repositories/audit-log.repository';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -8,7 +9,7 @@ export class StatisticsService {
   private readonly logger = new Logger(StatisticsService.name);
 
   constructor(
-    private readonly logtoService: LogtoService,
+    @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
     private readonly auditLogRepository: AuditLogRepository,
     private readonly prisma: PrismaService,
   ) {}
@@ -16,21 +17,24 @@ export class StatisticsService {
   /**
    * 获取总览数据
    * 返回用户总数、组织总数、活跃会话数
+   *
+   * 注：Logto 列表端点不返回全量计数（无 x-total-count 头），
+   * 此处以 pageSize=100 页内计数近似；批次 B4.3 统计租户化时改为扩展库计数。
    */
   async getOverview() {
     try {
-      const [usersResponse, organizations] = await Promise.all([
-        this.logtoService.getUsers({ page: 1, pageSize: 1 }),
-        this.logtoService.getOrganizations(),
+      const [users, organizations] = await Promise.all([
+        this.iamProvider.getUsers({ page: 1, pageSize: 100 }),
+        this.iamProvider.getOrganizations({ page: 1, pageSize: 100 }),
       ]);
 
       return {
-        totalUsers: usersResponse.totalCount,
-        totalOrganizations: organizations.length,
-        activeSessions: 0, // TODO: 接入会话数据
+        totalUsers: users.totalCount,
+        totalOrganizations: organizations.totalCount,
+        activeSessions: 0, // TODO: 会话数据接入（批次 B4.3）
       };
     } catch (error) {
-      this.logger.error(`Failed to get overview: ${error.message}`);
+      this.logger.error(`Failed to get overview: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -73,7 +77,7 @@ export class StatisticsService {
         count,
       }));
     } catch (error) {
-      this.logger.error(`Failed to get growth data: ${error.message}`);
+      this.logger.error(`Failed to get growth data: ${(error as Error).message}`);
       throw error;
     }
   }
@@ -86,7 +90,7 @@ export class StatisticsService {
       const actionStats = await this.auditLogRepository.getActionStats();
       return actionStats;
     } catch (error) {
-      this.logger.error(`Failed to get activity data: ${error.message}`);
+      this.logger.error(`Failed to get activity data: ${(error as Error).message}`);
       throw error;
     }
   }

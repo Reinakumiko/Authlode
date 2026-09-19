@@ -110,6 +110,25 @@ export interface IamCreateOrgRole {
   description?: string;
 }
 
+// ── 实例级角色（全局角色，非组织作用域）────────────────────────────
+
+export interface IamRole {
+  id: string;
+  name: string;
+  description?: string | null;
+  type?: string | null;
+}
+
+export interface IamCreateRole {
+  name: string;
+  description?: string;
+}
+
+export interface IamUpdateRole {
+  name?: string;
+  description?: string;
+}
+
 // ── 应用（系统接入的 OIDC 客户端）─────────────────────────────────
 
 export type IamApplicationType = 'traditional' | 'spa' | 'native' | 'm2m';

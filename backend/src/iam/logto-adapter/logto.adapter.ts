@@ -10,6 +10,7 @@ import type {
   IamCreateApplication,
   IamCreateOrganization,
   IamCreateOrgRole,
+  IamCreateRole,
   IamCreateUser,
   IamOidcEndpoints,
   IamOrganization,
@@ -18,8 +19,10 @@ import type {
   IamPageQuery,
   IamPagedResult,
   IamProviderInterface,
+  IamRole,
   IamUpdateApplication,
   IamUpdateOrganization,
+  IamUpdateRole,
   IamUpdateUser,
   IamUser,
   IamUserOrganization,
@@ -127,6 +130,16 @@ export class LogtoAdapter implements IamProviderInterface {
   }
 
   // ═════════════════════════════ 租户（Organization）═════════════════════════════
+
+  async getOrganizations(query?: IamPageQuery): Promise<IamPagedResult<IamOrganization>> {
+    const raw = await this.request<unknown[]>('GET', '/organizations', undefined, {
+      page: query?.page ?? 1,
+      page_size: query?.pageSize ?? 20,
+      q: query?.search,
+    });
+    const organizations = (raw as Record<string, unknown>[]).map((o) => this.mapOrganization(o));
+    return { data: organizations, totalCount: organizations.length };
+  }
 
   async createOrganization(data: IamCreateOrganization): Promise<IamOrganization> {
     const raw = await this.request<Record<string, unknown>>('POST', '/organizations', {
@@ -242,6 +255,51 @@ export class LogtoAdapter implements IamProviderInterface {
     roleId: string,
   ): Promise<void> {
     await this.request('DELETE', `/organizations/${orgId}/users/${userId}/roles/${roleId}`);
+  }
+
+  // ═════════════════════════════ 实例级角色 ═════════════════════════════
+
+  async getRoles(query?: IamPageQuery): Promise<IamPagedResult<IamRole>> {
+    const raw = await this.request<unknown[]>('GET', '/roles', undefined, {
+      page: query?.page ?? 1,
+      page_size: query?.pageSize ?? 20,
+      search: query?.search,
+    });
+    const roles = (raw as Record<string, unknown>[]).map((r) => this.mapRole(r));
+    return { data: roles, totalCount: roles.length };
+  }
+
+  async getRoleById(roleId: string): Promise<IamRole> {
+    const raw = await this.request<Record<string, unknown>>('GET', `/roles/${roleId}`);
+    return this.mapRole(raw);
+  }
+
+  async createRole(data: IamCreateRole): Promise<IamRole> {
+    const raw = await this.request<Record<string, unknown>>('POST', '/roles', {
+      name: data.name,
+      description: data.description,
+    });
+    return this.mapRole(raw);
+  }
+
+  async updateRole(roleId: string, data: IamUpdateRole): Promise<IamRole> {
+    const raw = await this.request<Record<string, unknown>>('PATCH', `/roles/${roleId}`, {
+      name: data.name,
+      description: data.description,
+    });
+    return this.mapRole(raw);
+  }
+
+  async deleteRole(roleId: string): Promise<void> {
+    await this.request('DELETE', `/roles/${roleId}`);
+  }
+
+  async assignRoleToUser(roleId: string, userId: string): Promise<void> {
+    await this.request('POST', `/roles/${roleId}/users`, { userIds: [userId] });
+  }
+
+  async removeRoleFromUser(roleId: string, userId: string): Promise<void> {
+    await this.request('DELETE', `/roles/${roleId}/users/${userId}`);
   }
 
   // ═════════════════════════════ 应用（系统接入）═════════════════════════════
@@ -381,6 +439,15 @@ export class LogtoAdapter implements IamProviderInterface {
       id: String(raw.id),
       name: String(raw.name),
       description: (raw.description as string) ?? null,
+    };
+  }
+
+  private mapRole(raw: Record<string, unknown>): IamRole {
+    return {
+      id: String(raw.id),
+      name: String(raw.name),
+      description: (raw.description as string) ?? null,
+      type: (raw.type as string) ?? null,
     };
   }
 

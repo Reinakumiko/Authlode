@@ -7,19 +7,22 @@ import {
   Param,
   Query,
   Body,
+  Inject,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 import type {
-  CreateRoleDto,
-  UpdateRoleDto,
-  RoleQueryParams,
-} from '../logto/interfaces';
+  IamProviderInterface,
+  IamCreateRole,
+  IamUpdateRole,
+} from '../iam/interfaces';
 
 @Controller('api/roles')
 export class RolesController {
-  constructor(private readonly logtoService: LogtoService) {}
+  constructor(
+    @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
+  ) {}
 
   /**
    * 获取角色列表
@@ -31,8 +34,12 @@ export class RolesController {
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
   ) {
-    const params: RoleQueryParams = { search, page, pageSize };
-    return this.logtoService.getRoles(params);
+    try {
+      return await this.iamProvider.getRoles({ search, page, pageSize });
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('获取角色列表失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -41,7 +48,7 @@ export class RolesController {
   @Get(':id')
   async getRoleById(@Param('id') id: string) {
     try {
-      return await this.logtoService.getRoleById(id);
+      return await this.iamProvider.getRoleById(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -55,15 +62,12 @@ export class RolesController {
    * 创建角色
    */
   @Post()
-  async createRole(@Body() data: CreateRoleDto) {
+  async createRole(@Body() data: IamCreateRole) {
     try {
-      return await this.logtoService.createRole(data);
+      return await this.iamProvider.createRole(data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        '创建角色失败',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('创建角色失败', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -71,9 +75,9 @@ export class RolesController {
    * 更新角色
    */
   @Patch(':id')
-  async updateRole(@Param('id') id: string, @Body() data: UpdateRoleDto) {
+  async updateRole(@Param('id') id: string, @Body() data: IamUpdateRole) {
     try {
-      return await this.logtoService.updateRole(id, data);
+      return await this.iamProvider.updateRole(id, data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -89,7 +93,7 @@ export class RolesController {
   @Delete(':id')
   async deleteRole(@Param('id') id: string) {
     try {
-      await this.logtoService.deleteRole(id);
+      await this.iamProvider.deleteRole(id);
       return { success: true };
     } catch (error) {
       if (error instanceof HttpException) throw error;

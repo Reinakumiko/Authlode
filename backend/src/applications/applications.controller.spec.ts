@@ -1,30 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ApplicationsController } from './applications.controller';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 
 describe('ApplicationsController', () => {
   let controller: ApplicationsController;
-  let logtoService: jest.Mocked<LogtoService>;
+  let iamProvider: {
+    getApplications: jest.Mock;
+    getApplicationById: jest.Mock;
+    createApplication: jest.Mock;
+    updateApplication: jest.Mock;
+  };
 
   const mockApplication = {
     id: 'app-1',
     name: 'Test App',
-    description: 'A test application',
-    type: 'SPA',
-    secret: 'secret-123',
-    appId: 'app-id-123',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
+    description: '测试应用',
+    type: 'spa',
+    secret: null,
+    oidcClientMetadata: {
+      redirectUris: ['http://localhost:9999/callback'],
+      postLogoutRedirectUris: [],
+    },
   };
 
-  const mockApplicationList = {
-    totalCount: 1,
-    data: [mockApplication],
-  };
+  const mockApplicationList = { data: [mockApplication], totalCount: 1 };
 
   beforeEach(async () => {
-    const mockLogtoService = {
+    iamProvider = {
       getApplications: jest.fn(),
       getApplicationById: jest.fn(),
       createApplication: jest.fn(),
@@ -33,13 +36,10 @@ describe('ApplicationsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ApplicationsController],
-      providers: [
-        { provide: LogtoService, useValue: mockLogtoService },
-      ],
+      providers: [{ provide: IAM_PROVIDER, useValue: iamProvider }],
     }).compile();
 
     controller = module.get<ApplicationsController>(ApplicationsController);
-    logtoService = module.get(LogtoService);
   });
 
   it('should be defined', () => {
@@ -48,12 +48,12 @@ describe('ApplicationsController', () => {
 
   describe('getApplications', () => {
     it('应返回应用列表', async () => {
-      logtoService.getApplications.mockResolvedValue(mockApplicationList as any);
+      iamProvider.getApplications.mockResolvedValue(mockApplicationList);
 
       const result = await controller.getApplications();
 
       expect(result).toEqual(mockApplicationList);
-      expect(logtoService.getApplications).toHaveBeenCalledWith({
+      expect(iamProvider.getApplications).toHaveBeenCalledWith({
         search: undefined,
         page: undefined,
         pageSize: undefined,
@@ -61,11 +61,11 @@ describe('ApplicationsController', () => {
     });
 
     it('应正确传递搜索和分页参数', async () => {
-      logtoService.getApplications.mockResolvedValue(mockApplicationList as any);
+      iamProvider.getApplications.mockResolvedValue(mockApplicationList);
 
       await controller.getApplications('test', 1, 10);
 
-      expect(logtoService.getApplications).toHaveBeenCalledWith({
+      expect(iamProvider.getApplications).toHaveBeenCalledWith({
         search: 'test',
         page: 1,
         pageSize: 10,
@@ -75,16 +75,16 @@ describe('ApplicationsController', () => {
 
   describe('getApplicationById', () => {
     it('应返回指定应用详情', async () => {
-      logtoService.getApplicationById.mockResolvedValue(mockApplication as any);
+      iamProvider.getApplicationById.mockResolvedValue(mockApplication);
 
       const result = await controller.getApplicationById('app-1');
 
       expect(result).toEqual(mockApplication);
-      expect(logtoService.getApplicationById).toHaveBeenCalledWith('app-1');
+      expect(iamProvider.getApplicationById).toHaveBeenCalledWith('app-1');
     });
 
     it('服务抛出 HttpException 时应原样抛出', async () => {
-      logtoService.getApplicationById.mockRejectedValue(
+      iamProvider.getApplicationById.mockRejectedValue(
         new HttpException('Not found', HttpStatus.NOT_FOUND),
       );
 
@@ -92,7 +92,7 @@ describe('ApplicationsController', () => {
     });
 
     it('服务抛出未知异常时应返回 500', async () => {
-      logtoService.getApplicationById.mockRejectedValue(new Error('unknown'));
+      iamProvider.getApplicationById.mockRejectedValue(new Error('unknown'));
 
       await expect(controller.getApplicationById('app-1')).rejects.toThrow(HttpException);
     });
@@ -100,20 +100,24 @@ describe('ApplicationsController', () => {
 
   describe('createApplication', () => {
     it('应创建并返回新应用', async () => {
-      const createDto = { name: 'New App', type: 'SPA' as any };
-      logtoService.createApplication.mockResolvedValue(mockApplication as any);
+      const createDto = {
+        name: 'New App',
+        type: 'spa',
+        redirectUris: ['http://localhost:9999/callback'],
+      };
+      iamProvider.createApplication.mockResolvedValue(mockApplication);
 
       const result = await controller.createApplication(createDto);
 
       expect(result).toEqual(mockApplication);
-      expect(logtoService.createApplication).toHaveBeenCalledWith(createDto);
+      expect(iamProvider.createApplication).toHaveBeenCalledWith(createDto);
     });
 
     it('服务抛出异常时应正确处理', async () => {
-      logtoService.createApplication.mockRejectedValue(new Error('创建失败'));
+      iamProvider.createApplication.mockRejectedValue(new Error('创建失败'));
 
       await expect(
-        controller.createApplication({ name: 'fail', type: 'SPA' as any }),
+        controller.createApplication({ name: 'fail', type: 'spa', redirectUris: [] }),
       ).rejects.toThrow(HttpException);
     });
   });
@@ -121,24 +125,29 @@ describe('ApplicationsController', () => {
   describe('updateApplication', () => {
     it('应更新并返回应用', async () => {
       const updateDto = { name: 'Updated App' };
-      logtoService.updateApplication.mockResolvedValue({ ...mockApplication, name: 'Updated App' } as any);
+      iamProvider.updateApplication.mockResolvedValue({
+        ...mockApplication,
+        name: 'Updated App',
+      });
 
       const result = await controller.updateApplication('app-1', updateDto);
 
       expect(result.name).toBe('Updated App');
-      expect(logtoService.updateApplication).toHaveBeenCalledWith('app-1', updateDto);
+      expect(iamProvider.updateApplication).toHaveBeenCalledWith('app-1', updateDto);
     });
 
     it('服务抛出 HttpException 时应原样抛出', async () => {
-      logtoService.updateApplication.mockRejectedValue(
+      iamProvider.updateApplication.mockRejectedValue(
         new HttpException('Not found', HttpStatus.NOT_FOUND),
       );
 
-      await expect(controller.updateApplication('nonexistent', {})).rejects.toThrow(HttpException);
+      await expect(controller.updateApplication('nonexistent', {})).rejects.toThrow(
+        HttpException,
+      );
     });
 
     it('服务抛出未知异常时应返回 500', async () => {
-      logtoService.updateApplication.mockRejectedValue(new Error('unknown'));
+      iamProvider.updateApplication.mockRejectedValue(new Error('unknown'));
 
       await expect(controller.updateApplication('app-1', {})).rejects.toThrow(HttpException);
     });

@@ -5,26 +5,41 @@ import {
   Patch,
   Delete,
   Param,
+  Query,
   Body,
+  Inject,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 import type {
-  CreateOrganizationDto,
-  UpdateOrganizationDto,
-} from '../logto/interfaces';
+  IamProviderInterface,
+  IamCreateOrganization,
+  IamUpdateOrganization,
+} from '../iam/interfaces';
 
 @Controller('api/organizations')
 export class OrganizationsController {
-  constructor(private readonly logtoService: LogtoService) {}
+  constructor(
+    @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
+  ) {}
 
   /**
    * 获取组织列表
+   * 支持搜索、分页
    */
   @Get()
-  async getOrganizations() {
-    return this.logtoService.getOrganizations();
+  async getOrganizations(
+    @Query('search') search?: string,
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    try {
+      return await this.iamProvider.getOrganizations({ search, page, pageSize });
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('获取组织列表失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -33,7 +48,7 @@ export class OrganizationsController {
   @Get(':id')
   async getOrganizationById(@Param('id') id: string) {
     try {
-      return await this.logtoService.getOrganizationById(id);
+      return await this.iamProvider.getOrganizationById(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -47,15 +62,12 @@ export class OrganizationsController {
    * 创建组织
    */
   @Post()
-  async createOrganization(@Body() data: CreateOrganizationDto) {
+  async createOrganization(@Body() data: IamCreateOrganization) {
     try {
-      return await this.logtoService.createOrganization(data);
+      return await this.iamProvider.createOrganization(data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        '创建组织失败',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('创建组织失败', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -65,10 +77,10 @@ export class OrganizationsController {
   @Patch(':id')
   async updateOrganization(
     @Param('id') id: string,
-    @Body() data: UpdateOrganizationDto,
+    @Body() data: IamUpdateOrganization,
   ) {
     try {
-      return await this.logtoService.updateOrganization(id, data);
+      return await this.iamProvider.updateOrganization(id, data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -84,7 +96,7 @@ export class OrganizationsController {
   @Delete(':id')
   async deleteOrganization(@Param('id') id: string) {
     try {
-      await this.logtoService.deleteOrganization(id);
+      await this.iamProvider.deleteOrganization(id);
       return { success: true };
     } catch (error) {
       if (error instanceof HttpException) throw error;

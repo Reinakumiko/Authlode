@@ -6,19 +6,22 @@ import {
   Param,
   Query,
   Body,
+  Inject,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { LogtoService } from '../logto/logto.service';
+import { IAM_PROVIDER } from '../iam/interfaces';
 import type {
-  CreateApplicationDto,
-  UpdateApplicationDto,
-  ApplicationQueryParams,
-} from '../logto/interfaces';
+  IamProviderInterface,
+  IamCreateApplication,
+  IamUpdateApplication,
+} from '../iam/interfaces';
 
 @Controller('api/applications')
 export class ApplicationsController {
-  constructor(private readonly logtoService: LogtoService) {}
+  constructor(
+    @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
+  ) {}
 
   /**
    * 获取应用列表
@@ -30,8 +33,12 @@ export class ApplicationsController {
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
   ) {
-    const params: ApplicationQueryParams = { search, page, pageSize };
-    return this.logtoService.getApplications(params);
+    try {
+      return await this.iamProvider.getApplications({ search, page, pageSize });
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('获取应用列表失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -40,7 +47,7 @@ export class ApplicationsController {
   @Get(':id')
   async getApplicationById(@Param('id') id: string) {
     try {
-      return await this.logtoService.getApplicationById(id);
+      return await this.iamProvider.getApplicationById(id);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
@@ -54,15 +61,12 @@ export class ApplicationsController {
    * 创建应用
    */
   @Post()
-  async createApplication(@Body() data: CreateApplicationDto) {
+  async createApplication(@Body() data: IamCreateApplication) {
     try {
-      return await this.logtoService.createApplication(data);
+      return await this.iamProvider.createApplication(data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        '创建应用失败',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('创建应用失败', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -72,10 +76,10 @@ export class ApplicationsController {
   @Patch(':id')
   async updateApplication(
     @Param('id') id: string,
-    @Body() data: UpdateApplicationDto,
+    @Body() data: IamUpdateApplication,
   ) {
     try {
-      return await this.logtoService.updateApplication(id, data);
+      return await this.iamProvider.updateApplication(id, data);
     } catch (error) {
       if (error instanceof HttpException) throw error;
       throw new HttpException(
