@@ -52,3 +52,6 @@ prisma/migrations/**/*_*/migration.sql
 # Docker
 docker-compose.override.yml
 .git-credentials
+
+# 本地工具目录
+.omo/
