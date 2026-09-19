@@ -55,3 +55,7 @@ docker-compose.override.yml
 
 # 本地工具目录
 .omo/
+
+# 本地开发数据库（迁移文件已入库，可 prisma migrate deploy 重建）
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
