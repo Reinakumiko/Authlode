@@ -10,7 +10,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { LogtoService } from '../logto/logto.service';
-import {
+import type {
   CreateOrganizationDto,
   UpdateOrganizationDto,
 } from '../logto/interfaces';

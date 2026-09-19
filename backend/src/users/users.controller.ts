@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { LogtoService } from '../logto/logto.service';
-import {
+import type {
   CreateUserDto,
   UpdateUserDto,
   UserQueryParams,

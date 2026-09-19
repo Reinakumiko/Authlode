@@ -3,11 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserInvitation,
-  PrismaTypes,
-} from '../../prisma-types';
+  Prisma,
+} from '@prisma/client';
 
-export type CreateInvitationInput = PrismaTypes.UserInvitationCreateInput;
-export type UpdateInvitationInput = PrismaTypes.UserInvitationUpdateInput;
+export type CreateInvitationInput = Prisma.UserInvitationCreateInput;
+export type UpdateInvitationInput = Prisma.UserInvitationUpdateInput;
 
 // Invitation status values (from schema)
 export const InvitationStatus = {

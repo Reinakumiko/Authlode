@@ -3,11 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   UserExtend,
-  PrismaTypes,
-} from '../../prisma-types';
+  Prisma,
+} from '@prisma/client';
 
-export type CreateUserExtendInput = PrismaTypes.UserExtendCreateInput;
-export type UpdateUserExtendInput = PrismaTypes.UserExtendUpdateInput;
+export type CreateUserExtendInput = Prisma.UserExtendCreateInput;
+export type UpdateUserExtendInput = Prisma.UserExtendUpdateInput;
 
 @Injectable()
 export class UserExtendRepository extends BaseRepository<
@@ -128,10 +128,10 @@ export class UserExtendRepository extends BaseRepository<
       ...params,
       where: {
         OR: [
-          { employeeId: { contains: keyword, mode: 'insensitive' } },
-          { department: { contains: keyword, mode: 'insensitive' } },
-          { position: { contains: keyword, mode: 'insensitive' } },
-          { workPhone: { contains: keyword, mode: 'insensitive' } },
+          { employeeId: { contains: keyword} },
+          { department: { contains: keyword} },
+          { position: { contains: keyword} },
+          { workPhone: { contains: keyword} },
         ],
       },
       orderBy: { createdAt: 'desc' },

@@ -3,11 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { BaseRepository } from '../../common/repositories/base.repository';
 import {
   AuditLog,
-  PrismaTypes,
-} from '../../prisma-types';
+  Prisma,
+} from '@prisma/client';
 
-export type CreateAuditLogInput = PrismaTypes.AuditLogCreateInput;
-export type UpdateAuditLogInput = PrismaTypes.AuditLogUpdateInput;
+export type CreateAuditLogInput = Prisma.AuditLogCreateInput;
+export type UpdateAuditLogInput = Prisma.AuditLogUpdateInput;
 
 @Injectable()
 export class AuditLogRepository extends BaseRepository<
@@ -31,10 +31,10 @@ export class AuditLogRepository extends BaseRepository<
       resource?: string;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: PrismaTypes.AuditLogWhereInput = {
+    const where: Prisma.AuditLogWhereInput = {
       userId,
-      ...(params?.action && { action: { contains: params.action, mode: 'insensitive' } }),
-      ...(params?.resource && { resource: { contains: params.resource, mode: 'insensitive' } }),
+      ...(params?.action && { action: { contains: params.action} }),
+      ...(params?.resource && { resource: { contains: params.resource} }),
     };
 
     return this.findPaginated({
@@ -57,7 +57,7 @@ export class AuditLogRepository extends BaseRepository<
     return this.findPaginated({
       ...params,
       where: {
-        action: { contains: action, mode: 'insensitive' },
+        action: { contains: action},
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -74,8 +74,8 @@ export class AuditLogRepository extends BaseRepository<
       pageSize?: number;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: PrismaTypes.AuditLogWhereInput = {
-      resource: { contains: resource, mode: 'insensitive' },
+    const where: Prisma.AuditLogWhereInput = {
+      resource: { contains: resource},
       ...(resourceId && { resourceId }),
     };
 
@@ -98,7 +98,7 @@ export class AuditLogRepository extends BaseRepository<
       userId?: string;
     },
   ): Promise<{ data: AuditLog[]; total: number }> {
-    const where: PrismaTypes.AuditLogWhereInput = {
+    const where: Prisma.AuditLogWhereInput = {
       createdAt: {
         gte: startDate,
         lte: endDate,
@@ -141,11 +141,11 @@ export class AuditLogRepository extends BaseRepository<
       ...params,
       where: {
         OR: [
-          { userName: { contains: keyword, mode: 'insensitive' } },
-          { action: { contains: keyword, mode: 'insensitive' } },
-          { resource: { contains: keyword, mode: 'insensitive' } },
-          { resourceName: { contains: keyword, mode: 'insensitive' } },
-          { errorMessage: { contains: keyword, mode: 'insensitive' } },
+          { userName: { contains: keyword} },
+          { action: { contains: keyword} },
+          { resource: { contains: keyword} },
+          { resourceName: { contains: keyword} },
+          { errorMessage: { contains: keyword} },
         ],
       },
       orderBy: { createdAt: 'desc' },
@@ -165,7 +165,7 @@ export class AuditLogRepository extends BaseRepository<
     failureCount: number;
     successRate: number;
   }> {
-    const where: PrismaTypes.AuditLogWhereInput = {
+    const where: Prisma.AuditLogWhereInput = {
       ...(params?.startDate &&
         params?.endDate && {
         createdAt: {
@@ -208,7 +208,7 @@ export class AuditLogRepository extends BaseRepository<
     startDate?: Date;
     endDate?: Date;
   }): Promise<{ action: string; count: number }[]> {
-    const where: PrismaTypes.AuditLogWhereInput = {
+    const where: Prisma.AuditLogWhereInput = {
       ...(params?.startDate &&
         params?.endDate && {
         createdAt: {

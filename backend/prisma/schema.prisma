@@ -3,7 +3,7 @@
 // Logto 核心数据(用户、组织、角色等)通过 Management API 访问
 
 generator client {
-  provider = "prisma_client_js"
+  provider = "prisma-client-js"
 }
 
 datasource db {

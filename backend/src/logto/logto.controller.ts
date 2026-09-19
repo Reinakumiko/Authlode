@@ -9,7 +9,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { LogtoService } from './logto.service';
-import {
+import type {
   CreateUserDto,
   UpdateUserDto,
   UserQueryParams,
