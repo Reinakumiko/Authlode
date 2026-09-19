@@ -18,13 +18,19 @@ import { OrganizationsModule } from './organizations/organizations.module';
 import { RolesModule } from './roles/roles.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { SettingsModule } from './settings/settings.module';
+import { TenantApplicationsModule } from './tenant-applications/tenant-applications.module';
+import { TenantOrganizationsModule } from './tenant-organizations/tenant-organizations.module';
+import { PublicModule } from './public/public.module';
+import { MailModule } from './mail/mail.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
-    IamModule, // IAM Provider 抽象层（B1.2）— 业务模块注入 IAM_PROVIDER
-    TenantModule, // 租户上下文 + 租户注册表（B1.4）— 全局
-    AuthModule, // OIDC 认证（B1.5）— login/callback/me/logout
+    IamModule,
+    TenantModule,
+    AuthModule,
     PrismaModule,
+    MailModule,
     InvitationsModule,
     AuditLogsModule,
     UserExtendsModule,
@@ -35,12 +41,16 @@ import { SettingsModule } from './settings/settings.module';
     RolesModule,
     ApplicationsModule,
     SettingsModule,
+    TenantApplicationsModule,
+    TenantOrganizationsModule,
+    PublicModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    TenantContextMiddleware, // B1.6：会话→组织→租户→JIT→ALS 上下文
-    { provide: APP_GUARD, useClass: SessionGuard }, // B1.6：全局会话守卫（白名单外一律 401）
+    TenantContextMiddleware,
+    { provide: APP_GUARD, useClass: SessionGuard },
   ],
 })
 export class AppModule implements NestModule {

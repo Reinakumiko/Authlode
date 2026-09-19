@@ -1,76 +1,31 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Query,
-  Body,
+  Controller, Get, Post, Patch, Param, Query, Body, UseGuards,
+  HttpException, HttpStatus,
 } from '@nestjs/common';
-import { InvitationRepository } from './repositories/invitation.repository';
+import { InvitationsService } from './invitations.service';
+import { TenantAdminGuard } from '../auth/tenant-admin.guard';
 
 @Controller('api/invitations')
 export class InvitationsController {
-  constructor(private readonly invitationRepository: InvitationRepository) {}
+  constructor(private readonly invitationsService: InvitationsService) {}
 
-  /**
-   * 获取邀请列表
-   * 支持按状态筛选、分页
-   */
   @Get()
-  async getInvitations(
-    @Query('status') status?: string,
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
-  ) {
-    if (status) {
-      return this.invitationRepository.findByStatus(status as any, {
-        page,
-        pageSize,
-      });
-    }
-    return this.invitationRepository.findPaginated({
-      page,
-      pageSize,
-      orderBy: { createdAt: 'desc' },
-    });
+  async list(@Query('page') page?: number, @Query('pageSize') pageSize?: number) {
+    try { return await this.invitationsService.list(page ?? 1, pageSize ?? 20); }
+    catch (e) { throw new HttpException(e.message ?? '获取邀请列表失败', 500); }
   }
 
-  /**
-   * 发送邀请
-   */
   @Post()
-  async sendInvitation(
-    @Body()
-    data: {
-      email: string;
-      organizationId?: string;
-      roleIds?: string[];
-      invitedBy: string;
-      message?: string;
-      expiresInDays?: number;
-    },
-  ) {
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + (data.expiresInDays ?? 7));
-
-    return this.invitationRepository.create({
-      email: data.email,
-      token,
-      organizationId: data.organizationId,
-      roleIds: JSON.stringify(data.roleIds ?? []),
-      invitedBy: data.invitedBy,
-      message: data.message,
-      expiresAt,
-    });
+  @UseGuards(TenantAdminGuard)
+  async create(@Body() body: { email: string; roleIds?: string[]; message?: string }) {
+    try { return await this.invitationsService.create(body.email, body.roleIds, body.message); }
+    catch (e) { if (e instanceof HttpException) throw e; throw new HttpException(e.message ?? '创建邀请失败', 500); }
   }
 
-  /**
-   * 撤销邀请
-   */
-  @Delete(':id')
-  async revokeInvitation(@Param('id') id: string) {
-    return this.invitationRepository.updateStatus(id, 'CANCELLED' as any);
+  @Patch(':id/cancel')
+  @UseGuards(TenantAdminGuard)
+  async cancel(@Param('id') id: string) {
+    try { return await this.invitationsService.cancel(id); }
+    catch (e) { throw new HttpException(e.message ?? '取消邀请失败', 500); }
   }
 }

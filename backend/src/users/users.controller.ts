@@ -1,118 +1,62 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  Query,
-  Body,
-  Inject,
-  HttpException,
-  HttpStatus,
+  Controller, Get, Post, Patch, Delete, Param, Query, Body, Inject,
+  HttpException, HttpStatus, ForbiddenException,
 } from '@nestjs/common';
 import { IAM_PROVIDER } from '../iam/interfaces';
-import type {
-  IamProviderInterface,
-  IamCreateUser,
-  IamUpdateUser,
-  IamUserQuery,
-} from '../iam/interfaces';
+import type { IamProviderInterface, IamCreateUser, IamUpdateUser } from '../iam/interfaces';
+import { TenantContextService } from '../tenant/tenant-context.service';
 
 @Controller('api/users')
 export class UsersController {
   constructor(
     @Inject(IAM_PROVIDER) private readonly iamProvider: IamProviderInterface,
+    private readonly tenantContext: TenantContextService,
   ) {}
 
-  /**
-   * 获取用户列表
-   * 支持搜索、分页、筛选
-   */
+  private requireTenantId(): string {
+    const ctx = this.tenantContext.get();
+    if (!ctx?.tenantId) throw new ForbiddenException('No tenant context');
+    return ctx.tenantId;
+  }
+
   @Get()
   async getUsers(
     @Query('search') search?: string,
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
-    @Query('emailVerified') emailVerified?: string,
-    @Query('isSuspended') isSuspended?: string,
   ) {
     try {
-      const query: IamUserQuery = {
-        search,
-        page,
-        pageSize,
-        emailVerified:
-          emailVerified === 'true' ? true : emailVerified === 'false' ? false : undefined,
-        isSuspended:
-          isSuspended === 'true' ? true : isSuspended === 'false' ? false : undefined,
-      };
-      return await this.iamProvider.getUsers(query);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException('获取用户列表失败', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+      const tenantId = this.requireTenantId();
+      const res = await this.iamProvider.getOrganizationUsers(tenantId, { search, page, pageSize });
+      return { data: res.data.map(u => ({ id: u.userId, username: u.username, primaryEmail: u.primaryEmail, name: u.name, joinedAt: u.joinedAt })), totalCount: res.totalCount };
+    } catch (e) { if (e instanceof HttpException) throw e; throw new HttpException('获取用户列表失败', 500); }
   }
 
-  /**
-   * 根据 ID 获取用户详情
-   */
   @Get(':id')
   async getUserById(@Param('id') id: string) {
-    try {
-      return await this.iamProvider.getUserById(id);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `获取用户 ${id} 失败`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    try { return await this.iamProvider.getUserById(id); }
+    catch (e) { if (e instanceof HttpException) throw e; throw new HttpException(`获取用户 ${id} 失败`, 500); }
   }
 
-  /**
-   * 创建用户
-   */
   @Post()
   async createUser(@Body() data: IamCreateUser) {
     try {
-      return await this.iamProvider.createUser(data);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException('创建用户失败', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+      const tenantId = this.requireTenantId();
+      const user = await this.iamProvider.createUser(data);
+      await this.iamProvider.addOrganizationUsers(tenantId, [user.id]);
+      return user;
+    } catch (e) { if (e instanceof HttpException) throw e; throw new HttpException('创建用户失败', 500); }
   }
 
-  /**
-   * 更新用户
-   */
   @Patch(':id')
   async updateUser(@Param('id') id: string, @Body() data: IamUpdateUser) {
-    try {
-      return await this.iamProvider.updateUser(id, data);
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `更新用户 ${id} 失败`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    try { return await this.iamProvider.updateUser(id, data); }
+    catch (e) { if (e instanceof HttpException) throw e; throw new HttpException(`更新用户 ${id} 失败`, 500); }
   }
 
-  /**
-   * 删除用户
-   */
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    try {
-      await this.iamProvider.deleteUser(id);
-      return { success: true };
-    } catch (error) {
-      if (error instanceof HttpException) throw error;
-      throw new HttpException(
-        `删除用户 ${id} 失败`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    try { await this.iamProvider.deleteUser(id); return { success: true }; }
+    catch (e) { if (e instanceof HttpException) throw e; throw new HttpException(`删除用户 ${id} 失败`, 500); }
   }
 }

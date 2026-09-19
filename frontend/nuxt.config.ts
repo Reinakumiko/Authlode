@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  // API 代理：前端 :3000 → 后端 :3001（同源 cookie，免 CORS）
+  routeRules: {
+    '/api/**': {
+      proxy: 'http://localhost:3001/api/**',
+    },
+  },
+
   typescript: {
     strict: true,
     typeCheck: false,
@@ -24,7 +31,7 @@ export default defineNuxtConfig({
   },
 
   imports: {
-    dirs: ['composables', 'utils', 'types'],
+    dirs: ['composables', 'utils', 'types', 'stores'],
   },
 
   runtimeConfig: {
@@ -37,11 +44,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Logto User Center',
+      title: 'Authlode — SSO 用户管理平台',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Logto User Center Management System' },
+        { name: 'description', content: 'Authlode SSO User Management Platform' },
       ],
     },
   },

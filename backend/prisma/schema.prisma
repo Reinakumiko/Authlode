@@ -182,3 +182,39 @@ model StatisticsCache {
   @@index([expiresAt])
   @@map("statistics_cache")
 }
+
+// ============================================
+// 租户应用接入（B2.2）
+// ============================================
+
+model TenantApplication {
+  id            String   @id @default(cuid())
+  tenantId      String?
+  applicationId String
+  accessPolicy  String   @default("MEMBERS")
+  enabled       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tenantId, applicationId])
+  @@index([tenantId])
+  @@map("tenant_applications")
+}
+
+// ============================================
+// 租户内组织树（B2.3）
+// ============================================
+
+model TenantOrganization {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  parentId    String?
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([parentId])
+  @@map("tenant_organizations")
+}

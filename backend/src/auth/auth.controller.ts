@@ -1,8 +1,10 @@
 import {
   Controller,
   Get,
+  Post,
   Req,
   Res,
+  Body,
   UnauthorizedException,
   Inject,
 } from '@nestjs/common';
@@ -118,6 +120,17 @@ export class AuthController {
   logout(@Res() res: Response) {
     res.clearCookie(AUTH_SESSION_COOKIE);
     return res.redirect(this.authService.buildLogoutUrl());
+  }
+
+  /** 修改密码 */
+  @Post('change-password')
+  async changePassword(@Req() req: Request, @Body() body: { newPassword: string }) {
+    const session = this.requireSession(req);
+    if (!body?.newPassword || body.newPassword.length < 8) {
+      throw new UnauthorizedException('密码至少 8 位');
+    }
+    await this.iamProvider.updateUserPassword(session.sub, body.newPassword);
+    return { success: true };
   }
 
   // ── 内部 ─────────────────────────────────────────────────────────

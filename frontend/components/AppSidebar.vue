@@ -52,19 +52,33 @@
       </div>
     </nav>
 
-    <!-- User Section -->
+    <!-- Tenant Switcher（多租户用户切换系统） -->
+    <TenantSwitcher />
+
+    <!-- User Section（真实身份 + 登出） -->
     <div class="user-section">
-      <div class="avatar">管</div>
+      <div class="avatar">{{ avatarChar }}</div>
       <div class="user-info">
-        <div class="user-name">管理员</div>
-        <div class="user-role">超级管理员</div>
+        <div class="user-name">{{ displayName }}</div>
+        <div class="user-role">{{ auth.isTenantAdmin ? '租户管理员' : '成员' }}</div>
       </div>
+      <button class="logout-btn" title="登出" @click="auth.logout()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+        </svg>
+      </button>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 const route = useRoute()
+const auth = useAuthStore()
+
+const displayName = computed(
+  () => auth.user?.name || auth.user?.username || auth.user?.primaryEmail || '用户',
+)
+const avatarChar = computed(() => displayName.value.charAt(0).toUpperCase())
 
 const isActiveRoute = (routeName: string) => {
   return route.name === routeName
@@ -73,10 +87,10 @@ const isActiveRoute = (routeName: string) => {
 // 主要功能菜单
 const mainMenu = [
   { name: 'index', label: '仪表板', icon: 'i-heroicons-squares-2x2', to: { name: 'index' } },
-  { name: 'users', label: '用户管理', icon: 'i-heroicons-users', to: { name: 'users' }, badge: '2.8K' },
+  { name: 'users', label: '用户管理', icon: 'i-heroicons-users', to: { name: 'users' } },
   { name: 'organizations', label: '组织管理', icon: 'i-heroicons-building-office-2', to: { name: 'organizations' } },
   { name: 'roles', label: '角色权限', icon: 'i-heroicons-shield-check', to: { name: 'roles' } },
-  { name: 'applications', label: '应用管理', icon: 'i-heroicons-rectangle-stack', to: { name: 'applications' } }
+  { name: 'applications', label: '应用接入', icon: 'i-heroicons-rectangle-stack', to: { name: 'applications' } }
 ]
 
 // 管理功能菜单
@@ -88,6 +102,7 @@ const managementMenu = [
 
 // 系统菜单
 const systemMenu = [
+  { name: 'me', label: '个人中心', icon: 'i-heroicons-user-circle', to: { name: 'me' } },
   { name: 'settings', label: '系统设置', icon: 'i-heroicons-cog-6-tooth', to: { name: 'settings' } }
 ]
 </script>
@@ -255,6 +270,26 @@ const systemMenu = [
 .user-role {
   font-size: 11px;
   color: var(--text3, #94a3b8);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text3, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.logout-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
 }
 
 /* Scrollbar */

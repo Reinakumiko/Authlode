@@ -28,7 +28,11 @@ export class SessionGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (PUBLIC_PATHS.some((path) => request.path === path)) {
+    // 公开端点（/api/public/**）+ 登录流程免认证
+    if (
+      request.path.startsWith('/api/public/') ||
+      PUBLIC_PATHS.some((path) => request.path === path)
+    ) {
       return true;
     }
 

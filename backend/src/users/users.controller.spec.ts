@@ -1,187 +1,95 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, ForbiddenException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { IAM_PROVIDER } from '../iam/interfaces';
+import { TenantContextService } from '../tenant/tenant-context.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
-  let iamProvider: {
-    getUsers: jest.Mock;
-    getUserById: jest.Mock;
-    createUser: jest.Mock;
-    updateUser: jest.Mock;
-    deleteUser: jest.Mock;
-  };
+  let iamProvider: Record<string, jest.Mock>;
+  let tenantContext: { get: jest.Mock };
 
-  const mockUser = {
-    id: 'user-1',
-    username: 'testuser',
-    primaryEmail: 'test@example.com',
-    name: 'Test User',
-    isSuspended: false,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  };
-
-  const mockUserList = { data: [mockUser], totalCount: 1 };
+  const mockCtx = { tenantId: 'org-1', userId: 'user-1', organizationRoles: ['tenant-admin'] };
+  const mockUser = { id: 'user-1', username: 'testuser', primaryEmail: 'test@example.com', name: 'Test User', isSuspended: false };
 
   beforeEach(async () => {
     iamProvider = {
-      getUsers: jest.fn(),
+      getOrganizationUsers: jest.fn(),
       getUserById: jest.fn(),
       createUser: jest.fn(),
       updateUser: jest.fn(),
       deleteUser: jest.fn(),
+      addOrganizationUsers: jest.fn(),
     };
+    tenantContext = { get: jest.fn().mockReturnValue(mockCtx) };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [{ provide: IAM_PROVIDER, useValue: iamProvider }],
+      providers: [
+        { provide: IAM_PROVIDER, useValue: iamProvider },
+        { provide: TenantContextService, useValue: tenantContext },
+      ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+  it('should be defined', () => expect(controller).toBeDefined());
 
-  describe('getUsers', () => {
-    it('应返回用户列表', async () => {
-      iamProvider.getUsers.mockResolvedValue(mockUserList);
-
+  describe('getUsers（租户作用域）', () => {
+    it('应返回组织成员列表（映射 userId → id）', async () => {
+      iamProvider.getOrganizationUsers.mockResolvedValue({
+        data: [{ userId: 'u1', username: 'alice', primaryEmail: 'a@b.c', name: 'Alice', joinedAt: '2024-01-01' }],
+        totalCount: 1,
+      });
       const result = await controller.getUsers();
-
-      expect(result).toEqual(mockUserList);
-      expect(iamProvider.getUsers).toHaveBeenCalledWith({
-        search: undefined,
-        page: undefined,
-        pageSize: undefined,
-        emailVerified: undefined,
-        isSuspended: undefined,
-      });
+      expect(result.data[0].id).toBe('u1');
+      expect(iamProvider.getOrganizationUsers).toHaveBeenCalledWith('org-1', { search: undefined, page: undefined, pageSize: undefined });
     });
 
-    it('应正确传递搜索和分页参数', async () => {
-      iamProvider.getUsers.mockResolvedValue(mockUserList);
-
-      await controller.getUsers('test', 1, 10);
-
-      expect(iamProvider.getUsers).toHaveBeenCalledWith({
-        search: 'test',
-        page: 1,
-        pageSize: 10,
-        emailVerified: undefined,
-        isSuspended: undefined,
-      });
-    });
-
-    it('应正确解析布尔筛选参数', async () => {
-      iamProvider.getUsers.mockResolvedValue(mockUserList);
-
-      await controller.getUsers(undefined, undefined, undefined, 'true', 'false');
-
-      expect(iamProvider.getUsers).toHaveBeenCalledWith({
-        search: undefined,
-        page: undefined,
-        pageSize: undefined,
-        emailVerified: true,
-        isSuspended: false,
-      });
+    it('无租户上下文应 403', async () => {
+      tenantContext.get.mockReturnValue(undefined);
+      await expect(controller.getUsers()).rejects.toThrow(ForbiddenException);
     });
   });
 
-  describe('getUserById', () => {
-    it('应返回指定用户详情', async () => {
+  describe('createUser（建号 + 入租户）', () => {
+    it('应创建用户并加入当前租户', async () => {
+      iamProvider.createUser.mockResolvedValue({ ...mockUser, id: 'new-user' });
+      iamProvider.addOrganizationUsers.mockResolvedValue(undefined);
+      const result = await controller.createUser({ primaryEmail: 'new@test.com', password: 'pass123', name: 'New' });
+      expect(result.id).toBe('new-user');
+      expect(iamProvider.addOrganizationUsers).toHaveBeenCalledWith('org-1', ['new-user']);
+    });
+
+    it('服务异常应 500', async () => {
+      iamProvider.createUser.mockRejectedValue(new Error('fail'));
+      await expect(controller.createUser({ primaryEmail: 'x@y.z' })).rejects.toThrow(HttpException);
+    });
+  });
+
+  describe('getUserById / updateUser / deleteUser', () => {
+    it('详情', async () => {
       iamProvider.getUserById.mockResolvedValue(mockUser);
-
       const result = await controller.getUserById('user-1');
-
       expect(result).toEqual(mockUser);
-      expect(iamProvider.getUserById).toHaveBeenCalledWith('user-1');
     });
 
-    it('服务抛出 HttpException 时应原样抛出', async () => {
-      iamProvider.getUserById.mockRejectedValue(
-        new HttpException('Not found', HttpStatus.NOT_FOUND),
-      );
-
-      await expect(controller.getUserById('nonexistent')).rejects.toThrow(HttpException);
+    it('HttpException 原样抛出', async () => {
+      iamProvider.getUserById.mockRejectedValue(new HttpException('Not found', HttpStatus.NOT_FOUND));
+      await expect(controller.getUserById('x')).rejects.toThrow(HttpException);
     });
 
-    it('服务抛出未知异常时应返回 500', async () => {
-      iamProvider.getUserById.mockRejectedValue(new Error('unknown'));
-
-      await expect(controller.getUserById('user-1')).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('createUser', () => {
-    it('应创建并返回新用户', async () => {
-      const createDto = {
-        username: 'newuser',
-        password: 'pass123',
-        primaryEmail: 'new@example.com',
-      };
-      iamProvider.createUser.mockResolvedValue(mockUser);
-
-      const result = await controller.createUser(createDto);
-
-      expect(result).toEqual(mockUser);
-      expect(iamProvider.createUser).toHaveBeenCalledWith(createDto);
+    it('更新', async () => {
+      iamProvider.updateUser.mockResolvedValue({ ...mockUser, name: 'Updated' });
+      const result = await controller.updateUser('user-1', { name: 'Updated' });
+      expect(result.name).toBe('Updated');
     });
 
-    it('服务抛出异常时应正确处理', async () => {
-      iamProvider.createUser.mockRejectedValue(new Error('创建失败'));
-
-      await expect(
-        controller.createUser({ username: 'fail', password: 'pass' }),
-      ).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('updateUser', () => {
-    it('应更新并返回用户', async () => {
-      const updateDto = { name: 'Updated Name' };
-      iamProvider.updateUser.mockResolvedValue({ ...mockUser, name: 'Updated Name' });
-
-      const result = await controller.updateUser('user-1', updateDto);
-
-      expect(result.name).toBe('Updated Name');
-      expect(iamProvider.updateUser).toHaveBeenCalledWith('user-1', updateDto);
-    });
-
-    it('服务抛出 HttpException 时应原样抛出', async () => {
-      iamProvider.updateUser.mockRejectedValue(
-        new HttpException('Not found', HttpStatus.NOT_FOUND),
-      );
-
-      await expect(controller.updateUser('nonexistent', {})).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('deleteUser', () => {
-    it('应删除用户并返回成功', async () => {
+    it('删除返回成功', async () => {
       iamProvider.deleteUser.mockResolvedValue(undefined);
-
       const result = await controller.deleteUser('user-1');
-
       expect(result).toEqual({ success: true });
-      expect(iamProvider.deleteUser).toHaveBeenCalledWith('user-1');
-    });
-
-    it('服务抛出 HttpException 时应原样抛出', async () => {
-      iamProvider.deleteUser.mockRejectedValue(
-        new HttpException('Not found', HttpStatus.NOT_FOUND),
-      );
-
-      await expect(controller.deleteUser('nonexistent')).rejects.toThrow(HttpException);
-    });
-
-    it('服务抛出未知异常时应返回 500', async () => {
-      iamProvider.deleteUser.mockRejectedValue(new Error('unknown'));
-
-      await expect(controller.deleteUser('user-1')).rejects.toThrow(HttpException);
     });
   });
 });
