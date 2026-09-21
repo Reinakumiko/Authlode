@@ -7,6 +7,7 @@ import { TenantModule } from './tenant/tenant.module';
 import { TenantContextMiddleware } from './tenant/tenant-context.middleware';
 import { AuthModule } from './auth/auth.module';
 import { SessionGuard } from './auth/session.guard';
+import { InitModule } from './init/init.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
@@ -29,6 +30,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     IamModule,
     TenantModule,
     AuthModule,
+    InitModule,
     PrismaModule,
     MailModule,
     InvitationsModule,

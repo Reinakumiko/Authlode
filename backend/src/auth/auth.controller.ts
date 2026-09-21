@@ -54,6 +54,59 @@ export class AuthController {
     return res.redirect(authorizeUrl);
   }
 
+  /**
+   * Memory 模式登录：用户名/邮箱 + 密码 → 自签 JWT 会话
+   * 前端 login.vue 在 memory 模式下调此端点（不跳转 OIDC）
+   */
+  @Post('login')
+  async loginWithPassword(
+    @Body() body: { email: string; password: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!body?.email || !body?.password) {
+      throw new UnauthorizedException('邮箱和密码必填');
+    }
+
+    // 查用户（先按 email，再按 username）
+    let user = await this.iamProvider.getUserByEmail(body.email);
+    if (!user) {
+      const users = await this.iamProvider.getUsers({ search: body.email, pageSize: 5 });
+      user = users.data.find(u => u.username === body.email) ?? null;
+    }
+    if (!user) {
+      throw new UnauthorizedException('账号或密码错误');
+    }
+
+    // 验证密码
+    const memoryAdapter = this.iamProvider as unknown as { verifyPassword?: (id: string, pw: string) => Promise<boolean> };
+    if (typeof memoryAdapter.verifyPassword === 'function') {
+      const valid = await memoryAdapter.verifyPassword(user.id, body.password);
+      if (!valid) {
+        throw new UnauthorizedException('账号或密码错误');
+      }
+    } else {
+      throw new UnauthorizedException('当前引擎不支持密码登录');
+    }
+
+    // 签发会话
+    const sessionToken = this.sessionService.signSession({
+      sub: user.id,
+      rt: '',
+    });
+    res.cookie(AUTH_SESSION_COOKIE, sessionToken, this.cookieOptions(7 * 24 * 3600));
+    return {
+      success: true,
+      user: { id: user.id, username: user.username, primaryEmail: user.primaryEmail, name: user.name },
+    };
+  }
+
+  /** 获取当前引擎模式（前端判断登录方式） */
+  @Get('mode')
+  getMode() {
+    const provider = process.env.IAM_PROVIDER ?? 'memory';
+    return { provider, authType: provider === 'memory' ? 'password' : 'oidc' };
+  }
+
   /** 回调：校验 state → code 换 token → userinfo → 会话 → 302 前端 */
   @Get('callback')
   async callback(@Req() req: Request, @Res() res: Response) {
@@ -115,10 +168,14 @@ export class AuthController {
     }
   }
 
-  /** 登出：清平台会话 → 302 Logto end_session（终结 IdP 会话） */
+  /** 登出：清平台会话（memory 模式直接回前端；logto 模式跳 end_session） */
   @Get('logout')
   logout(@Res() res: Response) {
     res.clearCookie(AUTH_SESSION_COOKIE);
+    const provider = process.env.IAM_PROVIDER ?? 'memory';
+    if (provider === 'memory') {
+      return res.redirect(this.frontendUrl() + '/login');
+    }
     return res.redirect(this.authService.buildLogoutUrl());
   }
 

@@ -184,6 +184,102 @@ model StatisticsCache {
 }
 
 // ============================================
+// MemoryAdapter 内置引擎（零外部依赖）
+// ============================================
+
+model IamUser {
+  id              String   @id @default(uuid())
+  username        String?  @unique
+  primaryEmail    String?  @unique
+  passwordHash    String? // bcrypt hash
+  name            String?
+  avatar          String?
+  isSuspended     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("iam_users")
+}
+
+model IamOrganization {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  customData  String? // JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("iam_organizations")
+}
+
+model IamMembership {
+  id              String   @id @default(uuid())
+  userId          String
+  organizationId  String
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+  @@map("iam_memberships")
+}
+
+model IamOrgRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@map("iam_org_roles")
+}
+
+model IamOrgRoleAssignment {
+  id                String   @id @default(uuid())
+  userId            String
+  organizationId    String
+  roleId            String
+  createdAt         DateTime @default(now())
+
+  @@unique([userId, organizationId, roleId])
+  @@index([userId, organizationId])
+  @@map("iam_org_role_assignments")
+}
+
+model IamRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  type        String   @default("User")
+  createdAt   DateTime @default(now())
+
+  @@map("iam_roles")
+}
+
+model IamRoleAssignment {
+  id         String   @id @default(uuid())
+  userId     String
+  roleId     String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, roleId])
+  @@map("iam_role_assignments")
+}
+
+model IamApplication {
+  id                  String   @id @default(uuid())
+  name                String
+  description         String?
+  type                String   @default("spa") // spa, traditional, native, m2m
+  secret              String?  @unique
+  redirectUris        String // JSON array
+  postLogoutRedirectUris String // JSON array
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("iam_applications")
+}
+
+// ============================================
 // 租户应用接入（B2.2）
 // ============================================
 

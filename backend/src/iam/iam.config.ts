@@ -32,16 +32,17 @@ export class IamConfigService {
   constructor(private readonly configService: ConfigService) {}
 
   getConfig(): IamConfig {
+    const provider = this.get('IAM_PROVIDER') ?? 'memory';
     return {
-      provider: this.get('IAM_PROVIDER') ?? 'logto',
-      managementApiEndpoint: this.require('LOGTO_MANAGEMENT_API_ENDPOINT'),
-      adminOidcEndpoint: this.get('LOGTO_ADMIN_OIDC_ENDPOINT') ?? 'http://localhost:3002',
-      oidcEndpoint: this.get('LOGTO_ENDPOINT') ?? 'http://localhost:3003',
-      m2mAppId: this.require('LOGTO_M2M_APP_ID'),
-      m2mAppSecret: this.require('LOGTO_M2M_APP_SECRET'),
+      provider,
+      managementApiEndpoint: this.get('LOGTO_MANAGEMENT_API_ENDPOINT') ?? '',
+      adminOidcEndpoint: this.get('LOGTO_ADMIN_OIDC_ENDPOINT') ?? '',
+      oidcEndpoint: this.get('LOGTO_ENDPOINT') ?? '',
+      m2mAppId: this.get('LOGTO_M2M_APP_ID') ?? '',
+      m2mAppSecret: this.get('LOGTO_M2M_APP_SECRET') ?? '',
       managementApiResource:
         this.get('LOGTO_MANAGEMENT_API_RESOURCE') ?? 'https://default.logto.app/api',
-      platformAppId: this.require('LOGTO_APP_ID'),
+      platformAppId: this.get('LOGTO_APP_ID') ?? '',
       platformAppSecret: this.get('LOGTO_APP_SECRET') ?? undefined,
       platformRedirectUri:
         this.get('LOGTO_REDIRECT_URI') ?? 'http://localhost:3001/api/auth/callback',

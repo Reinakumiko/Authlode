@@ -31,6 +31,8 @@ export class SessionGuard implements CanActivate {
     // 公开端点（/api/public/**）+ 登录流程免认证
     if (
       request.path.startsWith('/api/public/') ||
+      request.path.startsWith('/api/auth/login') ||
+      request.path === '/api/auth/mode' ||
       PUBLIC_PATHS.some((path) => request.path === path)
     ) {
       return true;

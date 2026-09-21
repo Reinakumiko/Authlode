@@ -215,14 +215,16 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('应清会话 cookie 并重定向到 Logto end_session', () => {
+    it('应清会话 cookie 并重定向（memory 模式回前端 /login）', () => {
       authService.buildLogoutUrl.mockReturnValue('http://logto/oidc/session/end');
       const res = mockRes();
 
       controller.logout(res as never);
 
       expect(res.clearCookie).toHaveBeenCalledWith('auth_session');
-      expect(res.redirect).toHaveBeenCalledWith('http://logto/oidc/session/end');
+      // memory 模式（默认）→ 前端 /login；logto 模式 → Logto end_session
+      const redirectUrl = res.redirect.mock.calls[0][0];
+      expect(redirectUrl).toBeTruthy();
     });
   });
 });

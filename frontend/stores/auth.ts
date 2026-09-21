@@ -63,9 +63,9 @@ export const useAuthStore = defineStore('auth', () => {
         ?.roles.includes('tenant-admin') ?? false,
   )
 
-  /** 登出：经代理跳后端 → Logto end_session */
+  /** 登出：经代理跳后端（memory 模式回 /login；logto 模式跳 end_session） */
   function logout() {
-    window.location.href = (useRuntimeConfig().public.apiUrl) + '/api/auth/logout'
+    window.location.href = '/api/auth/logout'
   }
 
   return {
