@@ -22,7 +22,7 @@ useHead({ title: '登录' })
 
 function login() {
   // 经代理跳后端 /api/auth/login → Logto 授权页（PKCE + prompt=consent）
-  window.location.href = '/api/auth/login'
+  window.location.href = 'http://localhost:3001/api/auth/login'
 }
 </script>
 

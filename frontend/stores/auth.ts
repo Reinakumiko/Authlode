@@ -65,7 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   /** 登出：经代理跳后端 → Logto end_session */
   function logout() {
-    window.location.href = '/api/auth/logout'
+    window.location.href = (useRuntimeConfig().public.apiUrl) + '/api/auth/logout'
   }
 
   return {

@@ -20,7 +20,7 @@ export function useApi() {
     },
     onResponseError({ response }) {
       if (response.status === 401) {
-        window.location.href = '/api/auth/login'
+        window.location.href = (useRuntimeConfig().public.apiUrl) + '/api/auth/login'
       }
     },
   })
