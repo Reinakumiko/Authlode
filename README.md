@@ -25,37 +25,26 @@ Authlode 是一个 **SSO 用户管理平台**：以 IAM 为身份底座（Logto 
 
 ### 当前状态
 
-✅ **v1 完整功能已实现** — 前端 8 页面 + 后端 5 Controllers + 55 个单元测试
+✅ **v2 全功能已实现** — 后端 16 模块 + 前端 12 页面 + 83 单元测试 + 12 项 E2E 验证
 
 **已实现**:
-- ✅ NestJS 后端基础架构 + Prisma ORM
-- ✅ Nuxt 4 前端基础架构 + Vue 3
-- ✅ Logto Management API 集成模块 (定位变更后将演进为 IAM Provider 抽象层的 Logto Adapter)
-- ✅ SQLite 扩展数据库 (开发环境)
-- ✅ Repository 数据访问层
-- ✅ 配置管理系统
-- ✅ **Soft Glass UI 设计系统** (DESIGN-SYSTEM.md)
-- ✅ **通用 PageHeader 组件** — 所有管理页面统一标题区
-- ✅ **8 个完整前端页面**:
-  - `users.vue` — 用户管理 (CRUD + 搜索 + 分页 + 角色筛选)
-  - `organizations.vue` — 组织管理 (卡片网格 + 成员统计)
-  - `roles.vue` — 角色权限 (权限标签 + 用户数)
-  - `applications.vue` — 应用管理 (卡片布局 + 密钥管理)
-  - `invitations.vue` — 邀请管理 (状态筛选 + 发送邀请)
-  - `audit-logs.vue` — 审计日志 (日期筛选 + 操作类型 + 导出)
-  - `settings.vue` — 系统设置 (通用配置 + 安全设置)
-  - `statistics.vue` — 数据统计 (指标卡片 + 图表)
-- ✅ **5 个后端 Controllers** (users, organizations, roles, applications, settings)
-- ✅ **55 个 Jest 单元测试** — 全部通过
-- ✅ Dashboard 仪表板 (Soft Glass 风格)
+- ✅ IAM Provider 抽象层（IamProviderInterface + LogtoAdapter + TokenManager）
+- ✅ 多租户模型（Tenant 实体 + tenantId 隔离 + TenantContext 中间件 + 租户管理员角色）
+- ✅ OIDC 认证（PKCE + prompt=consent + 会话管理 + 改密）
+- ✅ 用户管理（租户作用域 CRUD + 搜索分页）
+- ✅ SSO 应用接入（创建应用 → OIDC 配置下发 → 启停管理）
+- ✅ 邀请自助注册（双语义：新 email 建号 / 已有 email 入组）
+- ✅ 组织树（TenantOrganization 多层结构）
+- ✅ 审计日志（租户化 + 筛选 + CSV 导出）
+- ✅ 通知系统
+- ✅ 数据统计（租户化 + SVG 图表）
+- ✅ Soft Glass UI 设计系统（12 页面全部应用）
 
-**待接入** (按新定位):
-- ⏳ IAM Provider 抽象层 — 将现有 LogtoService 重构为 Provider 接口 + Logto Adapter
-- ⏳ 多租户模型 — Tenant 实体 (映射 Logto Organization)、扩展表 tenantId 隔离、TenantContext 中间件、租户管理员角色
-- ⏳ 邀请自助注册流程 — 公开注册页 + 邀请 Token 验证 + 自动入组
-- ⏳ Logto 真实 API 凭据 (当前使用 mock 数据)
-- ⏳ 用户认证与授权流程
-- ⏳ 生产环境数据库切换
+**待改进**:
+- ⏳ MemoryAdapter（内置引擎，不依赖 Logto 即可用）
+- ⏳ 首次初始化向导（admin 创建 + 默认租户）
+- ⏳ 一键启动（docker compose up → 浏览器打开即用）
+- ⏳ SMTP 邮件实际发送（当前开发模式仅日志输出）
 
 详细进度请查看 [开发日志](docs/development-log.md) 和 [SSO平台实施方案](docs/SSO平台实施方案.md)。
 
