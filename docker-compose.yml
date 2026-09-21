@@ -1,0 +1,110 @@
+# Authlode 全栈部署 — 一条命令启动所有服务
+#
+# 用法:
+#   docker compose up -d
+#
+# 首次启动会自动：
+#   1. 初始化 Logto（用户/组织/OIDC）
+#   2. 编译后端 + 前端
+#   3. 启动所有服务
+#
+# 访问:
+#   前端:   http://localhost:3000
+#   后端:   http://localhost:3001
+#   Logto:  http://localhost:3003
+#
+
+services:
+
+  # ── PostgreSQL（共享实例：Logto 用 logto 库，Authlode 用 authlode 库）──
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: authlode
+      POSTGRES_PASSWORD: authlode_pg_secret
+      POSTGRES_DB: authlode
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authlode"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── Logto（OIDC 引擎）─────────────────────────────────────────────────
+  logto-db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: logto
+      POSTGRES_PASSWORD: logto
+      POSTGRES_DB: logto
+    volumes:
+      - logto_db_data:/var/lib/postgresql/data
+
+  logto:
+    image: svhd/logto:latest
+    depends_on:
+      logto-db:
+        condition: service_started
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --dapc && npm start"]
+    environment:
+      TRUST_PROXY: "1"
+      DB_URL: postgres://logto:logto@logto-db:5432/logto
+      ENDPOINT: http://localhost:3003
+      ADMIN_ENDPOINT: http://localhost:3002
+    ports:
+      - "3003:3001"
+      - "3002:3002"
+
+  # ── Authlode 后端 ─────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      logto:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      APP_PORT: 3001
+      # Logto 连接（容器内网络）
+      LOGTO_MANAGEMENT_API_ENDPOINT: http://logto:3001/api
+      LOGTO_ADMIN_OIDC_ENDPOINT: http://logto:3002/oidc
+      LOGTO_ENDPOINT: http://logto:3001
+      LOGTO_M2M_APP_ID: m-default
+      # 密码从 Logto DB 读取（由 init 服务设置，或使用默认 POC 密钥）
+      LOGTO_M2M_APP_SECRET: ${LOGTO_M2M_SECRET:-}
+      LOGTO_MANAGEMENT_API_RESOURCE: https://default.logto.app/api
+      # 平台自身 OIDC
+      LOGTO_APP_ID: ${LOGTO_APP_ID:-}
+      LOGTO_REDIRECT_URI: http://localhost:3001/api/auth/callback
+      # 扩展数据库
+      DATABASE_TYPE: postgresql
+      DATABASE_URL: postgresql://authlode:authlode_pg_secret@postgres:5432/authlode
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-authlode-dev-jwt-secret-change-in-prod}
+      # 应用
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "3001:3001"
+    volumes:
+      - backend_data:/app/data
+
+  # ── Authlode 前端 ─────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        API_BASE_URL: http://localhost:3001
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  pg_data:
+  logto_db_data:
+  backend_data:
