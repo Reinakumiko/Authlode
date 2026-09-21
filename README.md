@@ -162,31 +162,56 @@ authlode/
 
 - Node.js >= 20.0.0
 - pnpm
-- MySQL 8.0+ 或 PostgreSQL 15+
-- Redis 7+ (可选)
-- Logto 实例
+- Logto 实例（或用自带的 Docker Compose 启动）
+- SQLite（开发环境零配置）/ PostgreSQL 15+（生产）
 
 ### 环境配置
 
-1. 复制环境变量模板:
 ```bash
+# 复制环境变量模板
 cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+# 编辑 .env 填入 Logto 地址和 M2M 凭据
 ```
 
-2. 编辑 `.env` 文件,填入配置信息:
-   - Logto Management API 配置
-   - 数据库连接信息
-   - Redis 连接信息 (可选)
-
-### 开发模式
+### 安装依赖
 
 ```bash
-# 安装依赖
+# 后端（在 backend/ 目录下）
+cd backend
 pnpm install
+npx prisma generate
 
-# 启动开发服务器
+# 前端（另开终端，在 frontend/ 目录下）
+cd ../frontend
+pnpm install
+```
+
+### 启动
+
+```bash
+# 终端 1：启动 Logto（Docker）
+cd deployment/logto
+docker compose up -d
+
+# 终端 2：启动后端（:3001）
+cd backend
+npm run build && node dist/main.js
+# 或开发模式
+npx nest start --watch
+
+# 终端 3：启动前端（:3000）
+cd frontend
 pnpm dev
+```
+
+打开 `http://localhost:3000` 即可使用。
+
+### 数据库迁移
+
+```bash
+cd backend
+npx prisma migrate deploy    # 应用已有迁移
+npx prisma migrate dev --name xxx  # 创建新迁移（开发时）
 ```
 
 ## 📚 文档
